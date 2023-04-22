@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="es">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+	
+	<div id="banner">Sistema de Prueba</div>
+
+	<form id="form" role="form" action="/login" th:action="@{/login}" method="post">
+
+			<div class="container_v3">
+				<div class="row">
+					<div class="col-md-12 mb-3">
+						INGRESE AL SISTEMA <br /> <br />
+						<!-- Bad Credentials -->
+						<div th:if="${param.error}">Usuario o Clave invalido.</div>
+						<!-- Logout -->
+						<div th:if="${param.cerrar}">Sesion terminada.</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 mb-3"></div>
+					<div class="col-md-2 mb-3">
+						<span class="textBold9pt">Usuario </span>
+						<input type="text" class="form-control_v2 is-valid" name="login" id="login"	required="required" autofocus="autofocus" />
+					</div>
+					<div class="col-md-4 mb-3"></div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 mb-3"></div>
+					<div class="col-md-2 mb-3">
+						<span class="textBold9pt">Contrase&ntilde;a </span>
+						<input type="password" class="form-control_v2 is-valid" name="clave" id="clave"	required="required" />
+					</div>
+					<div class="col-md-4 mb-3"></div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 mb-3"></div>
+					<div class="col-md-2 mb-3" align="center">
+						<br></br>
+						<button class="btn btn-success" type="submit">Ingresar al Sistema</button>
+						<br /> <a class="res_con" href="#" th:href="@{/restablecer}">Restablecer
+							Contrase&ntilde;a?</a>
+					</div>
+					<div class="col-md-4 mb-3"></div>
+				</div>
+				
+			</div>
+
+
+	</form>
+
+	
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"	th:href="@{/cliente/lucesxtienda}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> M&oacute;dulo de Luz - Edici&oacute;n</div>
+						</div>
+			
+						<form id="form" th:object="${luz}" th:action="@{/cliente/lucesxtienda/nuevo/editar}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Datos del Suministro</legend>
+										<div class="row">
+											<div class="col-md-2 mb-3">
+											</div>
+											<div class="col-md-6 mb-3">
+												<div class="row">
+													<div class="col-md-4 mb-3">
+														<label for="idInmueble" class="textBold9pt">Suministro</label>
+														<div th:fragment="combo">
+															<label> <select th:field="${luz.tblSuministro.codigoSuministro}" 
+																class="form-control_v2 is-valid" onchange="jsCargarTiendas()">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapSuministro}" th:value="${entry.value}"
+																		th:text="${entry.key}">opcion</option>
+															</select>
+															</label>
+														</div>
+													</div>
+													<div class="col-md-4 mb-3">
+														<label for="idInmueble" class="textBold9pt">Fecha Vencimiento</label>
+														<input type="text" class="form-control_v2  is-valid" placeholder="fecha vencimiento" th:field="${luz.tblSuministro.fechaFin}"/>
+													</div>
+													<div class="col-md-4 mb-3">
+														<label for="idInmueble" class="textBold9pt">Monto Generado</label>
+														<input type="text" class="form-control_v2  is-valid" placeholder="monto generado" th:field="${luz.montoGenerado}"/>
+													</div>
+													
+												</div>
+												<div class="row">
+													<div class="col-md-4 mb-3">
+														<label for="idInmueble" class="textBold9pt">Monto Contrato</label>
+														<input type="text" class="form-control_v2  is-valid" placeholder="monto cobrado" th:field="${luz.montoContrato}" />
+													</div>
+													<div class="col-md-4 mb-3">
+														<label for="idInmueble" class="textBold9pt">Valor Cobrado</label>
+														<input type="text" class="form-control_v2  is-valid" placeholder="valor cobrado" th:field="${luz.valorCobrado}" />
+													</div>
+													<div class="col-md-4 mb-3">
+														<label for="idInmueble" class="textBold9pt">Saldo</label>
+														<input type="text" class="form-control_v2  is-valid" placeholder="saldo" th:field="${luz.saldo}" />
+													</div>
+													
+												</div>
+											</div>
+											<div class="col-md-1 mb-3">
+												<br/>
+											</div>
+											<div class="col-md-2 mb-3">
+												
+											</div>
+											<div class="col-md-1 mb-3">
+												<br/>
+											</div>
+										</div>
+											
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"></div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" /> 
+						  					<button class="btn btn-success" type="submit">Guardar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  		</div>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Tienda</th>
+											<th>Estado</th>
+											<th>Monto Generado</th>
+											<th>Monto Contrato</th>
+											<th>Valor Cobrado</th>
+											<th>Saldo</th>
+											<th>Fecha Vencimiento</th>
+											<th>Editar</th>
+										</tr>
+										<tr th:each="tblLuzxtienda : ${registros}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${tienda.numero}">numero</td>
+											<td align="center">
+												<div th:replace="fragments/util :: estadoLocal(tipo=${tienda.estadoTienda})"></div>
+											</td>
+											<td th:text="${tblLuzxtienda.montoGenerado}">generado</td>
+											<td th:text="${tblLuzxtienda.montoContrato}">contrato</td>
+											<td th:text="${tblLuzxtienda.valorCobrado}">cobrado</td>
+											<td th:text="${tblLuzxtienda.saldo}">saldo</td>
+											<td th:text="${tblLuzxtienda.fechaFin}">vencimiento</td>
+											<td align="center"><a
+												th:href="${'/cliente/luzxtienda/editar/detalle/' + tblLuzxtienda.codigoLuzxtienda}"><img
+													th:src="@{/images/iconos/editar.png}" alt="Editar" /></a></td>
+											
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Tienda</th>
+											<th>Estado</th>
+											<th>Monto Generado</th>
+											<th>Monto Contrato</th>
+											<th>Valor Cobrado</th>
+											<th>Saldo</th>
+											<th>Fecha Vencimiento</th>
+											<th>Editar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="8" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+								
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

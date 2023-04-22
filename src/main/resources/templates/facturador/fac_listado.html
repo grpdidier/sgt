@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Listado de Alquileres con Saldo CERO Por Generar FACTURA SUNAT</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12 mb-3" align="center">
+			
+								<button class="btn btn-primary" type="button" onclick="jsGenerarComprobante();">Generar Factura</button>
+								
+							</div>
+						</div>
+						<form id="form"  th:action="@{/comprobante/generar}" method="Post">
+							<div id="informacion" class="container_v3">
+								
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th width="10%">N&uacute;mero Tienda</th>
+											<th width="25%">Nombre Cliente</th>
+											<th width="15%">Periodo</th>
+											<th width="25%">Descripci&oacute;n</th>
+											<th width="10%">Monto Cobrado</th>
+											<th width="15%">Fecha Cobro</th>
+										</tr>
+										<tr th:each="comprobante : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${comprobante.numeroTienda}">numeroTienda</td>
+											<td th:text="${comprobante.nombreCliente}">nombreCliente</td>
+											<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(comprobante.fechaFin)}"></font></td>
+											<td th:text="${comprobante.descripcion}">descripcion</td>
+											<td th:text="${comprobante.montoCobrado}">montoCobrado</td>
+											<td th:text="${comprobante.fechaModificacion}">fechaModificacion</td>
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th width="10%">N&uacute;mero Tienda</th>
+											<th width="25%">Nombre Cliente</th>
+											<th width="10%">Periodo</th>
+											<th width="30%">Descripci&oacute;n</th>
+											<th width="10%">Monto Cobrado</th>
+											<th width="15%">Fecha Cobro</th>
+										</tr>
+										<tr  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="6" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

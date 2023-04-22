@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+
+</head>
+<script>
+$(document).ready(function(){
+    $('.zoom').hover(function() {
+        $(this).addClass('transition');
+    }, function() {
+        $(this).removeClass('transition');
+    });
+});
+</script>
+<body>
+	<header>
+		<!--/*/ <th:block th:include="fragments/header :: header"></th:block> /*/-->
+	</header>
+		
+	<main>
+	<form id="form" role="form" action="/inicio" th:action="@{/inicio}"	method="post">
+		<br></br><br></br>
+			
+			<div class="container">
+				
+		        <ul class="ch-grid">
+						<li  th:if="${session.SessionAccesoDirecto.mostrarContrato=='S'}">
+							
+								<div class="ch-item ch-img-1" onclick="jsMostrarContrato();">
+									<div class="ch-info">
+										 
+										<h3>Contrato</h3>
+										<p>Modulo de Contratos</p>
+										
+									</div>
+								</div>
+							
+						</li>
+						<li  th:if="${session.SessionAccesoDirecto.mostrarCobro=='S'}">
+							<div class="ch-item ch-img-2"  onclick="jsMostrarCobro();">
+								<div class="ch-info">
+									<h3>Cobro</h3>
+									<p>Modulo de Cobros</p>
+								</div>
+							</div>
+						</li>
+						<li>
+							<div class="ch-item ch-img-3"  onclick="jsMostrarGasto();">
+								<div class="ch-info">
+									<h3>Gasto</h3>
+									<p>Modulo de Gastos</p>
+								</div>
+							</div>
+						</li>
+						<li>
+							<div class="ch-item ch-img-4"  onclick="jsMostrarIngreso();">
+								<div class="ch-info">
+									<h3>Ingreso</h3>
+									<p>Modulo de Ingresos</p>
+								</div>
+							</div>
+						</li>
+						<li th:if="${session.SessionAccesoDirecto.mostrarReporteIE=='S'}">
+							<div class="ch-item ch-img-5"  onclick="jsReporteIngresoEgreso();">
+								<div class="ch-info">
+									<h3>Reporte I/E</h3>
+									<p>Ingreso - Egreso</p>
+								</div>
+							</div>
+						</li>
+					</ul>
+			</div>
+		
+		
+		
+	</form>
+	</main>
+	<nav id="nav" >
+		
+		<!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+	</nav>
+
+	
+</body>
+</html>

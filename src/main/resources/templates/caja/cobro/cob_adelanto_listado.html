@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+			                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"		onclick="jsRegresarCobroAdelanto();"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Adelantos Registrados - Listado</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/cobro/alquiler/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<input type="hidden" th:field="${filtro.codigoContrato}" />
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01"  class="table   table-bordered table-active tabla_cabecera_general" >
+										<tr>
+											<td width="10%" height="17">Fecha Cobro</td>
+											<td width="15%" height="17">Monto Soles</td>
+											<td width="10%" height="17">Tipo de Cambio</td>	    
+											<td width="15%" height="17">Monto Dolares</td>
+											<td width="20%" height="17">Fecha Registro</td>
+											<td width="20%" height="17">Tipo de Cobro</td>
+											<td width="10%" height="17">Operacion</td>
+											<td width="10%" height="17">Seleccionar</td>
+										</tr>
+										<tr th:each="desembolso : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${#dates.format(desembolso.fechaCobro, 'dd/MM/yyyy')}">fecha</td>
+											<td th:text="${desembolso.montoSoles}" align="right">soles</td>
+											<td th:text="${desembolso.tipoCambio}" align="right">tipo</td>
+											<td th:text="${desembolso.montoDolares}" align="right">dolares</td>
+											<td th:text="${desembolso.fechaCreacion}">fecha</td>
+											<td align="center">
+												<div
+													th:replace="fragments/util :: nombreTipoCobro(tipo=${desembolso.tipoCobro})"></div>
+											</td>
+											<td th:text="${desembolso.tipoOperacion}">operacion</td>
+											<td>
+													<a th:unless="${desembolso.seleccionado}"
+														th:href="${'/cobro/adelanto/asociar/' + desembolso.codigoAdelanto}">Asociar<img
+														th:src="@{/images/iconos/asociar.png}" alt="Asociar" width="20px"/></a> 
+													<a th:if="${desembolso.seleccionado}"
+														th:href="${'/cobro/adelanto/desasociar/' + desembolso.codigoAdelanto}">Desasociar<img
+														th:src="@{/images/iconos/desasociar.png}" alt="Desasociar" width="15px"/></a>
+												</td>
+										</tr>
+										
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<td width="20%" height="17">Fecha Cobro</td>
+											<td width="20%" height="17">Monto Soles</td>
+											<td width="20%" height="17">Tipo de Cambio</td>	    
+											<td width="20%" height="17">Monto Dolares</td>
+											<td width="20%" height="17">Fecha Registro</td>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="5" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+								<br/>
+								<div id="informacionReversion" class="c_tablas">
+										
+									<div class="row">
+										<div class="col-md-12 mb-3">
+										(*) Debe seleccionar el(los) adelanto(s) para el registro del cobro.
+										</div>
+										
+									</div>	
+									<div class="row">
+										<div class="col-md-3 mb-3"></div>
+										
+						  				<div class="col-md-6 mb-3" align="center">
+						  					<p style="color: red" th:text="${respuesta}" /> 
+						  					<button class="btn btn-primary" type="button" onclick="jsRealizarCobrodeAdelanto();">Aplicar Cobro</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+								  	
+						  		
+						  		</div>
+							</div>
+							
+							
+							
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

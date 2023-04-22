@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+
+</head>
+<script>
+$(document).ready(function(){
+    $('.zoom').hover(function() {
+        $(this).addClass('transition');
+    }, function() {
+        $(this).removeClass('transition');
+    });
+});
+</script>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+					<form id="form" role="form" action="/inicio" th:action="@{/inicio}"	method="post">
+						<br></br><br></br>
+						<div class="container">
+				    <div class="row">
+				      <h1>Error en la Pagina de S.G.T</h1>
+				    </div>
+				    <br></br>
+				    <div class="row">Esta pantalla se muestra si ocurrio un error inesperado. Favor notificar al administrador</div>
+				    <br></br>
+				    <div class="row rowDesign ">
+				      <div class="col-md-4 ml-auto tabla_cabecera_general " >
+				        <span class="legend">Date</span>
+				      </div>
+				      <div class="col-md-8 campos2">
+				        <span th:text="${timestamp}"></span>
+				      </div>
+				    </div>
+				    <div class="row rowDesign">
+				      <div class="col-md-4 ml-auto tabla_cabecera_general3">
+				        <span class="legend">Path</span>
+				      </div>
+				      <div class="col-md-8 campos2">
+				        <span th:text="${path}"></span>
+				      </div>
+				    </div>
+				    <div class="row rowDesign">
+				      <div class="col-md-4 ml-auto tabla_cabecera_general">
+				        <span class="legend">Error</span>
+				      </div>
+				      <div class="col-md-8 campos2">
+				        <span th:text="${error}"></span>
+				      </div>
+				    </div>
+				    <div class="row rowDesign">
+				      <div class="col-md-4 ml-auto tabla_cabecera_general3">
+				        <span class="legend">Status</span>
+				      </div>
+				      <div class="col-md-8 campos2">
+				        <span th:text="${status}"></span>
+				      </div>
+				    </div>
+				    <div class="row rowDesign">
+				      <div class="col-md-4 ml-auto tabla_cabecera_general">
+				        <span class="legend">Message</span>
+				      </div>
+				      <div class="col-md-8 campos2">
+				        <span th:text="${message}"></span>
+				      </div>
+				    </div>
+				    <div class="row rowDesign">
+				      <div class="col-md-4 ml-auto tabla_cabecera_general3">
+				        <span class="legend">Exception</span>
+				      </div>
+				      <div class="col-md-8 campos2">
+				        <span th:text="${exception}"></span>
+				      </div>
+				    </div>
+				    <div class="row rowDesign">
+				      <div class="col-md-4 ml-auto tabla_cabecera_general">
+				        <span class="legend">Trace</span>
+				      </div>
+				      <div class="col-md-8 campos2">
+				        <span th:text="${trace}"></span>
+				      </div>
+				    </div>
+				  </div>
+						
+					</form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	
+</body>
+</html>

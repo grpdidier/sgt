@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body onload="jsSetFocusCobroEditar();">
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/cobro/edicion/regresar}"><img
+									th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left">
+								<br /> Modulo de Cobros - Confirmaci&oacute;n de Cobros
+							</div>
+						</div>
+						<form id="form" th:object="${cobroGeneralBean}" th:action="@{/cobro/editar/guardar}" method="post">
+							<div id="informacion" class="container_v3">
+								<p style="color: red" th:text="${resultadoContrato}" />
+								<div class="row">
+								
+									<div class="col-md-1 mb-3">
+										
+									</div>
+									
+									<div class="col-md-10 mb-3">
+										<fieldset class="scheduler-border" style="background-color: #FEEF8B;">
+											<br></br> <input type="hidden" th:field="${contrato.tblPersona.codigoPersona}" />
+											<!-- Cobro Alquiler -->
+											<div th:if="${cobroGeneralBean.cobroAlquiler.montoDolares > 0 || cobroGeneralBean.cobroAlquiler.montoSoles > 0}">
+												<div class="row">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row"  >
+															
+															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroAlquiler.tipoMoneda == 'DO'}">
+																<label for="idNombre" class="textBold9pt">Monto Alquiler (Dolares $): </label>
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroAlquiler.tipoMoneda == 'SO'}">
+																<label for="idNombre" class="textBold9pt">Monto Alquiler (Soles S/): </label>
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroAlquiler.tipoMoneda == 'DO'}">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroAlquiler.montoDolares}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroAlquiler.montoSoles}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroAlquiler.tipoMoneda == 'SO'}">
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroAlquiler.montoDolares}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroAlquiler.montoSoles}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="left">
+																<font th:text="${cobroGeneralBean.cobroAlquiler.mensajeCobro}" color="red"></font>
+															
+															</div>
+														</div>
+													</div>
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+												</div>
+												<!-- Tipo Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroAlquiler.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Tipo Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<div th:replace="fragments/util :: nombreBancarizacion(tipo=${cobroGeneralBean.cobroAlquiler.tipoBancarizado})"></div>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+												
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Numero Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroAlquiler.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroAlquiler.numeroOperacion}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Fecha Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroAlquiler.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row"  >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Fecha Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroAlquiler.fechaOperacion}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+												
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+											</div>
+											<div class="row" th:if="${cobroGeneralBean.cobroServicio.montoDolaresServicio > 0 || cobroGeneralBean.cobroServicio.montoSolesServicio >0}">
+												<div class="col-md-1 mb-1"></div>
+												<div class="col-md-10 mb-1"><hr/></div>
+												<div class="col-md-1 mb-1"></div>
+											</div>
+											
+											<!-- Cobro Servicio -->
+											<div th:if="${cobroGeneralBean.cobroServicio.montoDolaresServicio > 0 || cobroGeneralBean.cobroServicio.montoSolesServicio >0}">
+												<div class="row">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroServicio.tipoMonedaServicio == 'DO'}">
+																<label for="idNombre" class="textBold9pt">Monto Servicio (Dolares $): </label>
+															</div>
+															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroServicio.tipoMonedaServicio == 'SO'}">
+																<label for="idNombre" class="textBold9pt">Monto Servicio (Soles S/): </label>
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroServicio.tipoMonedaServicio == 'DO'}">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroServicio.montoDolaresServicio}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroServicio.montoSolesServicio}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroServicio.tipoMonedaServicio == 'SO'}">
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroServicio.montoDolaresServicio}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroServicio.montoSolesServicio}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															
+															<div class="col-md-5 mb-1" align="left">
+																<font th:text="${cobroGeneralBean.cobroServicio.mensajeCobro}" color="red"></font>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+												</div>
+												<!-- Tipo Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroServicio.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Tipo Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<div th:replace="fragments/util :: nombreBancarizacion(tipo=${cobroGeneralBean.cobroServicio.tipoBancarizado})"></div>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+												
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Numero Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroServicio.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroServicio.numeroOperacion}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Fecha Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroServicio.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row"  >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Fecha Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroServicio.fechaOperacion}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+												
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+											</div>
+											<div class="row" th:if="${cobroGeneralBean.cobroLuz.montoDolaresLuz > 0 || cobroGeneralBean.cobroLuz.montoSolesLuz >0}">
+												<div class="col-md-1 mb-1"></div>
+												<div class="col-md-10 mb-1"><hr/></div>
+												<div class="col-md-1 mb-1"></div>
+											</div>
+											<!-- Cobro de Luz -->
+											<div th:if="${cobroGeneralBean.cobroLuz.montoDolaresLuz > 0 || cobroGeneralBean.cobroLuz.montoSolesLuz >0}">
+												<div class="row">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroLuz.tipoMonedaLuz == 'DO'}">
+																<label for="idNombre" class="textBold9pt">Monto Luz (Dolares $): </label>
+															</div>
+															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroLuz.tipoMonedaLuz == 'SO'}">
+																<label for="idNombre" class="textBold9pt">Monto Luz (Soles S/): </label>
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroLuz.tipoMonedaLuz == 'DO'}">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroLuz.montoDolaresLuz}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroLuz.montoSolesLuz}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroLuz.tipoMonedaLuz == 'SO'}">
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroLuz.montoDolaresLuz}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroLuz.montoSolesLuz}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="left">
+																<font th:text="${cobroGeneralBean.cobroLuz.mensajeCobro}" color="red"></font>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+												</div>
+												<!-- Tipo Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroLuz.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Tipo Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<div th:replace="fragments/util :: nombreBancarizacion(tipo=${cobroGeneralBean.cobroLuz.tipoBancarizado})"></div>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+												
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Numero Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroLuz.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroLuz.numeroOperacion}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Fecha Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroLuz.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row"  >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Fecha Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroLuz.fechaOperacion}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+												
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<div class="row">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+					
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row" th:if="${cobroGeneralBean.cobroArbitrio.montoDolaresArbitrio > 0 || cobroGeneralBean.cobroArbitrio.montoSolesArbitrio >0}">
+												<div class="col-md-1 mb-1"></div>
+												<div class="col-md-10 mb-1"><hr/></div>
+												<div class="col-md-1 mb-1"></div>
+											</div>
+											<!-- Cobro de Arbitrios -->
+											<div th:if="${cobroGeneralBean.cobroArbitrio.montoDolaresArbitrio > 0 || cobroGeneralBean.cobroArbitrio.montoSolesArbitrio >0}">
+												<div class="row">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroArbitrio.tipoMonedaArbitrio == 'DO'}">
+																<label for="idNombre" class="textBold9pt">Monto Arbitrio (Dolares $): </label>
+															</div>
+															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroArbitrio.tipoMonedaArbitrio == 'SO'}">
+																<label for="idNombre" class="textBold9pt">Monto Arbitrio (Soles S/): </label>
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroArbitrio.tipoMonedaArbitrio == 'DO'}">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroArbitrio.montoDolaresArbitrio}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroArbitrio.montoSolesArbitrio}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroArbitrio.tipoMonedaArbitrio == 'SO'}">
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroArbitrio.montoDolaresArbitrio}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroArbitrio.montoSolesArbitrio}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="left">
+																<font th:text="${cobroGeneralBean.cobroArbitrio.mensajeCobro}" color="red"></font>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+												</div>
+												<!-- Tipo Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroArbitrio.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Tipo Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<div th:replace="fragments/util :: nombreBancarizacion(tipo=${cobroGeneralBean.cobroArbitrio.tipoBancarizado})"></div>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+												
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Numero Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroArbitrio.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroArbitrio.numeroOperacion}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Fecha Operacion -->
+												<div class="row" th:if="${cobroGeneralBean.cobroArbitrio.tipoPago == 'BAN'}">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row"  >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Fecha Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.cobroArbitrio.fechaOperacion}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+												
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<div class="row">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+					
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+												</div>
+											</div>
+											
+											
+										</fieldset>
+									</div>
+									<div class="col-md-1 mb-3">
+										
+									</div>
+								</div>
+				
+								<div class="col-md-12 mb-3" align="center">
+									<p style="color: red" th:text="${resultadoOperacion}" />
+								</div>
+				
+								
+								
+								<div class="row">
+									<div class="col-md-12 mb-3" align="center">
+										<br />
+										<br />
+										
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12 mb-3" align="center">
+				
+										<button class="btn btn-primary" type="button"
+											onclick="jsRegistrarCobroLocal();">Registrar Cobro</button>
+									</div>
+								</div>
+							</div>
+				
+						</form>
+				
+				
+				
+					</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/caja/cchica/nuevo}"><img th:src="@{/images/iconos/nuevo.png}" alt="Nuevo" /></a> 
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Caja Chica - Administraci&oacute;n</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/caja/cchicas/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Criterios de b&uacute;squeda</legend>
+										
+										<div class="row">
+											<div class="col-md-1 mb-3">
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="textBold9pt">Nombre</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Nombre" th:field="${filtro.nombre}"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idInmueble" class="textBold9pt">A&ntilde;o</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.anioFiltro}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapAnio}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idInmueble" class="textBold9pt">Mes</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.mesFiltro}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapMeses}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+												
+											</div>
+											<div class="col-md-1 mb-3">
+												<br/><button class="btn btn-success" type="submit">Buscar</button>
+											</div>
+											
+											<div class="col-md-1 mb-3">
+												<br/>
+											</div>
+										</div>
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Nombre</th>
+											<th>A&ntilde;o</th>
+											<th>Mes</th>
+											<th>Ingreso Soles</th>
+											<th>Gasto Soles</th>
+											<th>Saldo Soles</th>
+											<th>Ingreso Dolares</th>
+											<th>Gasto Dolares</th>
+											<th>Saldo Dolares</th>
+											<th>Estado Caja</th>
+											<th>I/G</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr th:each="cchica : ${registros}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${cchica.nombre}">nombre</td>
+											<td th:text="${cchica.anio}">anio</td>
+											<td th:text="${cchica.mes}">mes</td>
+											<td th:text="${cchica.totalIngresoSoles}">ingreso soles</td>
+											<td th:text="${cchica.totalSalidaSoles}">gasto soles</td>
+											<td th:text="${cchica.saldoSoles}">saldo soles</td>
+											<td th:text="${cchica.totalIngresoDolares}">ingreso dolares</td>
+											<td th:text="${cchica.totalSalidaDolares}">gasto dolares</td>
+											<td th:text="${cchica.saldoDolares}">saldo dolares</td>
+											<td align="center">
+												<div
+													th:replace="fragments/util :: estadoCajaChica(tipo=${cchica.estadoCaja})"></div>
+											</td>
+											<td align="center">
+												<a th:href="${'/caja/ccdetalles/' + cchica.codigoCajaChica}"><img th:src="@{/images/iconos/municipios.png}" alt="Caja Chica" /></a>
+											</td>
+											<td align="center"><a
+												th:href="${'/caja/cchica/editar/' + cchica.codigoCajaChica}"><img
+													th:src="@{/images/iconos/editar.png}" alt="Editar" /></a></td>
+											<td align="center">
+												<a th:href="${'/caja/cchica/eliminar/' + cchica.codigoCajaChica}"><img
+													th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+													onclick="if(!confirm('Desea eliminar la caja chica seleccionada?')){ return false;}" /></a></td>
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Nombre</th>
+											<th>A&ntilde;o</th>
+											<th>Mes</th>
+											<th>Ingreso Soles</th>
+											<th>Gasto Soles</th>
+											<th>Saldo Soles</th>
+											<th>Ingreso Dolares</th>
+											<th>Gasto Dolares</th>
+											<th>Saldo Dolares</th>
+											<th>Estado Caja</th>
+											<th>I/G</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="13" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"		onclick="jsRegresarReversion();"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Solicitud de Reversi&oacute;n de Cobros - Detalle</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/reversion/alquiler/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<!-- Datos del contrato -->
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<fieldset class="scheduler-border">
+											<legend class="scheduler-border title10pt">Datos del Contrato</legend>
+											<input type="hidden" th:field="${contrato.tblTienda.codigoTienda}" />
+											<div class="row">
+												<div class="col-md-6 mb-3">
+													<label for="idNombre" class="textBold9pt">N&uacute;mero</label>
+													<input type="text" class="form-control_v2" placeholder="local" th:field="${contrato.numero}" readonly="readonly"/>
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="idNombre" class="textBold9pt">Estado</label>
+													<div th:replace="fragments/util :: estadoContratoInput(tipo=${contrato.estadoContrato})"></div>
+													<input type="hidden" th:field="${contrato.estadoContrato}" />
+												</div>
+											</div>
+											
+										</fieldset>
+									</div>
+									<div class="col-md-6 mb-3">
+										<fieldset class="scheduler-border">
+											<legend class="scheduler-border title10pt">Datos del Local</legend>
+											<input type="hidden" th:field="${contrato.tblTienda.codigoTienda}" />
+											<input type="hidden" th:field="${contrato.codigoContrato}" />
+											<div class="row">
+												<div class="col-md-6 mb-3">
+													<label for="idNombre" class="textBold9pt">Inmueble</label>
+													<input type="hidden" th:field="${contrato.tblTienda.tblEdificio.codigoEdificio}" />
+													<select th:field="${contrato.tblTienda.tblEdificio.codigoEdificio}" class="form-control_v2 " disabled="disabled">
+														<option value="-1">--Seleccionar--</option>
+														<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+												<div class="col-md-6 mb-3">
+													<label for="idNombre" class="textBold9pt">Local</label>
+													<input type="text" class="form-control_v2" placeholder="local" th:field="${contrato.tblTienda.numero}" readonly="readonly"/>
+												</div>
+											</div>
+										</fieldset>
+									</div>
+								</div>
+							
+								<input type="hidden" th:field="${filtro.codigoContrato}" />
+								<input type="hidden" th:field="${filtro.codigoDesembolso}" />
+								<input type="hidden" th:field="${filtro.tipoCobro}" />
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01"  class="table   table-bordered table-active tabla_cabecera_general" >
+										<tr>
+											<td width="10%" height="17">Fecha Cobro</td>
+											<td width="10%" height="17">Monto Soles</td>
+											<td width="5%" height="17">Tipo de Cambio</td>	    
+											<td width="10%" height="17">Monto Dolares</td>
+											<td width="15%" height="17">Fecha Registro</td>
+											<td width="10%" height="17">Tipo de Cobro</td>
+											<td width="10%" height="17">Operacion</td>
+											<td width="30%" height="17">Nota</td>
+										</tr>
+										<tr th:each="desembolso : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${#dates.format(desembolso.fechaCobro, 'dd/MM/yyyy')}">fecha</td>
+											<td th:text="${desembolso.montoSoles}" align="right">soles</td>
+											<td th:text="${desembolso.tipoCambio}" align="right">tipo</td>
+											<td th:text="${desembolso.montoDolares}" align="right">dolares</td>
+											<td th:text="${desembolso.fechaCreacion}">fecha</td>
+											<td align="center">
+												<div
+													th:replace="fragments/util :: nombreTipoCobro(tipo=${desembolso.tipoCobro})"></div>
+											</td>
+											<td th:text="${desembolso.tipoOperacion}">operacion</td>
+											<td th:text="${desembolso.nota}">nota</td>
+										</tr>
+										
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<td width="10%" height="17">Fecha Cobro</td>
+											<td width="10%" height="17">Monto Soles</td>
+											<td width="5%" height="17">Tipo de Cambio</td>	    
+											<td width="10%" height="17">Monto Dolares</td>
+											<td width="15%" height="17">Fecha Registro</td>
+											<td width="10%" height="17">Tipo de Cobro</td>
+											<td width="10%" height="17">Operacion</td>
+											<td width="30%" height="17">Nota</td>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="8" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+								<br/>
+								<div id="informacionReversion" class="c_tablas">
+								
+									<fieldset class="scheduler-border">
+										<legend class="scheduler-border title10pt">Dato para la Reversi&oacute;n de Cobro</legend>
+											
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<label for="idNombre" class="textBold9pt">Motivo de Reversi&oacute;n</label>
+													<textarea rows="5" cols="60" class="form-control_v2 is-valid" th:field="${filtro.descripcion}" id="idMotivo"></textarea>
+												
+													(*) Si Rechaza la solicitud de reversi&oacute;n, quedar&aacute; sin efecto la solicitud y se mantendr&aacute; el cobro y adelantos generados.<br/>
+													(**) Se Aprueba  la solicitud de reversi&oacute;n, se revertiran los cobros y adelantos generados.
+												</div>
+												
+											</div>
+											<br></br>
+											<div class="row">
+												<div class="col-md-3 mb-3"></div>
+												
+								  				<div class="col-md-6 mb-3" th:if="${filtro.estadoOperacion == 2}" align="center">
+								  					<p style="color: red" th:text="${respuesta}" /> 
+								  					<button class="btn btn-primary" type="button" onclick="jsRechazarReversion();">Recharzar Reversi&oacute;n</button>
+								  					&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								  					<button class="btn btn-primary" type="button" onclick="jsAprobarReversion();">Aprobar Reversi&oacute;n</button>
+								  				</div>
+								  				<div class="col-md-3 mb-3"></div>
+								  			</div>
+								  		
+									</fieldset>
+									
+						  		
+						  		</div>
+							</div>
+							
+							
+							
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

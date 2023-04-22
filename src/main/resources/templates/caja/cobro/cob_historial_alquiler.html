@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"		onclick="jsRegresarCobroGet();"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Historial de Cobros del Local</div>
+						</div>
+						<form id="form" th:object="${cobro}" th:action="@{/cobro/alquiler/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<div class="row">
+									<div class="col-md-12 mb-3" align="center">
+										<p style="color: red" th:text="${respuestaDesembolso}" />
+									</div>
+								</div>
+								<div class="row">
+			
+									<div id="tabs" class="container">
+										<ul>
+											<li><a href="#tabs-01">Alquiler</a></li>
+											<li><a href="#tabs-02">Servicio</a></li>
+											<li><a href="#tabs-03">Luz</a></li>
+											<li><a href="#tabs-04">Arbitrio</a></li>
+				
+										</ul>
+										<!-- Listado de las Cuentas por Cobrar: Alquiler -->
+										<div id="tabs-01" style="background-color: #FEEF8B;">
+											<fieldset>
+												<div id="c_tablas" th:if="${not #lists.isEmpty(cobro.listaCobroAlquiler)}">	
+													<div class="tableFixHead">			
+														<table id="t01"  class="table   table-bordered table-active tabla_cabecera_general" >
+															<thead>
+																<tr>
+																	<th width="12%" height="17">Fecha Cobro</th>
+																	<th width="8%" height="17">Pago Dolares</th>
+																	<th width="5%" height="17">Tipo de Cambio</th>	    
+																	<th width="8%" height="17">Monto Soles</th>
+																	<th width="17%" height="17">Descripci&oacute;n</th>
+																	<th width="8%" height="17">Estado</th>	   
+																	<th width="5%" height="17">Reversi&oacute;n</th>
+																	<th width="8%" height="17">Usuario</th>
+																	<th width="8%" height="17">Tipo Pago</th>
+																	<th width="8%" height="17">Operaci&oacute;n</th>
+																	<th width="5%" height="17">N&uacute;mero</th>
+																	<th width="8%" height="17">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr th:each="cobroAlquiler : ${cobro.listaCobroAlquiler}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																	<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(cobroAlquiler.fechaCobro)}"></font></td>
+																	<td align="center" th:text="${cobroAlquiler.montoDolares}">dolares</td>
+																	<td align="center" th:text="${cobroAlquiler.tipoCambio}">tipo</td>
+																	<td align="center" th:text="${cobroAlquiler.montoSoles}">soles</td>
+																	<td th:text="${cobroAlquiler.nota}">nota</td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreEstadoReversion(tipo=${cobroAlquiler.estadoOperacion})">
+																		</div>
+																	</td>
+																	<td align="center">
+																		<div  th:if="${cobroAlquiler.estadoOperacion == 1 }">
+																			<div  th:if="${cobroAlquiler.fechaCobro != null}">
+																				<div th:switch="${T(com.pe.lima.sg.presentacion.util.UtilSGT).comparaFechaHoy(cobroAlquiler.fechaCobro)}">
+																					<div th:case="false">
+																				    	<div th:switch="${session.SessionPermiso.modCobEliCob=='S'}">
+																				    		<span th:case="false">
+																				    		-
+																				    		</span>
+																				    		 <span th:case="true">
+																				    		 	<a th:href="${'/cobro/desembolso/detalle/reversar/' + cobroAlquiler.codigoDesembolso}"><img
+																									th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+																									onclick="if(!confirm('Desea registrar la solicitud de reversion?')){ return false;}" />
+																								</a>
+																							</span>
+																						</div>
+																					</div>
+																					<div th:case="true">
+																					    <a th:href="${'/cobro/desembolso/detalle/reversar/' + cobroAlquiler.codigoDesembolso}"><img
+																							th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+																							onclick="if(!confirm('Desea registrar la solicitud de reversion?')){ return false;}" />
+																						</a>
+																				    </div>
+																				</div>
+																			</div>
+																		</div>
+																		
+																	</td>
+																	<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).nombreUsuario(cobroAlquiler.usuarioCreacion, cobro.mapUsuario)}"></font></td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreTipoPagoLabel(tipo=${cobroAlquiler.tipoPago})">
+																		</div>
+																	</td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreBancarizacionLabel(tipo=${cobroAlquiler.tipoBancarizado})">
+																		</div>
+																	</td>
+																	<td th:text="${cobroAlquiler.numeroOperacion}">numero</td>
+																	<td th:text="${cobroAlquiler.fechaOperacion}">fecha</td>
+																</tr>
+															</tbody>
+														</table>
+														<br></br>
+														Nota 1: Los cobros solo se pueden revertir en la "Fecha de Cobro".<br></br>
+														Nota 2: El administrador puede otorgar permiso para revertirlo fuera de la fecha de cobro.
+													</div>
+												</div>
+												<div id="c_tablas" th:if="${#lists.isEmpty(cobro.listaCobroAlquiler)}">				
+													<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+														<tr>
+																	<th width="12%" height="17">Fecha Cobro</th>
+																	<th width="8%" height="17">Pago Dolares</th>
+																	<th width="5%" height="17">Tipo de Cambio</th>	    
+																	<th width="8%" height="17">Monto Soles</th>
+																	<th width="17%" height="17">Descripci&oacute;n</th>
+																	<th width="8%" height="17">Estado</th>	   
+																	<th width="5%" height="17">Reversi&oacute;n</th>
+																	<th width="8%" height="17">Usuario</th>
+																	<th width="8%" height="17">Tipo Pago</th>
+																	<th width="8%" height="17">Operaci&oacute;n</th>
+																	<th width="5%" height="17">N&uacute;mero</th>
+																	<th width="8%" height="17">Fecha</th>
+																</tr>
+														
+														<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+															<td colspan="12" align="center">No se encontr&oacute; elementos</td>
+														</tr>
+													</table>
+													<br></br>
+														Nota 1: Los cobros solo se pueden revertir en la "Fecha de Cobro".<br></br>
+														Nota 2: El administrador puede otorgar permiso para revertirlo fuera de la fecha de cobro.
+												</div>
+											</fieldset>
+										</div>
+										<!-- Listado de las Cuentas por Cobrar: Servicio -->
+										<div id="tabs-02" style="background-color: #FEEF8B;">
+											<fieldset>
+												<div id="c_tablas" th:if="${not #lists.isEmpty(cobro.listaCobroServicio)}">	
+													<div class="tableFixHead">			
+														<table id="t01"  class="table   table-bordered table-active tabla_cabecera_general" >
+															<thead>
+																<tr>
+																	<th width="12%" height="17">Fecha Cobro</th>
+																	<th width="8%" height="17">Pago Soles</th>
+																	<th width="5%" height="17">Tipo de Cambio</th>	    
+																	<th width="8%" height="17">Monto Dolares</th>
+																	<th width="17%" height="17">Descripci&oacute;n</th>
+																	<th width="8%" height="17">Estado</th>	   
+																	<th width="5%" height="17">Reversi&oacute;n</th>
+																	<th width="8%" height="17">Usuario</th>
+																	<th width="8%" height="17">Tipo Pago</th>
+																	<th width="8%" height="17">Operaci&oacute;n</th>
+																	<th width="5%" height="17">N&uacute;mero</th>
+																	<th width="8%" height="17">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr th:each="cobroServicio : ${cobro.listaCobroServicio}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																	<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(cobroServicio.fechaCobro)}"></font></td>
+																	<td th:text="${cobroServicio.montoSoles}">soles</td>
+																	<td th:text="${cobroServicio.tipoCambio}">tipo</td>
+																	<td th:text="${cobroServicio.montoDolares}">dolares</td>
+																	<td th:text="${cobroServicio.nota}">nota</td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreEstadoReversion(tipo=${cobroServicio.estadoOperacion})"></div>
+																	</td>
+																	<td align="center">
+																		<div  th:if="${cobroServicio.estadoOperacion == 1}">
+																			<div th:switch="${T(com.pe.lima.sg.presentacion.util.UtilSGT).comparaFechaHoy(cobroServicio.fechaCobro)}">
+																				<div th:case="false">
+																			    	<div th:switch="${session.SessionPermiso.modCobEliCob=='S'}">
+																			    		<span th:case="false">
+																			    		-
+																			    		</span>
+																			    		 <span th:case="true">
+																					    	<a th:href="${'/cobro/desembolso/detalle/reversar/' + cobroServicio.codigoDesembolso}"><img
+																								th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+																								onclick="if(!confirm('Desea registrar la solicitud de reversion?')){ return false;}" />
+																							</a>
+																						</span>
+																					</div>
+																				</div>
+																			    <div th:case="true">
+																				    <a th:href="${'/cobro/desembolso/detalle/reversar/' + cobroServicio.codigoDesembolso}"><img
+																						th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+																						onclick="if(!confirm('Desea registrar la solicitud de reversion?')){ return false;}" />
+																					</a>
+																			    </div>
+																			</div>
+																			
+																			
+																		</div>
+																		
+																	</td>
+																	<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).nombreUsuario(cobroServicio.usuarioCreacion, cobro.mapUsuario)}"></font></td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreTipoPagoLabel(tipo=${cobroServicio.tipoPago})">
+																		</div>
+																	</td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreBancarizacionLabel(tipo=${cobroServicio.tipoBancarizado})">
+																		</div>
+																	</td>
+																	<td th:text="${cobroServicio.numeroOperacion}">numero</td>
+																	<td th:text="${cobroServicio.fechaOperacion}">fecha</td>
+																</tr>
+															</tbody>
+														</table>
+														<br></br>
+														Nota 1: Los cobros solo se pueden revertir en la "Fecha de Cobro".<br></br>
+														Nota 2: El administrador puede otorgar permiso para revertirlo fuera de la fecha de cobro.
+													</div>
+												</div>
+												<div id="c_tablas" th:if="${#lists.isEmpty(cobro.listaCobroServicio)}">				
+													<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+														<tr>
+															<th width="12%" height="17">Fecha Cobro</th>
+															<th width="8%" height="17">Pago Soles</th>
+															<th width="5%" height="17">Tipo de Cambio</th>	    
+															<th width="8%" height="17">Monto Dolares</th>
+															<th width="17%" height="17">Descripci&oacute;n</th>
+															<th width="8%" height="17">Estado</th>	   
+															<th width="5%" height="17">Reversi&oacute;n</th>
+															<th width="8%" height="17">Usuario</th>
+															<th width="8%" height="17">Tipo Pago</th>
+															<th width="8%" height="17">Operaci&oacute;n</th>
+															<th width="5%" height="17">N&uacute;mero</th>
+															<th width="8%" height="17">Fecha</th>
+														</tr>
+														<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+															<td colspan="12" align="center">No se encontr&oacute; elementos</td>
+														</tr>
+													</table>
+													<br></br>
+														Nota 1: Los cobros solo se pueden revertir en la "Fecha de Cobro".<br></br>
+														Nota 2: El administrador puede otorgar permiso para revertirlo fuera de la fecha de cobro.
+												</div>
+											</fieldset>
+										</div>
+										<!-- Listado de las Cuentas por Cobrar: Luz -->
+										<div id="tabs-03" style="background-color: #FEEF8B;">
+											<fieldset>
+												<div id="c_tablas" th:if="${not #lists.isEmpty(cobro.listaCobroLuz)}">	
+													<div class="tableFixHead">			
+														<table id="t01"  class="table   table-bordered table-active tabla_cabecera_general" >
+															<thead>
+																<tr>
+																	<th width="12%" height="17">Fecha Cobro</th>
+																	<th width="8%" height="17">Pago Soles</th>
+																	<th width="5%" height="17">Tipo de Cambio</th>	    
+																	<th width="8%" height="17">Monto Dolares</th>
+																	<th width="17%" height="17">Descripci&oacute;n</th>
+																	<th width="8%" height="17">Estado</th>	   
+																	<th width="5%" height="17">Reversi&oacute;n</th>
+																	<th width="8%" height="17">Usuario</th>
+																	<th width="8%" height="17">Tipo Pago</th>
+																	<th width="8%" height="17">Operaci&oacute;n</th>
+																	<th width="5%" height="17">N&uacute;mero</th>
+																	<th width="8%" height="17">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr th:each="cobroLuz : ${cobro.listaCobroLuz}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																	<td ><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(cobroLuz.fechaCobro)}"></font></td>
+																	<td th:text="${cobroLuz.montoSoles}">soles</td>
+																	<td th:text="${cobroLuz.tipoCambio}">tipo</td>
+																	<td th:text="${cobroLuz.montoDolares}">dolares</td>
+																	<td th:text="${cobroLuz.nota}">nota</td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreEstadoReversion(tipo=${cobroLuz.estadoOperacion})"></div>
+																	</td>
+																	<td align="center">
+																		<div  th:if="${cobroLuz.estadoOperacion == 1 }">
+																			<div th:switch="${T(com.pe.lima.sg.presentacion.util.UtilSGT).comparaFechaHoy(cobroLuz.fechaCobro)}">
+																				<div th:case="false">
+																				    <div th:switch="${session.SessionPermiso.modCobEliCob=='S'}">
+																			    		<span th:case="false">
+																			    		-
+																			    		</span>
+																			    		 <span th:case="true">
+																					    	<a th:href="${'/cobro/desembolso/detalle/reversar/' + cobroLuz.codigoDesembolso}"><img
+																								th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+																								onclick="if(!confirm('Desea registrar la solicitud de reversion?')){ return false;}" />
+																							</a>
+																						</span>
+																					</div>
+																				</div>
+																			    <div th:case="true">
+																				    <a th:href="${'/cobro/desembolso/detalle/reversar/' + cobroLuz.codigoDesembolso}"><img
+																						th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+																						onclick="if(!confirm('Desea registrar la solicitud de reversion?')){ return false;}" />
+																					</a>
+																			    </div>
+																			</div>
+																			
+																		</div>
+																		
+																	</td>
+																	<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).nombreUsuario(cobroLuz.usuarioCreacion, cobro.mapUsuario)}"></font></td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreTipoPagoLabel(tipo=${cobroLuz.tipoPago})">
+																		</div>
+																	</td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreBancarizacionLabel(tipo=${cobroLuz.tipoBancarizado})">
+																		</div>
+																	</td>
+																	<td th:text="${cobroLuz.numeroOperacion}">numero</td>
+																	<td th:text="${cobroLuz.fechaOperacion}">fecha</td>
+																</tr>
+															</tbody>
+														</table>
+														<br></br>
+														Nota 1: Los cobros solo se pueden revertir en la "Fecha de Cobro".<br></br>
+														Nota 2: El administrador puede otorgar permiso para revertirlo fuera de la fecha de cobro.
+													</div>
+												</div>
+												<div id="c_tablas" th:if="${#lists.isEmpty(cobro.listaCobroLuz)}">				
+													<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+														<tr>
+															<th width="12%" height="17">Fecha Cobro</th>
+															<th width="8%" height="17">Pago Soles</th>
+															<th width="5%" height="17">Tipo de Cambio</th>	    
+															<th width="8%" height="17">Monto Dolares</th>
+															<th width="17%" height="17">Descripci&oacute;n</th>
+															<th width="8%" height="17">Estado</th>	   
+															<th width="5%" height="17">Reversi&oacute;n</th>
+															<th width="8%" height="17">Usuario</th>
+															<th width="8%" height="17">Tipo Pago</th>
+															<th width="8%" height="17">Operaci&oacute;n</th>
+															<th width="5%" height="17">N&uacute;mero</th>
+															<th width="8%" height="17">Fecha</th>
+														</tr>
+														<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+															<td colspan="12" align="center">No se encontr&oacute; elementos</td>
+														</tr>
+													</table>
+													<br></br>
+														Nota 1: Los cobros solo se pueden revertir en la "Fecha de Cobro".<br></br>
+														Nota 2: El administrador puede otorgar permiso para revertirlo fuera de la fecha de cobro.
+												</div>
+											</fieldset>
+										</div>
+										<!-- Listado de las Cuentas por Cobrar: Arbitrios -->
+										<div id="tabs-04" style="background-color: #FEEF8B;">
+											<fieldset>
+												<div id="c_tablas" th:if="${not #lists.isEmpty(cobro.listaCobroArbitrio)}">	
+													<div class="tableFixHead">			
+														<table id="t01"  class="table   table-bordered table-active tabla_cabecera_general" >
+															<thead>
+																<tr>
+																	<th width="12%" height="17">Fecha Cobro</th>
+																	<th width="8%" height="17">Pago Soles</th>
+																	<th width="17%" height="17">Descripci&oacute;n</th>
+																	<th width="8%" height="17">Estado</th>	   
+																	<th width="5%" height="17">Reversi&oacute;n</th>
+																	<th width="8%" height="17">Usuario</th>
+																	<th width="8%" height="17">Tipo Pago</th>
+																	<th width="8%" height="17">Operaci&oacute;n</th>
+																	<th width="5%" height="17">N&uacute;mero</th>
+																	<th width="8%" height="17">Fecha</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr th:each="cobroArbitrio : ${cobro.listaCobroArbitrio}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																	<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(cobroArbitrio.fechaCobro)}"></font></td>
+																	<td th:text="${cobroArbitrio.montoSoles}">soles</td>
+																	<td th:text="${cobroArbitrio.nota}">nota</td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreEstadoReversion(tipo=${cobroArbitrio.estadoOperacion})"></div>
+																	</td>
+																	<td align="center">
+																		<div  th:if="${cobroArbitrio.estadoOperacion == 1}">
+																			<div th:switch="${T(com.pe.lima.sg.presentacion.util.UtilSGT).comparaFechaHoy(cobroArbitrio.fechaCobro)}">
+																				<div th:case="false">
+																			    	<div th:switch="${session.SessionPermiso.modCobEliCob=='S'}">
+																			    		<span th:case="false">
+																			    		-
+																			    		</span>
+																			    		 <span th:case="true">
+																					    	<a th:href="${'/cobro/desembolso/detalle/reversarArbitrio/' + cobroArbitrio.codigoDesembolsoArbitrio}"><img
+																								th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+																								onclick="if(!confirm('Desea registrar la solicitud de reversion?')){ return false;}" />
+																							</a>
+																						</span>
+																					</div>
+																				</div>
+																			    <div th:case="true">
+																				    <a th:href="${'/cobro/desembolso/detalle/reversarArbitrio/' + cobroArbitrio.codigoDesembolsoArbitrio}"><img
+																						th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+																						onclick="if(!confirm('Desea registrar la solicitud de reversion?')){ return false;}" />
+																					</a>
+																			    </div>
+																			</div>
+																			
+																			
+																		</div>
+																		
+																	</td>
+																	<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).nombreUsuario(cobroArbitrio.usuarioCreacion, cobro.mapUsuario)}"></font></td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreTipoPagoLabel(tipo=${cobroArbitrio.tipoPago})">
+																		</div>
+																	</td>
+																	<td align="center">
+																		<div
+																			th:replace="fragments/util :: nombreBancarizacionLabel(tipo=${cobroArbitrio.tipoBancarizado})">
+																		</div>
+																	</td>
+																	<td th:text="${cobroArbitrio.numeroOperacion}">numero</td>
+																	<td th:text="${cobroArbitrio.fechaOperacion}">fecha</td>
+																</tr>
+															</tbody>
+														</table>
+														<br></br>
+														Nota 1: Los cobros solo se pueden revertir en la "Fecha de Cobro".<br></br>
+														Nota 2: El administrador puede otorgar permiso para revertirlo fuera de la fecha de cobro.
+													</div>
+												</div>
+												<div id="c_tablas" th:if="${#lists.isEmpty(cobro.listaCobroArbitrio)}">				
+													<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+														<tr>
+															<th width="12%" height="17">Fecha Cobro</th>
+															<th width="8%" height="17">Pago Soles</th>
+															<th width="17%" height="17">Descripci&oacute;n</th>
+															<th width="8%" height="17">Estado</th>	   
+															<th width="5%" height="17">Reversi&oacute;n</th>
+															<th width="8%" height="17">Usuario</th>
+															<th width="8%" height="17">Tipo Pago</th>
+															<th width="8%" height="17">Operaci&oacute;n</th>
+															<th width="5%" height="17">N&uacute;mero</th>
+															<th width="8%" height="17">Fecha</th>
+														</tr>
+														<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+															<td colspan="10" align="center">No se encontr&oacute; elementos</td>
+														</tr>
+													</table>
+													<br></br>
+														Nota 1: Los cobros solo se pueden revertir en la "Fecha de Cobro".<br></br>
+														Nota 2: El administrador puede otorgar permiso para revertirlo fuera de la fecha de cobro.
+												</div>
+											</fieldset>
+										</div>
+										
+										
+									</div>	
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

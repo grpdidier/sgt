@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/edificio/nuevo}"><img th:src="@{/images/iconos/nuevo.png}" alt="Nuevo" /></a> 
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Mantenimiento de Inmueble</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/edificios/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border fondoAmarillo" >
+									
+										
+											<!--/*/ <th:block th:include="fragments/util :: formulario" th:with="map=${contenido}"></th:block> /*/-->
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"> </div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<button class="btn btn-success" type="submit">Buscar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>C&oacute;digo</th>
+											<th>Nombre del Inmueble</th>
+											<th>Direcci&oacute;n</th>
+											<th>Locales</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr th:each="edificio : ${registros}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${edificio.codigoEdificio}">codigo</td>
+											<td th:text="${edificio.nombre}">nombre</td>
+											<td th:text="${edificio.direccion}">direccion</td>
+											<td align="center">
+												<a th:href="${'/tiendas/' + edificio.codigoEdificio}"><img th:src="@{/images/iconos/municipios.png}" alt="Tienda" /></a>
+											</td>
+											<td align="center"><a
+												th:href="${'/edificio/editar/' + edificio.codigoEdificio}"><img
+													th:src="@{/images/iconos/editar.png}" alt="Editar" /></a></td>
+											<td align="center"><a
+												th:href="${'/edificio/eliminar/' + edificio.codigoEdificio}"><img
+													th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+													onclick="if(!confirm('Desea eliminar el edificio seleccionado?')){ return false;}" /></a></td>
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Nombre del Edificio</th>
+											<th>Direcci&oacute;n</th>
+											<th>Tienda</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="5" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"		onclick="jsRegresarContrato();"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Historial de Cliente</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/contrato/clientes/q}" method="Post">
+							<input type="hidden" th:field="${filtro.codigo}" />
+							<input type="hidden" th:field="${filtro.strOperacion}" />
+							<div id="informacion" class="container_v3">
+								
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Tipo</th>
+											<th>Nombre</th>
+											<th>Paterno</th>
+											<th>Materno</th>
+											<th>DNI</th>
+											<th>RUC</th>
+											<th>Raz&oacute;n Social</th>
+											<th>Celular</th>
+										</tr>
+										<tr th:each="persona : ${registros}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td align="center">
+												<div
+													th:replace="fragments/util :: tipoPersona(tipo=${persona.tipoPersona})"></div>
+											</td>
+											<td th:text="${persona.nombre}">numero</td>
+											<td th:text="${persona.paterno}">paterno</td>
+											<td th:text="${persona.materno}">materno</td>
+											<td th:text="${persona.numeroDni}">DNI</td>
+											<td th:text="${persona.numeroRuc}">RUC</td>
+											<td th:text="${persona.razonSocial}">Razon Social</td>
+											<td th:text="${persona.celular1}">Celular</td>
+											
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Tipo</th>
+											<th>Nombre</th>
+											<th>Paterno</th>
+											<th>Materno</th>
+											<th>DNI</th>
+											<th>RUC</th>
+											<th>Raz&oacute;n Social</th>
+											<th>Celular</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="8" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

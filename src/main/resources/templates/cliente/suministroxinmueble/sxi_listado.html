@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/cliente/suministroxinmueble/nuevo}"><img th:src="@{/images/iconos/nuevo.png}" alt="Nuevo" /></a> 
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> M&oacute;dulo de Suministros - Luz </div>
+						</div>
+			
+						<form id="form" th:object="${filtro}" th:action="@{/cliente/suministroxinmueble/q}" method="Post">
+							<input type="hidden" th:field="${filtro.anioInicio}" />
+							<input type="hidden" name="path" id="path" value="cliente/suministroxinmueble/sxi_listado" />
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Datos del Suministro</legend>
+										<div class="row">
+											<div class="col-md-1 mb-3">
+											</div>
+											<div class="col-md-8 mb-3">
+												<div class="row">
+													<div class="col-md-3 mb-3">
+														<label for="idInmueble" class="textBold9pt">Inmueble</label>
+														<div th:fragment="combo">
+															<label> <select th:field="${filtro.codigoEdificacionFiltro}" 
+																class="form-control_v2 is-valid" onchange="jsCargarSuministroSuministroxInmueble();">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}"
+																		th:text="${entry.key}">opcion</option>
+															</select>
+															</label>
+														</div>
+														
+													</div>
+													<div class="col-md-3 mb-3">
+														<label for="idInmueble" class="textBold9pt">Suministro</label>
+														<div th:fragment="combo">
+															<label> <select th:field="${filtro.codigoSuministroFiltro}" 
+																class="form-control_v2 is-valid" >
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapSuministroxTienda}" th:value="${entry.value}"
+																		th:text="${entry.key}">opcion</option>
+															</select>
+															</label>
+														</div>
+													</div>
+													<div class="col-md-3 mb-3">
+														
+														<label for="idInmueble" class="textBold9pt">A&ntilde;o</label>
+														<div th:fragment="combo">
+															<label> <select th:field="${filtro.anioFiltro}" 
+																class="form-control_v2 is-valid">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapAnio}" th:value="${entry.value}"
+																		th:text="${entry.key}">opcion</option>
+															</select>
+															</label>
+														</div>
+														
+													</div>
+													<div class="col-md-3 mb-3">
+														
+														<label for="idInmueble" class="textBold9pt">Mes</label>
+														<div th:fragment="combo">
+															<label> <select th:field="${filtro.mesFiltro}" 
+																class="form-control_v2 is-valid">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${mapMeses}" th:value="${entry.value}"
+																		th:text="${entry.key}">opcion</option>
+															</select>
+															</label>
+														</div>
+														
+													</div>
+													
+												</div>
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<br/><button class="btn btn-success" type="submit">Buscar</button>
+											</div>
+											
+											<div class="col-md-1 mb-3">
+												<br/>
+											</div>
+										</div>
+										<div class="row" th:if="${not #lists.isEmpty(registros)}">
+											<div class="col-md-12 mb-1">
+												<div class="row">
+													<div class="col-md-2 mb-3" align="right">
+														<label for="idInmueble" class="textBold9pt">Total: </label>
+													</div>
+													<div class="col-md-2 mb-3">
+														<input type="text" class="form-control_v2" placeholder="Monto total del recibo" id="idMontoTotaRecibo" th:field="${filtro.montoAsignado}" readonly="readonly" disabled="disabled"/>
+													</div>
+													<div class="col-md-2 mb-3" align="right">
+														<label for="idInmueble" class="textBold9pt">Nuevo Monto: </label>
+													</div>
+													<div class="col-md-2 mb-3">
+														<input type="text" class="form-control_v2" placeholder="Monto real por cobrar" id="idMontoxCobrar" th:field="${filtro.montoCalculado}" readonly="readonly" disabled="disabled"/>
+													</div>
+													<div class="col-md-4 mb-3">
+														
+													</div>
+												</div>
+												
+											</div>
+										</div>
+										<div class="row">
+							  				<div class="col-md-12 mb-3">
+							  					<p style="color: red" th:text="${respuesta}" />
+							  				</div>
+							  			</div>	
+								</fieldset>
+								<br/><br/>
+								<div th:if="${not #lists.isEmpty(registros)}">
+									<div class="row"  th:if="${filtro.countLuzGenerado == 0}">
+										<div class="col-md-5 mb-3"></div>
+										<div class="col-md-2 mb-3">
+											<br/><button class="btn btn-info" onclick="jsGenerarRegistroCobro()" id="idBotonGenerar">Generar Registro de Cobro</button>
+										</div>
+										<div class="col-md-5 mb-3"></div>
+									</div>
+								</div>
+								<br/><br/>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Local</th>
+											<th>Suministro</th>
+											<th>A&ntilde;o</th>
+											<th>Mes</th>
+											<th>Estado</th>
+											<th>Monto Contrato</th>
+											<th>Fecha Vencimiento</th>
+											<th>Editar</th>
+										</tr>
+										<tr th:each="tienda : ${registros}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${tienda.numero}">numero</td>
+											<td th:text="${tienda.numeroSuministro}">suministro</td>
+											<td th:text="${tienda.anio}">anio</td>
+											<td th:text="${tienda.mes}">mes</td>
+											<td align="center">
+												<div th:replace="fragments/util :: estadoLocal(tipo=${tienda.estadoTienda})"></div>
+											</td>
+											<td th:text="${tienda.montoContrato}" align="right">contrato</td>
+											<td align="center">
+												<div  th:if="${tienda.fechaFin !=null}">
+													<font th:text="${#dates.format(tienda.fechaFin, 'dd/MM/yyyy')}"></font>
+												</div>
+											</td>
+											<td align="center">
+												<div class="row"  th:if="${filtro.countLuzGenerado == 0}" align="center">
+													<div  th:if="${tienda.codigoLuzxtienda > 0}" class="col-md-12 mb-1">
+														<a th:href="${'/cliente/suministroxinmueble/editar/' + tienda.codigoLuzxtienda}">
+														<img th:src="@{/images/iconos/editar.png}" alt="Editar" id="idEditar"/></a>
+													</div>
+												</div>
+											</td>
+											
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Local</th>
+											<th>Suministro</th>
+											<th>A&ntilde;o</th>
+											<th>Mes</th>
+											<th>Estado</th>
+											<th>Monto Contrato</th>
+											<th>Fecha Vencimiento</th>
+											<th>Editar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="8" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+								<br/><br/>
+								<div th:if="${not #lists.isEmpty(registros)}">
+									<div class="row"  th:if="${filtro.countLuzGenerado == 0}">
+										<div class="col-md-5 mb-3"></div>
+										<div class="col-md-2 mb-3">
+											<br/><button class="btn btn-success" onclick="jsEliminarRegistro()" id="idEliminar">Eliminar Registro de Cobro</button>
+										</div>
+										<div class="col-md-5 mb-3"></div>
+									</div>
+								</div>
+								<br/><br/>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Reporte de Morosos</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/moroso/q}" method="Post" autocomplete="off">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Criterios de b&uacute;squeda</legend>
+										<div class="row">
+											<div class="col-md-2 mb-3"></div>
+											<div class="col-md-2 mb-3">Edificaci&oacute;n: </div>
+											<div class="col-md-4 mb-3">
+												<select th:field="${filtro.codigoEdificacion}" class="form-control_v2 is-valid">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-2 mb-3"></div>
+											<div class="col-md-2 mb-3"></div>
+										</div>
+										<div class="row">
+											<div class="col-md-2 mb-3"></div>
+											<div class="col-md-2 mb-3">Tipo de Cobro: </div>
+											<div class="col-md-2 mb-3">
+												<div th:fragment="combo">
+													<select th:field="${filtro.tipoCobro}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapTipoCobro}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													
+												</div>
+											</div>
+											<div class="col-md-4 mb-3"></div>
+											<div class="col-md-2 mb-3"></div>
+										</div>	
+										<div class="row">
+											<div class="col-md-2 mb-3"></div>
+											<div class="col-md-2 mb-3">A&ntilde;o: </div>
+											<div class="col-md-2 mb-3">
+												<input type="text" class="form-control_v2 is-valid" placeholder="yyyy" id="idAnio" th:field="${filtro.anio}" maxlength="4" required="required"/>
+											</div>
+											<div class="col-md-4 mb-3"></div>
+											<div class="col-md-2 mb-3"></div>
+										</div>	
+										<div class="row">
+											<div class="col-md-2 mb-3"></div>
+											<div class="col-md-2 mb-3">Fecha Fin: </div>
+											<div class="col-md-2 mb-3">
+												<div th:fragment="combo">
+													<select th:field="${filtro.mesFin}" 
+														class="form-control_v2 is-valid" required="required">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapMesesMoroso}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													
+												</div>
+											</div>
+											<div class="col-md-4 mb-3"></div>
+											<div class="col-md-2 mb-3"></div>
+										</div>	
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"> </div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<button class="btn btn-success" type="submit">Buscar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Descripci&oacute;n</th>
+											<th>Total Registro</th>
+											<th>PDF</th>
+										</tr>
+										<tr th:each="resultado : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${resultado.descripcion}">descripcion</td>
+											<td th:text="${resultado.totalRegistro}">totalRegistro</td>
+											<td align="center"><a
+												th:href="${'/moroso/pdf/' }"><img
+													th:src="@{/images/iconos/pdf_icon.png}" alt="Descargar PDF"  width="35px"/></a></td>
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Descripci&oacute;n</th>
+											<th>Total Registro</th>
+											<th>PDF</th>
+										</tr>
+										<tr  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="3" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/cliente/luz/nuevo}"><img th:src="@{/images/iconos/nuevo.png}" alt="Nuevo" /></a> 
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> M&oacute;dulo de Luz</div>
+						</div>
+			
+						<form id="form" th:object="${filtro}" th:action="@{/cliente/luces/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Criterios de b&uacute;squeda</legend>
+										<div class="row">
+											<div class="col-md-2 mb-3">
+											
+											</div>
+											<div class="col-md-2mb-3">
+												<label for="idInmueble" class="textBold9pt">Suministro</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.codigoSuministroFiltro}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapSuministro}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-1 mb-3">
+												<br/><br/><a th:href="${'/cliente/luz/anio/A'+filtro.anioFiltro}"><img th:src="@{/images/iconos/button_previous.ico}" alt="Anterior" width="25px" align="right"/>	</a>
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idAnio" class="textBold9pt">A&ntilde;o</label>
+												<input type="text" class="form-control_v2 " placeholder="Anio" th:field="${filtro.anioFiltro}" readonly="readonly" />
+												
+											</div>
+											<div class="col-md-1 mb-3">
+												<br/><br/><a th:href="${'/cliente/luz/anio/S'+filtro.anioFiltro}"><img th:src="@{/images/iconos/button_next.ico}" alt="Siguiente"  width="25px" align="left"/>	</a>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idTienda" class="textBold9pt">Vencimiento</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.strFechaFinFiltro}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapFechaVencimiento}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-2 mb-3">
+												
+											</div>
+										</div>
+											
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"> </div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<button class="btn btn-success" type="submit">Buscar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Suministro</th>
+											<th>A&ntilde;o</th>
+											<th>Fec. Inicio</th>
+											<th>Fec. Fin</th>
+											<th>Moneda</th>
+											<th>Monto Generado</th>
+											<th>Monto Contrato</th>
+											<th>Valor Cobrado</th>
+											<th>Saldo</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr th:each="luz : ${registros}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${luz.tblSuministro.numero}">numero</td>
+											<td th:text="${luz.anio}">anio</td>
+											<td th:text="${#dates.format(luz.fechaInicio, 'dd/MM/yyyy')}">fecha inicio</td>
+											<td th:text="${#dates.format(luz.fechaFin, 'dd/MM/yyyy')}">fecha fin</td>
+											<td align="center">
+												<div th:replace="fragments/util :: tipoMoneda(tipo=${luz.tipoMoneda})"></div>
+											</td>
+											<td th:text="${luz.montoGenerado}">generado</td>
+											<td th:text="${luz.montoContrato}">contrato</td>
+											<td th:text="${luz.valorCobrado}">cobrado</td>
+											<td th:text="${luz.saldo}">saldo</td>
+											<td align="center"><a
+												th:href="${'/cliente/luz/editar/' + luz.codigoLuz}"><img
+													th:src="@{/images/iconos/editar.png}" alt="Editar" /></a></td>
+											<td align="center"><a
+												th:href="${'/cliente/luz/eliminar/' + luz.codigoLuz}"><img
+													th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+													onclick="if(!confirm('Desea eliminar el contrato seleccionado?')){ return false;}" /></a></td>
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Suministro</th>
+											<th>A&ntilde;o</th>
+											<th>Fec. Inicio</th>
+											<th>Fec. Fin</th>
+											<th>Moneda</th>
+											<th>Monto Generado</th>
+											<th>Monto Contrato</th>
+											<th>Valor Cobrado</th>
+											<th>Saldo</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="11" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/cxc/nuevo}"><img th:src="@{/images/iconos/nuevo.png}" alt="Nuevo" /></a> 
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Generaci&oacute;n de Cuentas por Cobrar (CxC)</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/cxcs/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Criterios de b&uacute;squeda</legend>
+										
+										<div class="row">
+											<div class="col-md-1 mb-3">
+												
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idAnio" class="textBold9pt">A&ntilde;o</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.anio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapAnio}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idMes" class="textBold9pt">Mes</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.mes}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapMeses}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idMes" class="textBold9pt">Tipo Cobro</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.tipoCobro}" 
+														class="form-control_v2 is-valid">
+															<option value="">--Seleccionar--</option>
+															<option th:each="entry : ${mapTipoCobroCxC}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-1 mb-3">
+												
+											</div>
+										</div>
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"> </div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<button class="btn btn-success" type="submit">Buscar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>A&ntilde;o</th>
+											<th>Mes</th>
+											<th>Tipo Operaci&oacute;n</th>
+											<th>Tipo Cobro</th>
+											<th>Resultado</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr th:each="cxc : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											
+											<td th:text="${cxc.anio}">anio</td>
+											<td align="center">
+												<div
+													th:replace="fragments/util :: nombreMes(tipo=${cxc.mes})"></div>
+											</td>
+											<td align="center">
+												<div
+													th:replace="fragments/util :: nombreTipoOperacion(tipo=${cxc.tipoOperacion})"></div>
+											</td>
+											<td align="center">
+												<div
+													th:replace="fragments/util :: nombreTipoCobro(tipo=${cxc.tipoCobro})"></div>
+											</td>
+											<td th:text="${cxc.resultado}">resultado</td>
+											<td align="center"><a
+												th:href="${'/cxc/eliminar/' + cxc.codigoCxcBitacora}"><img
+													th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"
+													onclick="if(!confirm('Desea eliminar la Cuenta por Cobrar (CxC) seleccionado?')){ return false;}" /></a></td>
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>A&ntilde;o</th>
+											<th>Mes</th>
+											<th>Tipo Operaci&oacute;n</th>
+											<th>Tipo Cobro</th>
+											<th>Resultado</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="6" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

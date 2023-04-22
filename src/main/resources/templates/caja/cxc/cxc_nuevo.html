@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/cxcs}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Generaci&oacute;n de Cuentas por Cobrar (CxC)- Nuevo</div>
+						</div>
+						<form id="form" th:object="${entidad}" th:action="@{/cxc/nuevo/guardar}" method="post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Cuenta por Cobrar (CxC) - Generaci&oacute;n</legend>
+										
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idAnio" class="textBold9pt">A&ntilde;o</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.anio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapAnio}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idMes" class="textBold9pt">Mes</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.mes}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapMeses}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idMes" class="textBold9pt">Alquiler</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.alquiler}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapSiNo}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idMes" class="textBold9pt">Servicio</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.servicio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapSiNo}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											
+										</div>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												
+											</div>
+											<div class="col-md-3 mb-3">
+												
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idMes" class="textBold9pt">Luz</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.luz}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapSiNo}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idMes" class="textBold9pt">Arbitrio</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.arbitrio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapSiNo}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											
+										</div>
+										
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"></div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" /> 
+						  					<button class="btn btn-success" type="submit">Guardar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  			
+						  		</div>
+						  		
+						  		
+						  	</div>
+						</form>
+			
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>	
+</body>
+</html>

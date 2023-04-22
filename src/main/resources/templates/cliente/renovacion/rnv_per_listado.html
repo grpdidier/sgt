@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"		onclick="jsRegresarRenovarContrato();"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Mantenimiento de Persona</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/renovarcontrato/clientes/q}" method="Post">
+							<input type="hidden" th:field="${filtro.codigo}" />
+							<input type="hidden" th:field="${filtro.strOperacion}" />
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border"  style="background-color:#FEEF8B;">
+										<br></br>
+										<div class="row">
+											<div class="col-md-1 mb-1">
+																					
+											</div>
+											<div class="col-md-1 mb-1">
+												<label for="idNombre" class="textBold9pt">Nombre: </label>								
+											</div>
+											<div class="col-md-2 mb-3">
+												<input type="text" class="form-control_v2 is-valid" placeholder="Nombre" th:field="${filtro.nombre}"/>
+											</div>
+											<div class="col-md-1 mb-1">
+												<label for="idNombre" class="textBold9pt">Paterno: </label>							
+											</div>
+											<div class="col-md-2 mb-1">
+												<input type="text" class="form-control_v2 is-valid" placeholder="Paterno" th:field="${filtro.paterno}"/>
+											</div>
+											<div class="col-md-1 mb-1">
+												<label for="idDireccion" class="textBold9pt">Materno: </label>						
+											</div>
+											<div class="col-md-2 mb-1">
+												<input type="text" class="form-control_v2 is-valid" placeholder="Materno" th:field="${filtro.materno}"/>
+											</div>
+											<div class="col-md-1 mb-1">
+												<button class="btn btn-success" type="submit" align="center" onclick="jsDeshabilitaBoton(this);">Buscar</button>		
+											</div>
+											<div class="col-md-1 mb-1">
+																					
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-1 mb-1">
+																					
+											</div>
+											<div class="col-md-1 mb-1">
+												<label for="idNombre" class="textBold9pt">DNI: </label>							
+											</div>
+											<div class="col-md-2 mb-1">
+												<input type="text" class="form-control_v2 is-valid" placeholder="DNI" th:field="${filtro.dni}"/>
+											</div>
+											<div class="col-md-1 mb-1">
+												<label for="idNombre" class="textBold9pt">RUC: </label>							
+											</div>
+											<div class="col-md-2 mb-1">
+												<input type="text" class="form-control_v2 is-valid" placeholder="RUC" th:field="${filtro.ruc}"/>
+											</div>
+											<div class="col-md-1 mb-1">
+												<label for="idDireccion" class="textBold9pt">Raz&oacute;n Social: </label>						
+											</div>
+											<div class="col-md-2 mb-1">
+												<input type="text" class="form-control_v2 is-valid" placeholder="Razon Social" th:field="${filtro.razonSocial}"/>
+											</div>
+											<div class="col-md-1 mb-1" align="center">
+												<button class="btn btn-info" type="button" onclick="jsLimpiarFiltroContrato();">Limpiar</button>
+											</div>
+											<div class="col-md-1 mb-1">
+																					
+											</div>
+										</div>
+											
+										
+								</fieldset>
+								<br></br>
+								<p style="color: red" th:text="${respuesta}" />
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">	
+									<!--Pagination -->
+									<nav class="my-1">
+									    <ul class="pagination pagination-circle pg-blue mb-0">
+											 <!--First-->
+									        <li th:class="${page.firstPage}? 'page-item disabled' : 'page-item'">
+									        	<span aria-hidden="true" class="page-link" th:if='${page.firstPage}'>First</span>
+									        	<a th:if='${not page.firstPage}' th:href="${ page.url + '0' + '/' +  page.size + '/F'  }">
+									        		 <span class="page-link" th:if='${not page.firstPage}'>First</span>
+									        	</a>
+									        </li>
+									
+									        <!--Arrow left-->
+									        <li  th:class="${page.hasPreviousPage}? 'page-item disabled' : 'page-link'">
+									        	<span aria-hidden="true"  class="page-link" th:if='${page.hasPreviousPage}'>&laquo;</span>
+									            <a  th:if='${not page.hasPreviousPage}' th:href="${page.url + (page.pageActual-2) + '/' +  page.size + '/P'}" title='Go to previous page' aria-label="Previous" >
+									               <span  aria-hidden="true">&laquo;Previous</span>
+									            </a>
+									        </li>
+									
+									        <!--Numbers-->
+									        <li th:each='item : ${page.items}' th:class="${item.current}? 'page-item active' : 'page-item'">
+									        	 <span th:if='${item.current}' th:text='${item.number}' class="page-link">1</span>
+									        	 <a class="page-link" th:if='${not item.current}' th:href="${page.url + (item.number-1)  + '/' +  page.size + '/C'}"><span th:text='${item.number}'>1</span></a>
+									        </li>
+									        <!--Arrow right-->
+									        <li th:class="${page.hasNextPage}? 'page-item disable' : 'page-link'">
+									        	<span aria-hidden="true"  class="page-link" th:if='${page.hasNextPage}'>&raquo;</span>
+									        	<a aria-label="Next" th:if='${not page.hasNextPage}' th:href="${page.url + (page.pageActual)  + '/' +  page.size + '/N'}" title='Go to next page'>
+									            	<span aria-hidden="true">Next&raquo;</span>
+									            </a>
+									        </li>
+									
+									        <!--First-->
+									        <li th:class="${page.lastPage}? 'page-item disabled' : 'page-link'">
+									        	<span aria-hidden="true" class="page-link" th:if='${page.lastPage}'>Last</span>
+									        	<a  aria-label="Last" th:if='${not page.lastPage}' th:href="${page.url + (page.totalPages - 1)  + '/' +  page.size + '/L'}">
+									        		<span aria-hidden="true" >Last: </span><font th:text="${page.total}"> </font> Elements
+									        	</a>
+									        </li>
+									        
+									        
+									
+									    </ul>
+									</nav>
+									
+									<!--/Pagination -->		
+									<div class="tableFixHead">			
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<thead>
+											<tr>
+												<th>Tipo</th>
+												<th>Nombre</th>
+												<th>Paterno</th>
+												<th>Materno</th>
+												<th>DNI</th>
+												<th>RUC</th>
+												<th>Raz&oacute;n Social</th>
+												<th>Celular</th>
+												<th>Seleccionar</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="persona : ${registros}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'"  style="cursor: pointer" th:onclick="'jsObtenerDatosClientesRenovarContrato(\'' + ${persona.codigoPersona} + '\');'">
+												<td align="center">
+													<div
+														th:replace="fragments/util :: tipoPersona(tipo=${persona.tipoPersona})"></div>
+												</td>
+												<td th:text="${persona.nombre}">numero</td>
+												<td th:text="${persona.paterno}">paterno</td>
+												<td th:text="${persona.materno}">materno</td>
+												<td th:text="${persona.numeroDni}">DNI</td>
+												<td th:text="${persona.numeroRuc}">RUC</td>
+												<td th:text="${persona.razonSocial}">Razon Social</td>
+												<td th:text="${persona.celular1}">Celular</td>
+												
+												<td align="center"><a
+													th:href="${'/renovarcontrato/clientes/seleccionar/' + persona.codigoPersona}"><img
+														th:src="@{/images/iconos/editar.png}" alt="Editar" /></a>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+									</div>
+									<br/><br/><br/>
+								</div>
+					
+									<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Tipo</th>
+											<th>Nombre</th>
+											<th>Paterno</th>
+											<th>Materno</th>
+											<th>DNI</th>
+											<th>RUC</th>
+											<th>Raz&oacute;n Social</th>
+											<th>Celular</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="10" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>	
+								
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

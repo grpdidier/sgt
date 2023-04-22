@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body onload=" jsSetFocusIngreso('idDivTipoOperacionIngreso','idDivFechaOperacionIngreso');">
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/ingresos/regresar}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Montos por Cobrar - Ingreso - Nuevo</div>
+						</div>
+						
+						<form id="form" th:object="${entidad}" th:action="@{/ingreso/nuevo/guardar}" method="post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border " style="background-color: #FEEF8B;">
+									
+										<br></br>
+										<div class="row">
+											
+											<div class="col-md-2 mb-3" align="right">
+												<label for="idNombre" class="textBold9pt">Inmueble: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<select th:field="${entidad.tblEdificio.codigoEdificio}" class="form-control_v2 is-valid" required="required">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-1 mb-3"></div>
+											<div class="col-md-2 mb-3"  align="right">
+												<label for="idNombre" class="textBold9pt">Fecha de Ingreso: </label>
+											</div>
+											
+											<div class="col-md-3 mb-3" align="center" th:if="${session.SessionPermiso.modIngFecIng=='S'}">
+												<input type="text" class="form-control_v2 is-valid"  placeholder="dd/MM/yyyy" th:field="${entidad.fechaIngreso}" autocomplete="off"/>
+											</div>
+											<div class="col-md-3 mb-3" align="center" th:if="${session.SessionPermiso.modIngFecIng=='N'}">
+												<input type="hidden" th:field="${entidad.fechaIngreso}"/>
+												<label for="idNombre" class="form-control_v2 " th:text="${#dates.format(entidad.fechaIngreso, 'dd/MM/yyyy')}">Fecha</label>
+											</div>
+											
+											
+											<div class="col-md-1 mb-3"></div>
+										</div>
+										<div class="row">
+											
+											<div class="col-md-2 mb-3" align="right">
+												<label for="idDireccion" class="textBold9pt">Tipo de Ingreso: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<select th:field="${entidad.codigoTipoIngreso}" class="form-control_v2 is-valid">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapConceptoIngreso}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-1 mb-3"></div>
+											<div class="col-md-2 mb-3" align="right">
+												<label for="idNombre" class="textBold9pt">Monto Cobrado: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<input type="text" class="form-control_v2 is-valid" id="idMontoIngreso" style="background-color: #ebf9e5;" placeholder="" th:field="${entidad.monto}" autocomplete="off"  onkeypress="javascript:return fSoloDigitos(event,'decOK');" />
+											</div>
+											<div class="col-md-1 mb-3"></div>
+										</div>
+										<div class="row">
+											
+											<div class="col-md-2 mb-3" align="right">
+												<label for="idDireccion" class="textBold9pt">Tipo de Moneda: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoMoneda',map=${session.SessionMapTipoMoneda}"></th:block> /*/-->
+											</div>
+											<div class="col-md-1 mb-3"></div>
+											<div class="col-md-2 mb-3"  align="right">
+												<label for="idNombre" class="textBold9pt">Tipo de Pago: </label>
+											</div>
+											<div class="col-md-3 mb-3" align="center">
+												<select th:field="${entidad.tipoPago}"
+													class="form-control_v2 is-valid" id="idTipoPago"
+													onchange="jsMostrarBancarizadoIngreso( this, 'idDivTipoOperacionIngreso','idDivFechaOperacionIngreso');">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapTipoPago}"
+														th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-1 mb-3"></div>
+										</div>
+										<div class="row" style="display:none" id="idDivTipoOperacionIngreso">
+											<div class="col-md-2 mb-3"  align="right">
+												<label for="idNombre" class="textBold9pt">Tipo de Operaci&oacute;n: </label>
+											</div>
+											<div class="col-md-3 mb-3" align="center">
+												<select th:field="${entidad.tipoBancarizado}"
+													class="form-control_v2 is-valid" id="idTipoOperacion">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapTipoBancarizado}"
+														th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-1 mb-3"></div>
+											<div class="col-md-2 mb-3"   align="right">
+												<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+											</div>
+											<div class="col-md-3 mb-3" align="center">
+												<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+													placeholder="" th:field="${entidad.numeroOperacion}"
+													id="idNumeroOperacion" />
+											</div>
+											<div class="col-md-1 mb-3"></div>
+										</div>
+										<div class="row" style="display:none" id="idDivFechaOperacionIngreso">
+											<div class="col-md-2 mb-3"  align="right">
+												<label for="idNombre" class="textBold9pt">Fecha de Operaci&oacute;n: </label>
+											</div>
+											<div class="col-md-3 mb-3" align="center">
+												<input type="text" class="form-control_v2 is-valid" id="cobroAlquilerfechaOperacion" placeholder="dd/MM/yyyy" th:field="${entidad.fechaOperacion}" autocomplete="off"/>
+											</div>
+											<div class="col-md-1 mb-3"></div>
+											<div class="col-md-6 mb-3">
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12 mb-3">
+												<label for="idDescripcion" class="textBold9pt">Concepto</label>
+												<textarea rows="5" cols="60" class="form-control_v2 is-valid" th:field="${entidad.observacion}"></textarea>
+												
+											</div>
+											
+										</div>
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"></div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" /> 
+						  					<button class="btn btn-success" onclick="jsDeshabilitaBoton(this);" type="submit">Guardar Ingreso</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  		</div>
+						  	</div>
+						</form>
+			
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

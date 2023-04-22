@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body onload="jsSetFocusCobroEditar(); jsInicializaBancarizado(); jsCalcularMontoAlTipoCambioAlquiler('idMontoSoleAlquiler','idMonedaAlquiler','idMontoDolarAlquiler','idTipoCambioAlquiler','idMensajeCobroAlquiler','idSaldoMensajeAlquiler','idMesMensajeAlquiler'); jsCalcularMontoAlTipoCambioServicio('idMontoSoleServicio','idMonedaServicio','idMontoDolarServicio','idTipoCambioServicio','idMensajeCobroServicio','idSaldoMensajeServicio','idMesMensajeServicio');">
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-1">
+								<a href="#" th:href="@{/cobro/regresar}"><img
+									th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-1 tituloPrincipal" align="left">
+								<br /> Modulo de Cobros - Edici&oacute;n de Contratos
+							</div>
+						</div>
+						<form id="form" th:object="${cobroGeneralBean}" th:action="@{/cobro/editar/guardar}" method="post">
+							<div id="informacion" class="container_v3">
+								<p style="color: red" th:text="${resultadoContrato}" />
+								<div class="row">
+									<div class="col-md-3 mb-3">
+										<fieldset class="scheduler-border"
+											style="background-color: #7B8AB5;">
+											<input type="hidden" th:field="${contrato.tblTienda.codigoTienda}" /> 
+											<input type="hidden" th:field="${contrato.codigoContrato}"  id="idContrato"/> <br></br>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">N&uacute;mero:
+													</label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2" placeholder="local" th:field="${contrato.numero}" readonly="readonly" style="background-color: #ECECEC;" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Estado: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<div th:replace="fragments/util :: estadoContratoInputEditar(tipo=${contrato.estadoContrato})"></div>
+													<input type="hidden" th:field="${contrato.estadoContrato}" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">F.Inicio: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" placeholder="dd/MM/yyyy" th:field="${contrato.fechaInicio}" readonly="readonly" disabled="disabled" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">F. Fin: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" placeholder="dd/MM/yyyy" th:field="${contrato.fechaFin}" readonly="readonly" disabled="disabled" />
+												</div>
+											</div>
+											
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Garantia: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+				
+													<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" th:field="${contrato.montoGarantia}" readonly="readonly" disabled="disabled" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													
+												</div>
+												<div class="col-md-9 mb-1" th:if="${contrato.tipoMonedaGarantia == 'DO'}">
+													<label for="idNombre" class="titleWhite10pt">( Dolares $ )</label>
+												</div>
+												<div class="col-md-9 mb-1" th:if="${contrato.tipoMonedaGarantia == 'SO'}">
+													<label for="idNombre" class="titleWhite10pt">( Soles S/ )</label>
+												</div>
+											</div>
+											
+											
+				
+										</fieldset>
+									</div>
+									<div class="col-md-3 mb-3">
+										<fieldset class="scheduler-border"
+											style="background-color: #7B8AB5;">
+											<br></br> <input type="hidden"
+												th:field="${contrato.tblTienda.codigoTienda}" /> <input
+												type="hidden" th:field="${contrato.codigoContrato}" />
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Inmueble:
+													</label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="hidden"
+														th:field="${contrato.tblTienda.tblEdificio.codigoEdificio}" />
+													<select
+														th:field="${contrato.tblTienda.tblEdificio.codigoEdificio}"
+														class="form-control_v2 " disabled="disabled"
+														style="background-color: #ECECEC;">
+														<option value="-1">--Seleccionar--</option>
+														<option th:each="entry : ${session.SessionMapEdificacion}"
+															th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Local: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2" placeholder="local"
+														th:field="${contrato.tblTienda.numero}" readonly="readonly"
+														style="background-color: #ECECEC;" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Estado: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<div
+														th:replace="fragments/util :: estadoLocalInputContrato(tipo=${contrato.tblTienda.estadoTienda})"></div>
+													<input type="hidden"
+														th:field="${contrato.tblTienda.estadoTienda}" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Suministro:
+													</label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2"
+														placeholder="suministro"
+														th:field="${contrato.tblTienda.tblSuministro.numero}"
+														readonly="readonly" style="background-color: #ECECEC;" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Piso: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2"
+														placeholder="suministro" th:field="${contrato.tblTienda.piso}"
+														readonly="readonly" style="background-color: #ECECEC;" />
+												</div>
+											</div>
+											<br></br><br></br>
+										</fieldset>
+									</div>
+									<div class="col-md-6 mb-3">
+										<fieldset class="scheduler-border"
+											style="background-color: #7B8AB5;">
+											<br></br> <input type="hidden"
+												th:field="${contrato.tblPersona.codigoPersona}" />
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Nombre:
+															</label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2"
+																placeholder="nombre"
+																th:field="${contrato.tblPersona.nombre}" readonly="readonly"
+																style="background-color: #ECECEC;" />
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4 mb-1">
+													<div class="col-md-12 mb-1" align="center">
+														
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Paterno:
+															</label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2"
+																placeholder="paterno"
+																th:field="${contrato.tblPersona.paterno}"
+																readonly="readonly" style="background-color: #ECECEC;" />
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Celular:
+															</label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2"
+																placeholder="celular"
+																th:field="${contrato.tblPersona.celular1}"
+																readonly="readonly" style="background-color: #ECECEC;" />
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Materno:
+															</label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2"
+																placeholder="materno"
+																th:field="${contrato.tblPersona.materno}"
+																readonly="readonly" style="background-color: #ECECEC;" />
+														</div>
+													</div>
+				
+				
+												</div>
+												<div class="col-md-4 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">DNI: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="dni"
+																th:field="${contrato.tblPersona.numeroDni}"
+																readonly="readonly" style="background-color: #ECECEC;" />
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Raz&oacute;n
+																Social</label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2"
+																placeholder="razon social"
+																th:field="${contrato.tblPersona.razonSocial}"
+																readonly="readonly" style="background-color: #ECECEC;" />
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">RUC: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="ruc"
+																th:field="${contrato.tblPersona.numeroRuc}"
+																readonly="readonly" style="background-color: #ECECEC;" />
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Direcci&oacute;n:
+															</label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2"
+																placeholder="direccion"
+																th:field="${contrato.tblPersona.direccionEmpresa}"
+																readonly="readonly" style="background-color: #ECECEC;" />
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4 mb-1">
+													
+												</div>
+				
+				
+											</div>
+											<br></br>
+										</fieldset>
+									</div>
+								</div>
+				
+								<div class="col-md-12 mb-1" align="center">
+									<p style="color: red" th:text="${resultadoOperacion}" />
+								</div>
+				
+								<div class="row">
+				
+									<div id="tabs" class="container">
+										<ul>
+											<li><a href="#tabs-01">Alquiler</a></li>
+											<li><a href="#tabs-02">Servicio</a></li>
+											<li><a href="#tabs-03">Luz</a></li>
+											<li><a href="#tabs-04">Arbitrios</a></li>
+											<li><a href="#tabs-05">Comprobante</a></li>
+				
+										</ul>
+										<!-- Listado de las Cuentas por Cobrar -->
+										<div id="tabs-01" style="background-color: #FEEF8B;">
+											<fieldset>
+												<div class="row">
+													<div class="col-md-7 mb-3">
+														<div id="c_tablas" th:if="${not #lists.isEmpty(listaCxcAlquiler)}">
+															<div class="tableFixHeadCobro">
+																<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+																	<thead>
+																		<tr>
+																			<th>Fecha Vencimiento</th>
+																			<th>Monto Generado</th>
+																			<th>Saldo</th>
+																			<th>Tipo Moneda</th>
+																			<th>Descripci&oacute;n</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+																		<tr th:each="alquiler : ${listaCxcAlquiler}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																			<td ><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(alquiler.fechaFin)}"></font></td>
+																			<td th:text="${alquiler.montoGenerado}">generado</td>
+																			<td th:text="${alquiler.saldo}">saldo</td>
+																			<td align="center">
+																				<div th:replace="fragments/util :: tipoMoneda(tipo=${alquiler.tipoMoneda})"></div>
+																			</td>
+																			<td th:text="${alquiler.nombre}">nombre</td>
+																		</tr>
+																	</tbody>
+																</table>
+															</div>
+														</div>
+														<div id="c_tablas" th:if="${#lists.isEmpty(listaCxcAlquiler)}">
+															<table id="t02"
+																class="table   table-bordered table-active tabla_cabecera_general">
+																<tr>
+																	<td width="10%" align="center">Fecha Vencimiento</td>
+																	<td width="10%" height="17">Monto Generado</td>
+																	<td width="10%" height="17">Saldo</td>
+																	<td width="10%" height="17">Tipo Moneda</td>
+																	<td width="10%" align="center">Descripci&oacute;n</td>
+																</tr>
+																<tr class="campos2" onMouseOver="this.className='camposF'"
+																	onMouseOut="this.className='camposFi'">
+																	<td colspan="5" align="center">No se encontr&oacute;
+																		elementos</td>
+																</tr>
+															</table>
+														</div>
+														
+													</div>
+													<div class="col-md-5 mb-1">
+														<br></br>
+														<input type="hidden" th:field="${contrato.tipoMonedaAlquiler}" id="idContratoAlqTipoMoneda" />
+														<input type="hidden" th:field="${cobroAlquiler.fechaCobro}" />
+														<input type="hidden" th:field="${cobroAlquiler.saldoMesMensaje}" id="idSaldoMensajeAlquiler"/>
+														<input type="hidden" th:field="${cobroAlquiler.nombreMesMensaje}" id="idMesMensajeAlquiler"/>
+														<input type="hidden" th:field="${cobroServicio.saldoMesMensaje}" id="idSaldoMensajeServicio"/>
+														<input type="hidden" th:field="${cobroServicio.nombreMesMensaje}" id="idMesMensajeServicio"/>
+														<input type="hidden" th:field="${cobroLuz.saldoMesMensaje}" id="idSaldoMensajeLuz"/>
+														<input type="hidden" th:field="${cobroLuz.nombreMesMensaje}" id="idMesMensajeLuz"/>
+														<input type="hidden" th:field="${cobroArbitrio.saldoMesMensaje}" id="idSaldoMensajeArbitrio"/>
+														<input type="hidden" th:field="${cobroArbitrio.nombreMesMensaje}" id="idMesMensajeArbitrio"/>
+														
+														<input type="hidden" th:field="${cobroGeneralBean.cobroAlquiler.mensajeCobro}" id="idMsgCobroAlquiler"/>
+														<input type="hidden" th:field="${cobroGeneralBean.cobroServicio.mensajeCobro}" id="idMsgCobroServicio"/>
+														<input type="hidden" th:field="${cobroGeneralBean.cobroLuz.mensajeCobro}" id="idMsgCobroLuz"/>
+														<input type="hidden" th:field="${cobroGeneralBean.cobroArbitrio.mensajeCobro}" id="idMsgCobroArbitrio"/>
+														
+														<!--  div id="c_tablas" th:if="${cobroAlquiler.tipoCambio!=null}"-->
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Fecha de Cobro: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center" th:if="${session.SessionPermiso.modCobFecCob=='S'}">
+																	<input type="text" class="form-control_v2 is-valid" id="cobroAlquilerfechaCobro" placeholder="dd/MM/yyyy" th:field="${cobroGeneralBean.cobroAlquiler.fechaCobro}" autocomplete="off"/>
+																</div>
+																<div class="col-md-4 mb-1" align="center" th:if="${session.SessionPermiso.modCobFecCob=='N'}">
+																	<input type="hidden" th:field="${cobroGeneralBean.cobroAlquiler.fechaCobro}"/>
+																	<label for="idNombre" class="form-control_v2 " th:text="${#dates.format(cobroGeneralBean.cobroAlquiler.fechaCobro, 'dd/MM/yyyy')}">Fecha</label>
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Moneda: </label>
+																</div>
+																<div class="col-md-8 mb-1" align="center">
+																	<select th:field="${cobroGeneralBean.cobroAlquiler.tipoMoneda}"
+																		class="form-control_v2 is-valid" id="idMonedaAlquiler"
+																		onchange="jsCalcularMontoAlTipoCambioAlquiler('idMontoSoleAlquiler','idMonedaAlquiler','idMontoDolarAlquiler','idTipoCambioAlquiler','idMensajeCobroAlquiler','idSaldoMensajeAlquiler','idMesMensajeAlquiler');">
+																		<option value="-1">--Seleccionar--</option>
+																		<option th:each="entry : ${mapTipoMoneda}"
+																			th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Monto: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+																		placeholder="" th:field="${cobroGeneralBean.cobroAlquiler.monto}"
+																		onkeypress="return isNumberKey(event)"
+																		onkeyup="jsCalcularMontoAlTipoCambioAlquiler('idMontoSoleAlquiler','idMonedaAlquiler','idMontoDolarAlquiler','idTipoCambioAlquiler','idMensajeCobroAlquiler','idSaldoMensajeAlquiler','idMesMensajeAlquiler');"
+																		id="idMontoSoleAlquiler" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right"></div>
+																<div class="col-md-8 mb-1" align="left">
+																	<font id="idMensajeCobroAlquiler" color="red" th:text="${cobroGeneralBean.cobroAlquiler.mensajeCobro}"></font>
+																</div>
+															</div>
+															<div class="row" id="idAlquilerDivTipoCambio">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Tipo de Cambio: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2  is-valid"
+																		placeholder=""
+																		autocomplete="off"
+																		onkeypress="return isNumberKey(event)"
+																		th:field="${cobroGeneralBean.cobroAlquiler.tipoCambio}"
+																		onkeyup="jsCalcularMontoAlTipoCambioAlquiler('idMontoSoleAlquiler','idMonedaAlquiler','idMontoDolarAlquiler','idTipoCambioAlquiler','idMensajeCobroAlquiler','idSaldoMensajeAlquiler','idMesMensajeAlquiler');"
+																		id="idTipoCambioAlquiler" />
+				
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row" id="idAlquilerDivCalculado">
+																<div class="col-md-4 mb-5" align="right">
+																	<label for="idNombre" class="textBold9pt">Calculado: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2 " style="background-color: #ECECEC;"
+																		readonly="readonly" placeholder=""
+																		th:field="${cobroGeneralBean.cobroAlquiler.calculado}"
+																		id="idMontoDolarAlquiler" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Tipo de Pago: </label>
+																</div>
+																<div class="col-md-8 mb-1" align="center">
+																	<select th:field="${cobroGeneralBean.cobroAlquiler.tipoPago}"
+																		class="form-control_v2 is-valid" id="idTipoPago"
+																		onchange="jsMostrarBancarizado( this, 'idDivTipoOperacion','idDivNumeroOperacion','idDivFechaOperacion');">
+																		<option value="-1">--Seleccionar--</option>
+																		<option th:each="entry : ${session.SessionMapTipoPago}"
+																			th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row" style="display:none" id="idDivTipoOperacion">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Tipo de Operaci&oacute;n: </label>
+																</div>
+																<div class="col-md-8 mb-1" align="center">
+																	<select th:field="${cobroGeneralBean.cobroAlquiler.tipoBancarizado}"
+																		class="form-control_v2 is-valid" id="idTipoOperacion">
+																		<option value="-1">--Seleccionar--</option>
+																		<option th:each="entry : ${session.SessionMapTipoBancarizado}"
+																			th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row" style="display:none" id="idDivNumeroOperacion" >
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+																		placeholder="" th:field="${cobroGeneralBean.cobroAlquiler.numeroOperacion}"
+																		id="idNumeroOperacion" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row" style="display:none" id="idDivFechaOperacion" >
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Fecha de Operaci&oacute;n: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2 is-valid" id="cobroAlquilerfechaOperacion" placeholder="dd/MM/yyyy" th:field="${cobroGeneralBean.cobroAlquiler.fechaOperacion}" autocomplete="off"/>
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+														<!--  /div-->
+														<!--div id="c_tablas" th:if="${cobroAlquiler.tipoCambio==null}">
+															<div class="col-md-12 mb-1" align="center" th:if="${contrato.estadoContrato == 'PND' || contrato.estadoContrato == 'VGN'}">
+																<p style="color: red">No se tiene el tipo de cambio
+																	registrado para el d&iacute;a de Hoy. No se puede
+																	continuar</p>
+															</div>
+														</div-->
+													</div>
+				
+												</div>
+											</fieldset>
+										</div>
+										<!-- Servicios -->
+										<div id="tabs-02"  style="background-color: #FEEF8B;">
+											<fieldset >
+												<div class="row">
+													<div class="col-md-7 mb-3">	
+														<div id="c_tablas" th:if="${not #lists.isEmpty(listaCxcServicio)}">
+															<div class="tableFixHeadCobro">
+																<table id="idTablaServicio" class="table   table-bordered table-active tabla_cabecera_general">
+																	<thead>
+																		<tr>
+																			<th width="10%" align="center">Fecha Vencimiento</th>
+																			<th width="8%" height="17">Monto Generado</th>
+																			<th width="8%" height="17">Saldo</th>
+																			<th width="8%" height="17">Tipo Moneda</th>
+																			<th width="10%" align="center">Descripci&oacute;n</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+																		<tr th:each="servicio : ${listaCxcServicio}" class="campos2" onMouseOver="this.className='camposF'"	onMouseOut="this.className='camposFi'">
+																			<td ><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(servicio.fechaFin)}"></font></td>
+																			<td th:text="${servicio.montoGenerado}">generado</td>
+																			<td th:text="${servicio.saldo}">saldo</td>
+																			<td align="center">
+																				<div th:replace="fragments/util :: tipoMoneda(tipo=${servicio.tipoMoneda})"></div>
+																			</td>
+																			<td th:text="${servicio.nombre}">nombre</td>
+																		</tr>
+																	</tbody>
+																</table>
+															</div>
+														</div>
+														<div id="c_tablas" th:if="${#lists.isEmpty(listaCxcServicio)}">
+															<table id="t02" class="table   table-bordered table-active tabla_cabecera_general">
+																<tr>
+																	<td width="10%" align="center">Fecha Vencimiento</td>
+																	<td width="8%" height="17">Monto Generado</td>
+																	<td width="8%" height="17">Saldo</td>
+																	<td width="8%" height="17">Tipo Moneda</td>
+																	<td width="10%" align="center">Descripci&oacute;n</td>
+																</tr>
+																<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																	<td colspan="5" align="center">No se encontr&oacute; elementos</td>
+																</tr>
+															</table>
+														</div>
+													</div>
+													<div class="col-md-5 mb-1">
+														<br></br>
+														<!--  div id="c_tablas" th:if="${cobroServicio.tipoCambioServicio!=null}"-->
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Fecha de Cobro: </label>
+																</div>
+				
+																<div class="col-md-4 mb-1" align="center" th:if="${session.SessionPermiso.modCobFecCob=='S'}">
+																	<input type="text" class="form-control_v2  is-valid" placeholder="dd/MM/yyyy" id="cobroServiciofechaCobroServicio" th:field="${cobroGeneralBean.cobroServicio.fechaCobroServicio}" autocomplete="off"/>
+																</div>
+																<div class="col-md-4 mb-1" align="center" th:if="${session.SessionPermiso.modCobFecCob=='N'}">
+																	<input type="hidden" th:field="${cobroGeneralBean.cobroServicio.fechaCobroServicio}"/>
+																	<label for="idNombre" class="form-control_v2 " th:text="${#dates.format(cobroGeneralBean.cobroServicio.fechaCobroServicio, 'dd/MM/yyyy')}">Fecha</label>
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Moneda: </label>
+																</div>
+																<div class="col-md-8 mb-1" align="center">
+																	<select th:field="${cobroGeneralBean.cobroServicio.tipoMonedaServicio}"
+																		class="form-control_v2 is-valid" id="idMonedaServicio"
+																		onchange="jsCalcularMontoAlTipoCambioServicio('idMontoSoleServicio','idMonedaServicio','idMontoDolarServicio','idTipoCambioServicio','idMensajeCobroServicio','idSaldoMensajeServicio','idMesMensajeServicio');">
+																		<option value="-1">--Seleccionar--</option>
+																		<option th:each="entry : ${mapTipoMoneda}"
+																			th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Monto: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+																		onkeypress="return isNumberKey(event)"
+																		placeholder="" th:field="${cobroGeneralBean.cobroServicio.monto}"
+																		onkeyup="jsCalcularMontoAlTipoCambioServicio('idMontoSoleServicio','idMonedaServicio','idMontoDolarServicio','idTipoCambioServicio','idMensajeCobroServicio','idSaldoMensajeServicio','idMesMensajeServicio');"
+																		id="idMontoSoleServicio" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right"></div>
+																<div class="col-md-8 mb-1" align="left">
+																	<font id="idMensajeCobroServicio" color="red"  th:text="${cobroGeneralBean.cobroServicio.mensajeCobro}"></font>
+																</div>
+															</div>
+															<div class="row" id="idServicioDivTipoCambio">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Tipo de Cambio: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2  is-valid"
+																		placeholder=""
+																		autocomplete="off"
+																		onkeypress="return isNumberKey(event)"
+																		th:field="${cobroGeneralBean.cobroServicio.tipoCambioServicio}"
+																		onkeyup="jsCalcularMontoAlTipoCambioServicio('idMontoSoleServicio','idMonedaServicio','idMontoDolarServicio','idTipoCambioServicio','idMensajeCobroServicio','idSaldoMensajeServicio','idMesMensajeServicio');"
+																		id="idTipoCambioServicio" />
+				
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row" id="idServicioDivCalculado">
+																<div class="col-md-4 mb-5" align="right">
+																	<label for="idNombre" class="textBold9pt">Calculado: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2 " style="background-color: #ECECEC;"
+																		readonly="readonly" placeholder=""
+																		th:field="${cobroGeneralBean.cobroServicio.calculado}"
+																		id="idMontoDolarServicio" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Tipo de Pago: </label>
+																</div>
+																<div class="col-md-8 mb-1" align="center">
+																	<select th:field="${cobroGeneralBean.cobroServicio.tipoPago}"
+																		class="form-control_v2 is-valid" id="idTipoPagoServicio"
+																		onchange="jsMostrarBancarizadoServicio( this, 'idDivTipoOperacionServicio','idDivNumeroOperacionServicio','idDivFechaOperacionServicio');">
+																		<option value="-1">--Seleccionar--</option>
+																		<option th:each="entry : ${session.SessionMapTipoPago}"
+																			th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row" style="display:none" id="idDivTipoOperacionServicio">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Tipo de Operaci&oacute;n: </label>
+																</div>
+																<div class="col-md-8 mb-1" align="center">
+																	<select th:field="${cobroGeneralBean.cobroServicio.tipoBancarizado}"
+																		class="form-control_v2 is-valid" id="idTipoOperacionServicio">
+																		<option value="-1">--Seleccionar--</option>
+																		<option th:each="entry : ${session.SessionMapTipoBancarizado}"
+																			th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row" style="display:none" id="idDivNumeroOperacionServicio" >
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+																		placeholder="" th:field="${cobroGeneralBean.cobroServicio.numeroOperacion}"
+																		id="idNumeroOperacionServicio" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row" style="display:none" id="idDivFechaOperacionServicio" >
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Fecha de Operaci&oacute;n: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2 is-valid" id="cobroServiciofechaOperacion" placeholder="dd/MM/yyyy" th:field="${cobroGeneralBean.cobroServicio.fechaOperacion}" autocomplete="off"/>
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+														<!-- /div-->
+														<!-- div id="c_tablas" th:if="${cobroServicio.tipoCambioServicio==null}">
+															<div class="col-md-12 mb-3" align="center" th:if="${contrato.estadoContrato == 'PND' || contrato.estadoContrato == 'VGN'}">
+																<p style="color: red">No se tiene el tipo de cambio
+																	registrado para el d&iacute;a de Hoy. No se puede continuar</p>
+															</div>
+														</div-->
+													</div>
+												</div>
+											</fieldset>
+				
+				
+										</div>
+										
+										<div id="tabs-03" style="background-color: #FEEF8B;">
+											<fieldset >
+												<div class="row">
+													<div class="col-md-7 mb-3">	
+														
+															<div id="c_tablas" th:if="${not #lists.isEmpty(listaCxcLuz)}">
+																<div class="tableFixHeadCobro">
+																	<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+																		<thead>
+																			<tr>
+																				<td width="10%" align="center">Fecha Vencimiento</td>
+																				<td width="10%" height="17">Monto Generado</td>
+																				<td width="10%" height="17">Saldo</td>
+																				<td width="10%" height="17">Tipo Moneda</td>
+																				<td width="10%" align="center">Descripci&oacute;n</td>
+																			</tr>
+																		</thead>
+																		<tbody>
+																			<tr th:each="luz : ${listaCxcLuz}" class="campos2" onMouseOver="this.className='camposF'"		onMouseOut="this.className='camposFi'">
+																				<td ><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(luz.fechaFin)}"></font></td>
+																				<td th:text="${luz.montoGenerado}">generado</td>
+																				<td th:text="${luz.saldo}">saldo</td>
+																				<td align="center">
+																					<div th:replace="fragments/util :: tipoMoneda(tipo=${luz.tipoMoneda})"></div>
+																				</td>
+																				<td th:text="${luz.nombre}">nombre</td>
+																			</tr>
+																		</tbody>
+																	</table>
+																</div>
+															</div>
+															<div id="c_tablas" th:if="${#lists.isEmpty(listaCxcLuz)}">
+																<table id="t02" class="table   table-bordered table-active tabla_cabecera_general">
+																	<tr>
+																		<td width="10%" align="center">Fecha Vencimiento</td>
+																		<td width="10%" height="17">Monto Generado</td>
+																		<td width="10%" height="17">Saldo</td>
+																		<td width="10%" height="17">Tipo Moneda</td>
+																		<td width="10%" align="center">Descripci&oacute;n</td>
+																	</tr>
+																	<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																		<td colspan="5" align="center">No se encontr&oacute; elementos</td>
+																	</tr>
+																</table>
+															</div>
+														
+													</div>
+													
+													<div class="col-md-5 mb-1">
+														<br></br>
+														<!-- div id="c_tablas" th:if="${cobroServicio.tipoCambioServicio!=null}"-->
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Fecha de Cobro: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center" th:if="${session.SessionPermiso.modCobFecCob=='S'}">
+																	<input type="text" class="form-control_v2  is-valid" placeholder="dd/MM/yyyy" id="cobroLuzfechaCobroLuz" th:field="${cobroGeneralBean.cobroLuz.fechaCobroLuz}" autocomplete="off"/>
+																</div>
+																<div class="col-md-4 mb-1" align="center" th:if="${session.SessionPermiso.modCobFecCob=='N'}">
+																	<input type="hidden" th:field="${cobroGeneralBean.cobroLuz.fechaCobroLuz}"/>
+																	<label for="idNombre" class="form-control_v2 " th:text="${#dates.format(cobroGeneralBean.cobroLuz.fechaCobroLuz, 'dd/MM/yyyy')}">Fecha</label>
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Moneda: </label>
+																</div>
+																<div class="col-md-8 mb-1" align="center">
+																	<select th:field="${cobroGeneralBean.cobroLuz.tipoMonedaLuz}"
+																		class="form-control_v2 is-valid" id="idMonedaLuz"
+																		onchange="jsCalcularMontoAlTipoCambio('idMontoSoleLuz','idMonedaLuz','idMontoDolarLuz','idTipoCambioLuz');">
+																		<option value="-1">--Seleccionar--</option>
+																		<option th:each="entry : ${mapTipoMoneda}"
+																			th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Monto: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+																		placeholder="" th:field="${cobroGeneralBean.cobroLuz.monto}"
+																		onkeypress="return isNumberKey(event)"
+																		onkeyup="jsCalcularMontoAlTipoCambioLuz('idMontoSoleLuz','idMonedaLuz','idMontoDolarLuz','idTipoCambioLuz','idMensajeCobroLuz','idSaldoMensajeLuz','idMesMensajeLuz');"
+																		id="idMontoSoleLuz" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right"></div>
+																<div class="col-md-8 mb-1" align="left">
+																	<font id="idMensajeCobroLuz" color="red"  th:text="${cobroGeneralBean.cobroLuz.mensajeCobro}"></font>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Tipo de Cambio: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2 is-valid "
+																		placeholder=""
+																		onkeypress="return isNumberKey(event)"
+																		autocomplete="off"
+																		th:field="${cobroGeneralBean.cobroLuz.tipoCambioLuz}"
+																		onkeyup="jsCalcularMontoAlTipoCambioLuz('idMontoSoleLuz','idMonedaLuz','idMontoDolarLuz','idTipoCambioLuz','idMensajeCobroLuz','idSaldoMensajeLuz','idMesMensajeLuz');"
+																		id="idTipoCambioLuz" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-5" align="right">
+																	<label for="idNombre" class="textBold9pt">Calculado: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2 " style="background-color: #ECECEC;"
+																		readonly="readonly" placeholder=""
+																		th:field="${cobroGeneralBean.cobroLuz.calculado}"
+																		id="idMontoDolarLuz" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															<!-- /div-->
+															<!-- div id="c_tablas" th:if="${cobroServicio.tipoCambioServicio==null   }">
+																<div class="col-md-12 mb-3" align="center" th:if="${contrato.estadoContrato == 'PND' || contrato.estadoContrato == 'VGN'}">
+																	<p style="color: red">No se tiene el tipo de cambio registrado para el d&iacute;a de Hoy. No se puede continuar</p>
+																</div>
+															</div-->
+														</div>
+														<div class="row">
+															<div class="col-md-4 mb-1" align="right">
+																<label for="idNombre" class="textBold9pt">Tipo de Pago: </label>
+															</div>
+															<div class="col-md-8 mb-1" align="center">
+																<select th:field="${cobroGeneralBean.cobroLuz.tipoPago}"
+																	class="form-control_v2 is-valid" id="idTipoPagoLuz"
+																	onchange="jsMostrarBancarizadoLuz( this, 'idDivTipoOperacionLuz','idDivNumeroOperacionLuz','idDivFechaOperacionLuz');">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapTipoPago}"
+																		th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																</select>
+															</div>
+														</div>
+														<div class="row" style="display:none" id="idDivTipoOperacionLuz">
+															<div class="col-md-4 mb-1" align="right">
+																<label for="idNombre" class="textBold9pt">Tipo de Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-8 mb-1" align="center">
+																<select th:field="${cobroGeneralBean.cobroLuz.tipoBancarizado}"
+																	class="form-control_v2 is-valid" id="idTipoOperacionLuz">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapTipoBancarizado}"
+																		th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																</select>
+															</div>
+														</div>
+														<div class="row" style="display:none" id="idDivNumeroOperacionLuz" >
+															<div class="col-md-4 mb-1" align="right">
+																<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-4 mb-1" align="center">
+																<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+																	placeholder="" th:field="${cobroGeneralBean.cobroLuz.numeroOperacion}"
+																	id="idNumeroOperacion" />
+															</div>
+															<div class="col-md-4 mb-1">
+															</div>
+														</div>
+														<div class="row" style="display:none" id="idDivFechaOperacionLuz" >
+															<div class="col-md-4 mb-1" align="right">
+																<label for="idNombre" class="textBold9pt">Fecha de Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-4 mb-1" align="center">
+																<input type="text" class="form-control_v2 is-valid" id="cobroLuzfechaOperacion" placeholder="dd/MM/yyyy" th:field="${cobroGeneralBean.cobroLuz.fechaOperacion}" autocomplete="off"/>
+															</div>
+															<div class="col-md-4 mb-1">
+															</div>
+														</div>
+													</div>
+												</div>
+											</fieldset>
+										</div>
+										<div id="tabs-04" style="background-color: #FEEF8B;">
+											<fieldset >
+												<div class="row">
+													<div class="col-md-7 mb-3">	
+														
+															<div id="c_tablas" th:if="${not #lists.isEmpty(listaCxcArbitrio)}">
+																<div class="tableFixHeadCobro">
+																	<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+																		<thead>
+																			<tr>
+																				<td width="10%" align="center">A&ntilde;o</td>
+																				<td width="10%" align="center">Periodo</td>
+																				<td width="10%" height="17">Monto Generado</td>
+																				<td width="10%" height="17">Saldo</td>
+																				<td width="10%" height="17">Tipo Moneda</td>
+																				
+																			</tr>
+																		</thead>
+																		<tbody>
+																			<tr th:each="arbitrio: ${listaCxcArbitrio}" class="campos2" onMouseOver="this.className='camposF'"		onMouseOut="this.className='camposFi'">
+																				<td th:text="${arbitrio.anio}">anio</td>
+																				<td th:text="${arbitrio.trimestre}"></td>
+																				<td th:text="${arbitrio.montoGenerado}">generado</td>
+																				<td th:text="${arbitrio.saldo}">saldo</td>
+																				<td align="center">
+																					<div th:replace="fragments/util :: tipoMoneda(tipo=SO)"></div>
+																				</td>
+																				
+																			</tr>
+																		</tbody>
+																	</table>
+																</div>
+															</div>
+															<div id="c_tablas" th:if="${#lists.isEmpty(listaCxcArbitrio)}">
+																<table id="t02" class="table   table-bordered table-active tabla_cabecera_general">
+																	<tr>
+																		<td width="10%" align="center">A&ntilde;o</td>
+																		<td width="10%" align="center">Periodo</td>
+																		<td width="10%" height="17">Monto Generado</td>
+																		<td width="10%" height="17">Saldo</td>
+																		<td width="10%" height="17">Tipo Moneda</td>
+																		
+																	</tr>
+																	<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																		<td colspan="5" align="center">No se encontr&oacute; elementos</td>
+																	</tr>
+																</table>
+															</div>
+														
+													</div>
+													
+													<div class="col-md-5 mb-1">
+														<br></br>
+														<!-- div id="c_tablas" th:if="${cobroServicio.tipoCambioServicio!=null}"-->
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Fecha de Cobro: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center" th:if="${session.SessionPermiso.modCobFecCob=='S'}">
+																	<input type="text" class="form-control_v2  is-valid" placeholder="dd/MM/yyyy" id="cobroArbitriofechaCobroArbitrio" th:field="${cobroGeneralBean.cobroArbitrio.fechaCobroArbitrio}" autocomplete="off"/>
+																</div>
+																<div class="col-md-4 mb-1" align="center" th:if="${session.SessionPermiso.modCobFecCob=='N'}">
+																	<input type="hidden" th:field="${cobroGeneralBean.cobroArbitrio.fechaCobroArbitrio}"/>
+																	<label for="idNombre" class="form-control_v2 " th:text="${#dates.format(cobroGeneralBean.cobroArbitrio.fechaCobroArbitrio, 'dd/MM/yyyy')}">Fecha</label>
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Moneda: </label>
+																</div>
+																<div class="col-md-8 mb-1" align="center">
+																	<input type="hidden" th:field="${cobroGeneralBean.cobroArbitrio.tipoMonedaArbitrio}" /> 
+																	<select th:field="${cobroGeneralBean.cobroArbitrio.tipoMonedaArbitrio}"
+																		class="form-control_v2 is-valid" id="idMonedaArbitrio"
+																		disabled="disabled" style="background-color:#ECECEC;"
+																		onchange="jsCalcularMontoAlTipoCambio('idMontoSoleArbitrio','idMonedaArbitrio','idMontoDolarArbitrio','idTipoCambioArbitrio');">
+																		<option value="-1">--Seleccionar--</option>
+																		<option th:each="entry : ${mapTipoMoneda}"
+																			th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Monto: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+																		placeholder="" th:field="${cobroGeneralBean.cobroArbitrio.monto}"
+																		onkeypress="return isNumberKey(event)"
+																		
+																		id="idMontoSoleArbitrio" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-4 mb-1" align="right"></div>
+																<div class="col-md-8 mb-1" align="left">
+																	<font id="idMensajeCobroArbitrio" color="red"  th:text="${cobroGeneralBean.cobroArbitrio.mensajeCobro}"></font>
+																</div>
+															</div>
+															<!--div class="row">
+																<div class="col-md-4 mb-1" align="right">
+																	<label for="idNombre" class="textBold9pt">Tipo de Cambio: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2 is-valid "
+																		placeholder=""
+																		onkeypress="return isNumberKey(event)"
+																		autocomplete="off"
+																		th:field="${cobroGeneralBean.cobroArbitrio.tipoCambioArbitrio}"
+																		onkeyup="jsCalcularMontoAlTipoCambioLuz('idMontoSoleArbitrio','idMonedaArbitrio','idMontoDolarArbitrio','idTipoCambioArbitrio','idMensajeCobroArbitrio','idSaldoMensajeArbitrio','idMesMensajeArbitrio');"
+																		id="idTipoCambioArbitrio" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div-->
+															<!--div class="row">
+																<div class="col-md-4 mb-5" align="right">
+																	<label for="idNombre" class="textBold9pt">Calculado: </label>
+																</div>
+																<div class="col-md-4 mb-1" align="center">
+																	<input type="text" class="form-control_v2 " style="background-color: #ECECEC;"
+																		readonly="readonly" placeholder=""
+																		th:field="${cobroGeneralBean.cobroArbitrio.calculado}"
+																		id="idMontoDolarArbitrio" />
+																</div>
+																<div class="col-md-4 mb-1">
+																</div>
+															</div>
+															<div id="c_tablas" th:if="${cobroServicio.tipoCambioServicio==null   }">
+																<div class="col-md-12 mb-3" align="center" th:if="${contrato.estadoContrato == 'PND' || contrato.estadoContrato == 'VGN'}">
+																	<p style="color: red">No se tiene el tipo de cambio registrado para el d&iacute;a de Hoy. No se puede continuar</p>
+																</div>
+															</div>
+														</div-->
+														<div class="row">
+															<div class="col-md-4 mb-1" align="right">
+																<label for="idNombre" class="textBold9pt">Tipo de Pago: </label>
+															</div>
+															<div class="col-md-8 mb-1" align="center">
+																<select th:field="${cobroGeneralBean.cobroArbitrio.tipoPago}"
+																	class="form-control_v2 is-valid" id="idTipoPagoArbitrio"
+																	onchange="jsMostrarBancarizadoLuz( this, 'idDivTipoOperacionArbitrio','idDivNumeroOperacionArbitrio','idDivFechaOperacionArbitrio');">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapTipoPago}"
+																		th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																</select>
+															</div>
+														</div>
+														<div class="row" style="display:none" id="idDivTipoOperacionArbitrio">
+															<div class="col-md-4 mb-1" align="right">
+																<label for="idNombre" class="textBold9pt">Tipo de Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-8 mb-1" align="center">
+																<select th:field="${cobroGeneralBean.cobroArbitrio.tipoBancarizado}"
+																	class="form-control_v2 is-valid" id="idTipoOperacionArbitrio">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapTipoBancarizado}"
+																		th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																</select>
+															</div>
+														</div>
+														<div class="row" style="display:none" id="idDivNumeroOperacionArbitrio" >
+															<div class="col-md-4 mb-1" align="right">
+																<label for="idNombre" class="textBold9pt">N&uacute;mero Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-4 mb-1" align="center">
+																<input type="text" class="form-control_v2  is-valid" autocomplete="off"  style="background-color: #ebf9e5;"
+																	placeholder="" th:field="${cobroGeneralBean.cobroArbitrio.numeroOperacion}"
+																	id="idNumeroOperacion" />
+															</div>
+															<div class="col-md-4 mb-1">
+															</div>
+														</div>
+														<div class="row" style="display:none" id="idDivFechaOperacionArbitrio" >
+															<div class="col-md-4 mb-1" align="right">
+																<label for="idNombre" class="textBold9pt">Fecha de Operaci&oacute;n: </label>
+															</div>
+															<div class="col-md-4 mb-1" align="center">
+																<input type="text" class="form-control_v2 is-valid" id="cobroArbitriofechaOperacion" placeholder="dd/MM/yyyy" th:field="${cobroGeneralBean.cobroArbitrio.fechaOperacion}" autocomplete="off"/>
+															</div>
+															<div class="col-md-4 mb-1">
+															</div>
+														</div>
+													</div>
+												</div>
+											</fieldset>
+										</div>
+										<!-- Listado de las Cuentas con Factura o Boleta -->
+										<div id="tabs-05" style="background-color: #FEEF8B;">
+											<fieldset>
+												<div class="row">
+													<div class="col-md-12 mb-3">
+														<div id="c_tablas" th:if="${not #lists.isEmpty(listaCxcSinSaldo)}">
+															<div class="tableFixHeadCobro">
+																<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+																	<thead>
+																		<tr>
+																			<th>Fecha Vencimiento</th>
+																			<th>Monto Generado</th>
+																			<th>Saldo</th>
+																			<th>Tipo Moneda</th>
+																			<th>Descripci&oacute;n</th>
+																			<th>Fecha Cobro</th>
+																			<th>Nro Comprobante</th>
+																			<th>PDF</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+																		<tr th:each="alquiler : ${listaCxcSinSaldo}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																			<td ><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(alquiler.fechaFin)}"></font></td>
+																			<td th:text="${alquiler.montoGenerado}">generado</td>
+																			<td th:text="${alquiler.saldo}">saldo</td>
+																			<td align="center">
+																				<div th:replace="fragments/util :: tipoMoneda(tipo=${alquiler.tipoMoneda})"></div>
+																			</td>
+																			<td th:text="${alquiler.nombre}">nombre</td>
+																			<td th:text="${alquiler.fechaModificacion}">fechaModificacion</td>
+																			<td th:text="${alquiler.serieComprobante + '-' + alquiler.numeroComprobante}">nombre</td>
+																			<td >
+																				<a	th:href="${'/cobro/editar/pdf/' + alquiler.codigoComprobante}">
+																					<img th:src="@{/images/iconos/doc_pdf.png}" alt="pdf" width="35px"/>
+																				</a>
+																			</td>
+																		</tr>
+																	</tbody>
+																</table>
+															</div>
+														</div>
+														<div id="c_tablas" th:if="${#lists.isEmpty(listaCxcSinSaldo)}">
+															<table id="t02" class="table   table-bordered table-active tabla_cabecera_general">
+																<tr>
+																	<th>Fecha Vencimiento</th>
+																	<th>Monto Generado</th>
+																	<th>Saldo</th>
+																	<th>Tipo Moneda</th>
+																	<th>Descripci&oacute;n</th>
+																	<th>Fecha Cobro</th>
+																	<th>Nro Comprobante</th>
+																	<th>PDF</th>
+																</tr>
+																<tr class="campos2" onMouseOver="this.className='camposF'"
+																	onMouseOut="this.className='camposFi'">
+																	<td colspan="8" align="center">No se encontr&oacute;
+																		elementos</td>
+																</tr>
+															</table>
+														</div>
+														
+													</div>
+													
+				
+												</div>
+											</fieldset>
+										</div>
+										
+										
+				
+										
+				
+										
+									</div>
+				
+								</div>
+								
+								<div class="row">
+									<div class="col-md-12 mb-1" align="center">
+										<br />
+										
+										
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12 mb-3" align="center">
+				
+										<button class="btn btn-primary" type="button" onclick="jsRegistrarCobroCxC();" th:if="${contrato.estadoContrato == 'PND' || contrato.estadoContrato == 'VGN' || contrato.estadoContrato == 'RNV'}">Registrar Cobro</button>
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+										<button class="btn btn-primary" type="button" onclick="jsHistorialCobroCxC();">Historial</button>
+										<!--  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+										<button class="btn btn-primary" type="button" onclick="jsObtenerDatosAdelantos();">Procesar Adelantos</button>-->
+									</div>
+								</div>
+							</div>
+				
+						</form>
+				
+				
+				
+					</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

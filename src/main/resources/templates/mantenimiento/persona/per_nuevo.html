@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/personas}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Mantenimiento de Persona - Nuevo</div>
+						</div>
+						
+						<form id="form" th:object="${entidad}" th:action="@{/persona/nuevo/guardar}" method="post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Datos Nuevos del Persona</legend>
+										
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idTipoPersona" class="textBold9pt">Tipo</label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoPersona',map=${mapTipoPersona}"></th:block> /*/-->
+												
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="textBold9pt">Nombre</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Nombre" th:field="${entidad.nombre}" required="required"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="textBold9pt">Paterno</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Paterno" th:field="${entidad.paterno}" required="required"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idDireccion" class="textBold9pt">Materno</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Materno" th:field="${entidad.materno}" required="required"/>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idTipoPersona" class="textBold9pt">Estado Civil</label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='estadoCivil',map=${mapEstadoCivil}"></th:block> /*/-->
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="textBold9pt">DNI</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="DNI" th:field="${entidad.numeroDni}" required="required"/>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="textBold9pt">RUC</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="RUC" th:field="${entidad.numeroRuc}" required="required"/>
+											</div>
+											<div class="col-md-5 mb-3">
+												<label for="idDireccion" class="textBold9pt">Raz&oacute;n Social</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Razon Social" th:field="${entidad.razonSocial}" required="required"/>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-2 mb-3">
+												<label for="idTipoPersona" class="textBold9pt">Es Cliente</label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoCliente',map=${mapSiNo}"></th:block> /*/-->
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="textBold9pt">Es Proveedor</label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoProveedor',map=${mapSiNo}"></th:block> /*/-->
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="textBold9pt">Tel&eacute;fono 1</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Telefono" th:field="${entidad.telefono1}" />
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idDireccion" class="textBold9pt">Tel&eacute;fono 2</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Telefono" th:field="${entidad.telefono2}" />
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="textBold9pt">Celular 1</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Celular" th:field="${entidad.celular1}" />
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idDireccion" class="textBold9pt">Celular 2</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Celular" th:field="${entidad.celular2}" />
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Correo Electr&oacute;nico</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Correo Electronico" th:field="${entidad.correoElectronico}"/>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Direcci&oacute;n Empresa</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Direccion de la Empresa" th:field="${entidad.direccionEmpresa}"/>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idDireccion" class="textBold9pt">Direcci&oacute;n Casa</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Direccion de la Casa" th:field="${entidad.direccionCasa}"/>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12 mb-3">
+												<label for="idDescripcion" class="textBold9pt">Observaci&oacute;n</label>
+												<textarea rows="5" cols="60" class="form-control_v2 is-valid" th:field="${entidad.observacion}"></textarea>
+											</div>
+											
+										</div>
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"></div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" /> 
+						  					<button class="btn btn-success" type="submit">Guardar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  		</div>
+						  	</div>
+						</form>
+			
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

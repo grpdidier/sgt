@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/cliente/arbitrio/nuevo}"><img th:src="@{/images/iconos/nuevo.png}" alt="Nuevo" width="50px"/></a> 
+								<a href="#" th:href="@{/cliente/arbitrio/pendiente}"><img th:src="@{/images/iconos/buscar.png}" alt="Pendientes" width="50px"/></a> 
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" width="50px"/></a>
+								
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> M&oacute;dulo de Arbitrio</div>
+							
+						</div>
+			
+						<form id="form" th:object="${filtro}" th:action="@{/cliente/arbitrios/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<br></br>
+								<fieldset class="scheduler-border" style="background-color:#FEEF8B;">
+									<br></br>
+										<div class="row">
+											<div class="col-md-1 mb-3" align="left">
+											</div>
+											<div class="col-md-3 mb-3" align="left">
+												<label for="idInmueble" class="textBold9pt">Inmueble</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.codigoEdificacionFiltro}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idAnio" class="textBold9pt">A&ntilde;o</label>
+												<div th:fragment="combo">
+													<label> 
+														<select th:field="${filtro.anioFiltro}" 
+															class="form-control_v2 is-valid" >
+																<option value="-1">--Seleccionar--</option>
+																<option th:each="entry : ${session.SessionmapAnioFiltro}" th:value="${entry.value}"
+																	th:text="${entry.key}">opcion</option>
+														</select>
+													</label>
+												</div>
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idTienda" class="textBold9pt">Tienda</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="numero" th:field="${filtro.numeroFiltro}"/>
+											</div>
+											<div class="col-md-3 mb-3" align="center">
+												<br/>
+												<button class="btn btn-success" type="submit">Buscar</button>
+											</div>
+										</div>
+											
+								</fieldset>
+								
+								<div class="container_v4" align="center">
+									
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">		
+									<!--Pagination -->
+									<nav class="my-1">
+									    <ul class="pagination pagination-circle pg-blue mb-0">
+											 <!--First-->
+									        <li th:class="${page.firstPage}? 'page-item disabled' : 'page-item'">
+									        	<span aria-hidden="true" class="page-link" th:if='${page.firstPage}'>First</span>
+									        	<a th:if='${not page.firstPage}' th:href="${ page.url + '0' + '/' +  page.size + '/F'  }">
+									        		 <span class="page-link" th:if='${not page.firstPage}'>First</span>
+									        	</a>
+									        </li>
+									
+									        <!--Arrow left-->
+									        <li  th:class="${page.hasPreviousPage}? 'page-item disabled' : 'page-link'">
+									        	<span aria-hidden="true"  class="page-link" th:if='${page.hasPreviousPage}'>&laquo;</span>
+									            <a  th:if='${not page.hasPreviousPage}' th:href="${page.url + (page.pageActual-2) + '/' +  page.size + '/P'}" title='Go to previous page' aria-label="Previous" >
+									               <span  aria-hidden="true">&laquo;Previous</span>
+									            </a>
+									        </li>
+									
+									        <!--Numbers-->
+									        <li th:each='item : ${page.items}' th:class="${item.current}? 'page-item active' : 'page-item'">
+									        	 <span th:if='${item.current}' th:text='${item.number}' class="page-link">1</span>
+									        	 <a class="page-link" th:if='${not item.current}' th:href="${page.url + (item.number-1)  + '/' +  page.size + '/C'}"><span th:text='${item.number}'>1</span></a>
+									        </li>
+									        <!--Arrow right-->
+									        <li th:class="${page.hasNextPage}? 'page-item disable' : 'page-link'">
+									        	<span aria-hidden="true"  class="page-link" th:if='${page.hasNextPage}'>&raquo;</span>
+									        	<a aria-label="Next" th:if='${not page.hasNextPage}' th:href="${page.url + (page.pageActual)  + '/' +  page.size + '/N'}" title='Go to next page'>
+									            	<span aria-hidden="true">Next&raquo;</span>
+									            </a>
+									        </li>
+									
+									        <!--First-->
+									        <li th:class="${page.lastPage}? 'page-item disabled' : 'page-link'">
+									        	<span aria-hidden="true" class="page-link" th:if='${page.lastPage}'>Last</span>
+									        	<a  aria-label="Last" th:if='${not page.lastPage}' th:href="${page.url + (page.totalPages - 1)  + '/' +  page.size + '/L'}">
+									        		<span aria-hidden="true" >Last: </span><font th:text="${page.total}"> </font> Elements
+									        	</a>
+									        </li>
+									        
+									        
+									
+									    </ul>
+									</nav>
+									
+									<!--/Pagination -->				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Inmueble</th>
+											<th>Local</th>
+											<th>A&ntilde;o</th>
+											<th>Periodo</th>
+											<th>Fecha Fin</th>
+											<th>Monto Generado</th>
+											<th>Saldo</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr th:each="arbitrio : ${registros}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${arbitrio.tblTienda.tblEdificio.nombre}">inmueble</td>
+											<td th:text="${arbitrio.tblTienda.numero}">local</td>
+											<td th:text="${arbitrio.anio}">anio</td>
+											<td th:text="${arbitrio.trimestre}">periodo</td>
+											<td th:text="${arbitrio.fechaFin}">fecha</td>
+											<td th:text="${arbitrio.montoGenerado}">generado</td>
+											<td th:text="${arbitrio.saldo}">saldo</td>
+											<td align="center"><a
+												th:href="${'/cliente/arbitrio/editar/' + arbitrio.codigoArbitrio}"><img
+													th:src="@{/images/iconos/editar.png}" alt="Editar" /></a></td>
+											<td align="center">
+												
+												<a th:href="${'/cliente/arbitrio/eliminar/' + arbitrio.codigoArbitrio}"><img
+													th:src="@{/images/iconos/eliminar.png}" alt="Eliminar" 
+													onclick="if(!confirm('Desea eliminar el arbitrio seleccionado?')){ return false;}" /></a>
+													
+											</td>		
+										</tr>
+									</table>
+									<a href="#"  onclick="jsEjecutarActualizacionFecha();">>></a>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Inmueble</th>
+											<th>Local</th>
+											<th>A&ntilde;o</th>
+											<th>Periodo</th>
+											<th>Fecha Fin</th>
+											<th>Monto Generado</th>
+											<th>Saldo</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="9" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

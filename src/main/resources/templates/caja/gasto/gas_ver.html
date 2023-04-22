@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/gastos/regresar}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Montos por Pagar - Gastos - Ver</div>
+						</div>
+						
+						<form id="form" th:object="${entidad}" th:action="@{/gasto/nuevo/editar}" method="post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border fondoAzul">
+									
+										<br></br>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="titleWhite10pt">Inmueble: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<select th:field="${entidad.tblEdificio.codigoEdificio}" class="form-control_v2 " disabled="disabled" style="background-color:#ECECEC;">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-3 mb-3">
+												<input type="hidden" th:field="${entidad.codigoGasto}"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="titleWhite10pt">Fecha de Cobro: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<input type="text" class="form-control_v2" placeholder="dd/MM/yyyy" th:field="${entidad.fechaGasto}" autocomplete="off" disabled="disabled"  style="background-color:#ECECEC;"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idDireccion" class="titleWhite10pt">Tipo de Gasto: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<select th:field="${entidad.codigoTipoGasto}" class="form-control_v2 is-valid" disabled="disabled" style="background-color:#ECECEC;">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapConceptoGasto}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="titleWhite10pt">Monto Cobrado: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<input type="text" class="form-control_v2 " placeholder="" th:field="${entidad.monto}" autocomplete="off" disabled="disabled" style="background-color:#ECECEC;"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idDireccion" class="titleWhite10pt">Tipo de Moneda: </label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<!--/*/ <th:block th:include="fragments/util :: comboDisableColor" th:with="campo='tipoMoneda',map=${session.SessionMapTipoMoneda}"></th:block> /*/-->
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12 mb-3">
+												<label for="idDescripcion" class="titleWhite10pt">Concepto</label>
+												<textarea rows="5" cols="60" class="form-control_v2 is-valid" th:field="${entidad.observacion}" readonly="readonly"  style="background-color:#ECECEC;"></textarea>
+												
+											</div>
+											
+										</div>
+										
+								</fieldset>
+								<br></br>
+								NOTA: NO se puede editar o eliminar Gastos de fechas anteriores. 
+						  	</div>
+						</form>
+			
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>	
+</body>
+</html>

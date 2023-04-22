@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> M&oacute;dulo de Modificaci&oacute;n Contrato</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/contratos/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Criterios de b&uacute;squeda</legend>
+			
+										<div class="row">
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Nombre</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Nombre" th:field="${filtro.tblPersona.nombre}"/>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idPaterno" class="textBold9pt">Apellido Paterno</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Apellido Paterno" th:field="${filtro.tblPersona.paterno}"/>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idMaterno" class="textBold9pt">Apellido Materno</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Apellido Materno" th:field="${filtro.tblPersona.materno}"/>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idInmueble" class="textBold9pt">Inmueble</label>
+													<div th:fragment="combo">
+														<label> <select th:field="${filtro.tblTienda.tblEdificio.codigoEdificio}" 
+															class="form-control_v2 is-valid">
+																<option value="-1">--Seleccionar--</option>
+																<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}"
+																	th:text="${entry.key}">opcion</option>
+														</select>
+														</label>
+													</div>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idLocal" class="textBold9pt">Local</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Local" th:field="${filtro.tblTienda.numero}"/>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idRUC" class="textBold9pt">RUC</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="RUC" th:field="${filtro.tblPersona.numeroRuc}"/>
+											</div>
+											<div class="col-md-5 mb-3">
+												<label for="idRazonSocial" class="textBold9pt">Raz&oacute;n Social</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Razon Social" th:field="${filtro.tblPersona.razonSocial}"/>
+											</div>
+										</div>
+			
+											
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"> </div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<button class="btn btn-success" type="submit">Buscar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>N&uacute;mero</th>
+											<th>Nombre</th>
+											<th>Ap. Paterno</th>
+											<th>Ap. Materno</th>
+											<th>Inmueble</th>
+											<th>Local</th>
+											<th>RUC</th>
+											<th>Raz&oacute;n Social</th>
+											<th>Fec. Inicio</th>
+											<th>Fec. Fin</th>
+											<th>Alquiler</th>
+											<th>Estado</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr th:each="contrato : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${contrato.numero}">numero</td>
+											<td th:text="${contrato.tblPersona.nombre}">nombre</td>
+											<td th:text="${contrato.tblPersona.paterno}">paterno</td>
+											<td th:text="${contrato.tblPersona.materno}">materno</td>
+											<td th:text="${contrato.tblTienda.tblEdificio.nombre}">inmueble</td>
+											<td th:text="${contrato.tblTienda.numero}">local</td>
+											<td th:text="${contrato.tblPersona.numeroRuc}">ruc</td>
+											<td th:text="${contrato.tblPersona.razonSocial}">razon social</td>
+											<td th:text="${#dates.format(contrato.fechaInicio, 'dd/MM/yyyy')}">fecha inicio</td>
+											<td th:text="${#dates.format(contrato.fechaFin, 'dd/MM/yyyy')}">fecha fin </td>
+											<td th:text="${contrato.montoAlquiler}">monto</td>
+											<td align="center">
+												<div th:replace="fragments/util :: estadoContrato(tipo=${contrato.estadoContrato})"></div>
+											</td>
+											
+											<td align="center"><a
+												th:href="${'/contrato/editar/' + contrato.codigoContrato}"><img
+													th:src="@{/images/iconos/editar.png}" alt="Editar" /></a></td>
+											<td align="center">
+												<div th:if="${contrato.estadoContrato == 'PND'}">			
+												<a th:href="${'/contrato/eliminar/' + contrato.codigoContrato}">
+													<img th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"	onclick="if(!confirm('Desea eliminar el contrato seleccionado?')){ return false;}" />
+												</a>
+												</div>
+												
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>N&uacute;mero</th>
+											<th>Nombre</th>
+											<th>Ap. Paterno</th>
+											<th>Ap. Materno</th>
+											<th>Inmueble</th>
+											<th>Local</th>
+											<th>RUC</th>
+											<th>Raz&oacute;n Social</th>
+											<th>Fec. Inicio</th>
+											<th>Fec. Fin</th>
+											<th>Alquiler</th>
+											<th>Moneda</th>
+											<th>Editar</th>
+											<th>Eliminar</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="14" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

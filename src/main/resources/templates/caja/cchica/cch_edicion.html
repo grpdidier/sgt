@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/caja/cchicas}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Caja Chica - Administraci&oacute;n - Edici&oacute;n</div>
+						</div>
+						
+						<form id="form" th:object="${entidad}" th:action="@{/caja/cchica/nuevo/editar}" method="post">
+						<input type="hidden" th:field="${entidad.codigoCajaChica}" />
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Datos de Edici&oacute;n de la Caja Chica</legend>
+										
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="textBold9pt">Nombre</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Nombre" th:field="${entidad.nombre}" required="required"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idInmueble" class="textBold9pt">A&ntilde;o</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.anio}" 
+														class="form-control_v2 is-valid" required="required">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapAnio}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idInmueble" class="textBold9pt">Mes</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.mes}" 
+														class="form-control_v2 is-valid" required="required">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapMeses}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+												
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idInmueble" class="textBold9pt">Estado</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${entidad.estadoCaja}" 
+														class="form-control_v2 is-valid" required="required">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionEstadoCajaChica}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+												
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Total Ingreso Soles</label>
+												<input type="text" class="form-control_v2" placeholder="Nombre" th:field="${entidad.totalIngresoSoles}" readonly="readonly"/>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Total Salida Soles</label>
+												<input type="text" class="form-control_v2" placeholder="Nombre" th:field="${entidad.totalSalidaSoles}" readonly="readonly"/>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Total Saldo Soles</label>
+												<input type="text" class="form-control_v2" placeholder="Nombre" th:field="${entidad.saldoSoles}" readonly="readonly"/>
+											</div>
+											
+										</div>
+										<div class="row">
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Total Ingreso Dolares</label>
+												<input type="text" class="form-control_v2" placeholder="Nombre" th:field="${entidad.totalIngresoDolares}" readonly="readonly"/>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Total Salida Dolares</label>
+												<input type="text" class="form-control_v2" placeholder="Nombre" th:field="${entidad.totalSalidaDolares}" readonly="readonly"/>
+											</div>
+											<div class="col-md-4 mb-3">
+												<label for="idNombre" class="textBold9pt">Total Saldo Dolares</label>
+												<input type="text" class="form-control_v2" placeholder="Nombre" th:field="${entidad.saldoDolares}" readonly="readonly"/>
+											</div>
+											
+										</div>
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"></div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" /> 
+						  					<button class="btn btn-success" type="submit">Guardar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  		</div>
+						  	</div>
+						</form>
+			
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

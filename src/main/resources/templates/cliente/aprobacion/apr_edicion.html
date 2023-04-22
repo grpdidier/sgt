@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/aprobacion}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Modulo de Aprobacion de Contrato - Edici&oacute;n</div>
+						</div>
+						<form id="form" th:object="${contrato}" th:action="@{/aprobacion/editar/guardar}" method="post">
+							<div id="informacion" class="container_v3">
+								<p style="color: red" th:text="${resultadoContrato}" /> 
+								<div class="row">
+									<div class="col-md-3 mb-3">
+										<fieldset class="scheduler-border">
+											<legend class="scheduler-border title10pt">Datos del Contrato</legend>
+											<input type="hidden" th:field="${contrato.tblTienda.codigoTienda}" />
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<label for="idNombre" class="textBold9pt">N&uacute;mero</label>
+													<input type="text" class="form-control_v2" placeholder="local" th:field="${contrato.numero}" readonly="readonly"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<label for="idNombre" class="textBold9pt">Estado</label>
+													<div th:replace="fragments/util :: estadoContratoInput(tipo=${contrato.estadoContrato})"></div>
+													<input type="hidden" th:field="${contrato.estadoContrato}" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<br/><br/><br/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<br/><br/><br/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3" align="center">
+													<br/><br/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3" align="center">
+													<br/><br/>
+												</div>
+											</div>
+										</fieldset>
+									</div>
+									<div class="col-md-3 mb-3">
+										<fieldset class="scheduler-border">
+											<legend class="scheduler-border title10pt">Datos del Local</legend>
+											<input type="hidden" th:field="${contrato.tblTienda.codigoTienda}" />
+											<input type="hidden" th:field="${contrato.codigoContrato}" />
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<label for="idNombre" class="textBold9pt">Inmueble</label>
+													<input type="hidden" th:field="${contrato.tblTienda.tblEdificio.codigoEdificio}" />
+													<select th:field="${contrato.tblTienda.tblEdificio.codigoEdificio}" class="form-control_v2 " disabled="disabled">
+														<option value="-1">--Seleccionar--</option>
+														<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<label for="idNombre" class="textBold9pt">Local</label>
+													<input type="text" class="form-control_v2" placeholder="local" th:field="${contrato.tblTienda.numero}" readonly="readonly"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<label for="idNombre" class="textBold9pt">Estado</label>
+													<div th:replace="fragments/util :: estadoLocalInput(tipo=${contrato.tblTienda.estadoTienda})"></div>
+													<input type="hidden" th:field="${contrato.tblTienda.estadoTienda}" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<label for="idNombre" class="textBold9pt">Suministro</label>
+													<input type="text" class="form-control_v2" placeholder="suministro" th:field="${contrato.tblTienda.tblSuministro.numero}" readonly="readonly"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3">
+													<label for="idNombre" class="textBold9pt">Piso</label>
+													<input type="text" class="form-control_v2" placeholder="suministro" th:field="${contrato.tblTienda.piso}" readonly="readonly"/>
+												</div>
+											</div>
+											
+										</fieldset>
+									</div>
+									<div class="col-md-6 mb-3">
+										<fieldset class="scheduler-border">
+											<legend class="scheduler-border title10pt">Datos del Cliente</legend>
+											<input type="hidden" th:field="${contrato.tblPersona.codigoPersona}" />
+											<div class="row">
+												<div class="col-md-8 mb-3">
+													<label for="idNombre" class="textBold9pt">Nombre</label>
+													<input type="text" class="form-control_v2" placeholder="nombre" th:field="${contrato.tblPersona.nombre}" readonly="readonly"/>
+												</div>
+												<div class="col-md-4 mb-3">
+													<button class="btn btn-primary" onclick="jsListarClienteAprobacion()">Cliente</button>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-3">
+													<label for="idNombre" class="textBold9pt">Apellido Paterno</label>
+													<input type="text" class="form-control_v2" placeholder="paterno" th:field="${contrato.tblPersona.paterno}" readonly="readonly"/>
+												</div>
+												<div class="col-md-4 mb-3">
+													<label for="idNombre" class="textBold9pt">N&uacute;mero Celular</label>
+													<input type="text" class="form-control_v2" placeholder="celular" th:field="${contrato.tblPersona.celular1}" readonly="readonly"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-3">
+													<label for="idNombre" class="textBold9pt">Apellido Materno</label>
+													<input type="text" class="form-control_v2" placeholder="materno" th:field="${contrato.tblPersona.materno}" readonly="readonly"/>
+												</div>
+												<div class="col-md-4 mb-3">
+													<label for="idNombre" class="textBold9pt">N&uacute;mero DNI</label>
+													<input type="text" class="form-control_v2" placeholder="dni" th:field="${contrato.tblPersona.numeroDni}" readonly="readonly"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-3">
+													<label for="idNombre" class="textBold9pt">Raz&oacute;n Social</label>
+													<input type="text" class="form-control_v2" placeholder="razon social" th:field="${contrato.tblPersona.razonSocial}" readonly="readonly"/>
+												</div>
+												<div class="col-md-4 mb-3">
+													<label for="idNombre" class="textBold9pt">N&uacute;mero RUC</label>
+													<input type="text" class="form-control_v2" placeholder="ruc" th:field="${contrato.tblPersona.numeroRuc}" readonly="readonly"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-3">
+													<label for="idNombre" class="textBold9pt">Direcci&oacute;n de la Empresa</label>
+													<input type="text" class="form-control_v2" placeholder="direccion" th:field="${contrato.tblPersona.direccionEmpresa}" readonly="readonly"/>
+												</div>
+												<div class="col-md-4 mb-3">
+													<a href="#" onclick="jsHistorialClienteAprobacion();">Historial Cliente</a>
+												</div>
+											</div>
+										</fieldset>
+									</div>
+								</div>
+								
+								
+									<div class="row">
+								
+										<div id="tabs" class="container">
+										  <ul>
+											<li><a href="#tabs-1">Arrendamiento</a></li>
+											<li><a href="#tabs-2">Servicios</a></li>
+											<li><a href="#tabs-3">Primeros Cobros</a></li>
+											<li><a href="#tabs-6">Contratos Anteriores</a></li>
+											<li><a href="#tabs-7">Observaciones</a></li>
+										  </ul>
+										  <div id="tabs-1">
+											<fieldset class="scheduler-border">
+												<legend class="scheduler-border title10pt">Fechas y Montos</legend>
+												
+												<div class="row">
+													<div class="col-md-7 mb-3" align="center">
+														<div class="row">
+															<div class="col-md-4 mb-3" align="center">
+																<label for="idNombre" class="textBold9pt">Fecha de Contrato</label>
+																<input type="text" class="form-control_v2 is-valid" placeholder="dd/MM/yyyy" th:field="${contrato.fechaContrato}"/>
+															</div>
+															<div class="col-md-4 mb-3" align="center">
+																<label for="idNombre" class="textBold9pt">Fecha de Inicio</label>
+																<input type="text" class="form-control_v2 is-valid" placeholder="dd/MM/yyyy" th:field="${contrato.fechaInicio}" />
+															</div>
+															<div class="col-md-4 mb-3" align="center">
+																<label for="idNombre" class="textBold9pt">Fecha de Fin</label>
+																<input type="text" class="form-control_v2 is-valid" placeholder="dd/MM/yyyy" th:field="${contrato.fechaFin}"/>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-4 mb-3" align="center">
+																<label for="idNombre" class="textBold9pt">Monto Alquiler</label>
+																<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${contrato.montoAlquiler}" />
+															</div>
+															<div class="col-md-4 mb-3" align="center">
+																<label for="idNombre" class="textBold9pt">Tipo de Moneda</label>
+																<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoMonedaAlquiler',map=${mapTipoMoneda}"></th:block> /*/-->
+															</div>
+															<div class="col-md-4 mb-3" align="center">
+																<label for="idNombre" class="textBold9pt">Fecha de Cobro</label>
+																<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoCobro',map=${mapTipoCobro}"></th:block> /*/-->
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-4 mb-3" align="center">
+																<label for="idNombre" class="textBold9pt">Tipo de Documento</label>
+																<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoDocumentoAlquiler',map=${mapTipoDocumento}"></th:block> /*/-->
+															</div>
+															<div class="col-md-4 mb-3" align="center">
+																<label for="idNombre" class="textBold9pt">Periodo de Adelanto</label>
+																<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='periodoAdelanto',map=${mapTipoPeriodoAdelanto}"></th:block> /*/-->
+															</div>
+															<div class="col-md-4 mb-3" align="center">
+																
+															</div>
+														</div>
+													</div>
+													<div class="col-md-5 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Informaci&oacute;n Adicional</label>
+														<textarea rows="5" cols="60" class="form-control_v2 is-valid" th:field="${contrato.informacionAdicional}"></textarea>
+													</div>
+													
+												</div>
+												<div class="row">
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Garantia</label>
+														<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoGarantia',map=${mapTipoGarantia}"></th:block> /*/-->
+													</div>
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Monto</label>
+														<input type="text" class="form-control_v2 is-valid" placeholder="0" th:field="${contrato.montoGarantia}"/>
+													</div>
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Tipo de Moneda</label>
+														<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoMonedaGarantia',map=${mapTipoMoneda}"></th:block> /*/-->
+													</div>
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Tipo de Documento</label>
+														<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoDocumentoGarantia',map=${mapTipoDocumento}"></th:block> /*/-->
+													</div>
+													
+												</div>
+											</fieldset>
+											
+											
+										  </div>
+										  <div id="tabs-2">
+											<fieldset class="scheduler-border">
+												<legend class="scheduler-border title10pt">Configuraci&oacute;n de Servicios</legend>
+												<div class="row">
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Rubro</label>
+														<select th:field="${contratoServicio.tblTipoServicio.codigoTipoServicio}" class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapServicio}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+														</select>
+														
+													</div>
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Monto</label>
+														<input type="text" class="form-control_v2  is-valid" placeholder="Valor" th:field="${contratoServicio.monto}" />
+													</div>
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Tipo de Moneda</label>
+														<select th:field="${contratoServicio.tipoMonedaServicio}" class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapTipoMoneda}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+														</select>
+														
+													</div>
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Tipo de Documento</label>
+														<select th:field="${contratoServicio.tipoDocumentoServicio}" class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${mapTipoDocumento}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+														</select>
+													</div>
+													
+												</div>
+												<div class="row">
+													<div class="col-md-12 mb-3" align="center">
+														<p style="color: red" th:text="${resultadoServicio}" /> 
+														<button class="btn btn-primary" onclick="jsAdicionarServicioAprobacion()">Adicionar</button>
+													</div>
+												</div>
+												
+												
+												<div  align="center">
+								  					<div id="c_tablas" th:if="${not #lists.isEmpty(listaServicio)}">
+								  						<input type="hidden" name="indice" id="idIndice"/>
+														<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr>
+																<td width="15%" height="17" align="center">Rubro</td>
+																<td width="12%" height="17">Monto</td>
+																<td width="12%" height="17">Tipo de Moneda</td>	    
+																<td width="13%" height="17">Tipo de Documento</td>
+																<td width="12%" height="17">Total Acumulado</td>
+																<td width="12%" align="center">Total Cobrado</td>              
+																<td width="12%" align="center">Total Saldo</td>
+																<td width="12%" align="center">Eliminar</td>
+															</tr>
+															<tr th:each="servicio, iterStat : ${listaServicio}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td th:text="${servicio.tblTipoServicio.nombre}">nombre</td>
+																<td th:text="${servicio.monto}">monto</td>
+																<td align="center">
+																	<div th:replace="fragments/util :: tipoMoneda(tipo=${servicio.tipoMonedaServicio})"></div>
+																</td>
+																<td align="center">
+																	<div th:replace="fragments/util :: tipoDocumento(tipo=${servicio.tipoDocumentoServicio})"></div>
+																</td>
+																<td th:text="${servicio.totalAcumulado}">total</td>
+																<td th:text="${servicio.totalCobrado}">total</td>
+																<td th:text="${servicio.totalSaldo}">total</td>
+																<td align="center">
+																	<a href="#" th:onclick="'jsEliminarServicioAprobacion(\''+${iterStat.index}+ '\');'">
+																		<img th:src="@{/images/iconos/eliminar.png}" alt="Eliminar"	onclick="if(!confirm('Desea eliminar el servicio seleccionado?')){ return false;}" />
+																	</a>
+																	
+																</td>
+															</tr>
+															
+														</table>
+													</div>
+													<div id="c_tablas" th:if="${#lists.isEmpty(listaServicio)}">
+														<table id="t02" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr>
+																<td width="15%" height="17" align="center">Rubro</td>
+																<td width="12%" height="17">Monto</td>
+																<td width="15%" height="17">Tipo de Moneda</td>	    
+																<td width="15%" height="17">Tipo de Documento</td>
+																<td width="12%" height="17">Total Acumulado</td>
+																<td width="12%" align="center">Total Cobrado</td>              
+																<td width="12%" align="center">Total Saldo</td>
+																
+																
+															</tr>
+															<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td colspan="7" align="center">No se encontr&oacute; elementos</td>
+															</tr>
+														</table>
+													</div>
+													<br></br><br></br><br></br>
+												</div>
+											</fieldset>
+										  </div>
+										  <div id="tabs-3">
+											<fieldset class="scheduler-border">
+												<legend class="scheduler-border title10pt">Registro de Cobros</legend>
+												<div class="row">
+													<div class="col-md-1 mb-3" align="center"></div>
+													<div class="col-md-10 mb-3" align="center">
+														Los primeros cobros se generar&aacute;n automaticamente. <br/>
+														Si se identifica un cambio en el alquiler o los servicio se recalculan nuevamente.<br/>
+														En la opci&oacute;n Cliente/Contrato/Locales - edici&oacute;n se podr&aacute; observa dichos registros.
+													</div>
+													<div class="col-md-1 mb-3" align="center"></div>
+												</div>
+												<div  align="center">
+								  					<div id="c_tablas" th:if="${not #lists.isEmpty(listaPrimerosCobros)}">
+														<table id="t03" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<td width="15%" height="17" align="center">Rubro</td>
+																<td width="12%" height="17">Monto</td>
+																<td width="15%" height="17">Tipo de Moneda</td>	    
+																<td width="15%" height="17">Tipo de Documento</td>
+																<td width="12%" height="17">Numero Documento</td>
+																<td width="10%" height="17">Fecha de Cobro</td>
+																<td width="21%" align="center">Informacion Adicional</td> 
+																
+															</tr>
+															<tr th:each="cobro : ${listaPrimerosCobros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td th:text="${cobro.tblTipoServicio.nombre}">rubro</td>
+																<td th:text="${cobro.montoCobro}">monto</td>
+																<td align="center">
+																	<div th:replace="fragments/util :: tipoMoneda(tipo=${cobro.tipoMoneda})"></div>
+																</td>
+																<td align="center">
+																	<div th:replace="fragments/util :: tipoDocumento(tipo=${cobro.tipoDocumento})"></div>
+																</td>
+																<td th:text="${cobro.numeroDocumento}">numero</td>
+																<td th:text="${#dates.format(cobro.fechaCobro, 'dd/MM/yyyy')}">fecha</td>
+																<td th:text="${cobro.observacion}">informacion</td>
+																
+															</tr>
+															
+														</table>
+													</div>
+													<div id="c_tablas" th:if="${#lists.isEmpty(listaPrimerosCobros)}">
+														<table id="t04" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<td width="15%" height="17" align="center">Rubro</td>
+																<td width="12%" height="17">Monto</td>
+																<td width="15%" height="17">Tipo de Moneda</td>	    
+																<td width="15%" height="17">Tipo de Documento</td>
+																<td width="12%" height="17">Numero Documento</td>
+																<td width="10%" height="17">Fecha de Cobro</td>
+																<td width="21%" align="center">Informacion Adicional</td>  
+																
+															</tr>
+															<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td colspan="7" align="center">No se encontr&oacute; elementos</td>
+															</tr>
+														</table>
+													</div> 
+												</div>
+											</fieldset>
+										  </div>
+										  
+										  <div id="tabs-6">
+											<fieldset class="scheduler-border">
+												<legend class="scheduler-border title10pt">Contratos Anteriores </legend>
+												
+												<div  align="center">
+								  					<div id="c_tablas" th:if="${not #lists.isEmpty(listaContratoAnterior)}">
+														<table id="t05" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<th>N&uacute;mero</th>
+																<th>Fecha Contrato</th>
+																<th>Fecha Inicio</th>
+																<th>Fecha Fin</th>
+																<th>Monto Alquiler</th>
+																<th>Moneda</th>
+															</tr>
+															<tr th:each="contratoAntiguo : ${listaContratoAnterior}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td th:text="${contratoAntiguo.numero}">numero</td>
+																<td th:text="${#dates.format(contratoAntiguo.fechaContrato, 'dd/MM/yyyy')}">fecha contrato</td>
+																<td th:text="${#dates.format(contratoAntiguo.fechaInicio, 'dd/MM/yyyy')}">fecha inicio</td>
+																<td th:text="${#dates.format(contratoAntiguo.fechaFin, 'dd/MM/yyyy')}">fecha fin</td>
+																<td th:text="${contratoAntiguo.montoAlquiler}">saldo</td>
+																<td align="center">
+																	<div th:replace="fragments/util :: tipoMoneda(tipo=${contratoAntiguo.tipoMonedaAlquiler})"></div>
+																</td>
+															</tr>
+															
+														</table>
+													</div>
+													<div id="c_tablas" th:if="${#lists.isEmpty(listaContratoAnterior)}">
+														<table id="t05" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<th>N&uacute;mero</th>
+																<th>Fecha Contrato</th>
+																<th>Fecha Inicio</th>
+																<th>Fecha Fin</th>
+																<th>Monto Alquiler</th>
+																<th>Moneda</th>
+															</tr>
+															<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td colspan="6" align="center">No se encontr&oacute; elementos</td>
+															</tr>
+														</table>
+													</div>
+												</div>
+											</fieldset>
+											
+										  </div>
+										  <div id="tabs-7">
+											<fieldset class="scheduler-border">
+												<legend class="scheduler-border title10pt">Listado de Observaciones </legend>
+												
+												<div class="row">
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Asunto:</label>
+													</div>
+													<div class="col-md-6 mb-3" align="center">
+														<input type="text" class="form-control_v2 is-valid" placeholder="Asunto" th:field="${observacion.asunto}" />
+													</div>
+													<div class="col-md-3 mb-3" align="center">
+														
+													</div>
+													
+												</div>
+												<div class="row">
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Breve Descripci&oacute;n:</label>
+													</div>
+													<div class="col-md-6 mb-3" align="center">
+														<input type="text" class="form-control_v2 is-valid" placeholder="breve descripcion" th:field="${observacion.breveDescripcion}" />
+													</div>
+													<div class="col-md-3 mb-3" align="center">
+														
+													</div>
+													
+												</div>
+												<div class="row">
+													<div class="col-md-3 mb-3" align="center">
+														<label for="idNombre" class="textBold9pt">Descripci&oacute;n:</label>
+													</div>
+													<div class="col-md-6 mb-3" align="center">
+														<textarea rows="5" cols="120" class="form-control_v2 is-valid" th:field="${observacion.descripcion}"></textarea>										</div>
+													<div class="col-md-3 mb-3" align="center">
+														
+													</div>
+													
+												</div>
+												
+												<div class="row">
+													<div class="col-md-12 mb-3" align="center">
+														<p style="color: red" th:text="${resultadoServicio}" /> 
+														<button class="btn btn-primary" onclick="jsAdicionarObservacionAprobacion()">Adicionar</button>
+													</div>
+												</div>
+												<div  align="center">
+								  					<div id="c_tablas" th:if="${not #lists.isEmpty(listaObservacion)}">
+														<table id="t05" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<th>Asunto</th>
+																<th>Breve Descripcion</th>
+																<th>Descripcion</th>
+																<th>Fecha</th>
+															</tr>
+															<tr th:each="observacion : ${listaObservacion}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td th:text="${observacion.asunto}">asunto</td>
+																<td th:text="${observacion.breveDescripcion}">breve</td>
+																<td th:text="${observacion.descripcion}">descripcion</td>
+																<td>
+																	<div th:if="${observacion.fechaCreacion} != null">
+																		<label th:text="${#dates.format(observacion.fechaCreacion, 'dd/MM/yyyy')}"></label>
+																	</div>
+																	<div th:if="${observacion.fechaCreacion} == null">
+																		
+																	</div>
+																</td>
+															</tr>
+															
+														</table>
+													</div>
+													<div id="c_tablas" th:if="${#lists.isEmpty(listaObservacion)}">
+														<table id="t05" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<th>Asunto</th>
+																<th>Breve Descripcion</th>
+																<th>Descripcion</th>
+																<th>Fecha</th>
+															</tr>
+															<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td colspan="4" align="center">No se encontr&oacute; elementos</td>
+															</tr>
+														</table>
+													</div>
+												</div>
+											</fieldset>
+											
+										  </div>
+								  		 <div class="row">
+											<div class="col-md-12 mb-3" align="center">
+											
+												<button class="btn btn-primary" type="button" onclick="if(confirm('Esta seguro de aprobar el Contrato?')){ jsAprobarContrato();}">Aprobar Contrato</button>
+											</div>
+										 </div>
+										</div>
+										
+									</div>
+									 <div class="row">
+										<div class="col-md-12 mb-3" align="center">
+											 <br/><br/><br/> <br/><br/><br/>
+										</div>
+									 </div>
+								
+						  	</div>
+						  	
+						</form>
+						
+			
+					</div>
+		
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

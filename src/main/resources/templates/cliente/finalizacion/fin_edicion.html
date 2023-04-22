@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/finalizacion/regresar/listado}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Finalizaci&oacute;n de Contratos</div>
+						</div>
+						<form id="form" th:object="${contrato}" th:action="@{/finalizacion/editar/guardar}" method="post">
+							<input type="hidden" name="editData" id="idEditData" value="true"/>
+							<div id="informacion" class="container_v3">
+								<p style="color: red" th:text="${respuesta}" /> 
+								<div class="row">
+									<div class="col-md-3 mb-3">
+										<fieldset class="scheduler-border" style="background-color:#7B8AB5;">
+											<input type="hidden" th:field="${contrato.tblTienda.codigoTienda}" />
+											<br></br>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">N&uacute;mero: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2" placeholder="local" th:field="${contrato.numero}" readonly="readonly"  style="background-color:#ECECEC;"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Estado: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<div th:replace="fragments/util :: estadoContratoInputEditar(tipo=${contrato.estadoContrato})"></div>
+													<input type="hidden" th:field="${contrato.estadoContrato}" />
+												</div>
+											</div>
+											
+											<div class="row">
+												<div class="col-md-12 mb-1">
+													<br/><br/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3" align="center">
+													<br/><br/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 mb-3" align="center">
+													<br/><br/>
+												</div>
+											</div>
+										</fieldset>
+										
+									</div>
+									<div class="col-md-3 mb-3">
+										<fieldset class="scheduler-border" style="background-color:#7B8AB5;">
+											<br></br>
+											<input type="hidden" th:field="${contrato.tblTienda.codigoTienda}" />
+											<input type="hidden" th:field="${contrato.codigoContrato}" />
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Inmueble: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="hidden" th:field="${contrato.tblTienda.tblEdificio.codigoEdificio}" />
+													<select th:field="${contrato.tblTienda.tblEdificio.codigoEdificio}" class="form-control_v2 " disabled="disabled"  style="background-color:#ECECEC;">
+														<option value="-1">--Seleccionar--</option>
+														<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Local: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2" placeholder="local" th:field="${contrato.tblTienda.numero}" readonly="readonly" style="background-color:#ECECEC;"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Estado: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<div th:replace="fragments/util :: estadoLocalInputContrato(tipo=${contrato.tblTienda.estadoTienda})"></div>
+													<input type="hidden" th:field="${contrato.tblTienda.estadoTienda}" />
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Suministro: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2" placeholder="suministro" th:field="${contrato.tblTienda.tblSuministro.numero}" readonly="readonly" style="background-color:#ECECEC;"/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3 mb-1">
+													<label for="idNombre" class="titleWhite10pt">Piso: </label>
+												</div>
+												<div class="col-md-9 mb-1">
+													<input type="text" class="form-control_v2" placeholder="suministro" th:field="${contrato.tblTienda.piso}" readonly="readonly" style="background-color:#ECECEC;"/>
+												</div>
+											</div>
+											<br></br>
+										</fieldset>
+										
+									</div>
+									<div class="col-md-6 mb-3">
+										<fieldset class="scheduler-border" style="background-color:#7B8AB5;">
+											<br></br>
+											<input type="hidden" th:field="${contrato.tblPersona.codigoPersona}" />
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Nombre: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="nombre" th:field="${contrato.tblPersona.nombre}" readonly="readonly" style="background-color:#ECECEC;"/>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4 mb-1">
+													<div class="col-md-12 mb-1" align="center">
+														
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Paterno: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="paterno" th:field="${contrato.tblPersona.paterno}" readonly="readonly" style="background-color:#ECECEC;"/>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Celular: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="celular" th:field="${contrato.tblPersona.celular1}" readonly="readonly" style="background-color:#ECECEC;"/>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Materno: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="materno" th:field="${contrato.tblPersona.materno}" readonly="readonly" style="background-color:#ECECEC;"/>
+														</div>
+													</div>
+													
+													
+												</div>
+												<div class="col-md-4 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">DNI: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="dni" th:field="${contrato.tblPersona.numeroDni}" readonly="readonly" style="background-color:#ECECEC;"/>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Raz&oacute;n Social</label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="razon social" th:field="${contrato.tblPersona.razonSocial}" readonly="readonly" style="background-color:#ECECEC;"/>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">RUC: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="ruc" th:field="${contrato.tblPersona.numeroRuc}" readonly="readonly" style="background-color:#ECECEC;"/>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-8 mb-1">
+													<div class="row">
+														<div class="col-md-3 mb-0">
+															<label for="idNombre" class="titleWhite10pt">Direcci&oacute;n: </label>
+														</div>
+														<div class="col-md-8 mb-0">
+															<input type="text" class="form-control_v2" placeholder="direccion" th:field="${contrato.tblPersona.direccionEmpresa}" readonly="readonly" style="background-color:#ECECEC;"/>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4 mb-1">
+													
+												</div>
+												
+												
+											</div>
+										</fieldset>
+										
+									</div>
+								</div>
+								
+								
+								
+									<div class="row">
+								
+										<div id="tabs" class="container">
+										  <ul>
+											<li><a href="#tabs-1">Arrendamiento</a></li>
+											<li><a href="#tabs-2">Servicios</a></li>
+											<li><a href="#tabs-4">Observaciones</a></li>
+											<li><a href="#tabs-6">Contratos Anteriores</a></li>
+										  </ul>
+										  <div id="tabs-1" style="background-color:#FEEF8B;">
+											<fieldset >
+												<div class="row">
+													<div class="col-md-8 mb-3" align="left" >
+														<div class="row">
+															
+															<div class="col-md-4 mb-1">
+																<div class="row">
+																	<div class="col-md-6 mb-1">
+																		<label for="idNombre" class="title10pt">Fec. Inicio: </label>
+																	</div>
+																	<div class="col-md-6 mb-1" align="center">
+																		<input type="text" class="form-control_v2 " placeholder="dd/MM/yyyy" th:field="${contrato.fechaInicio}" readonly="readonly"  style="background-color:#ECECEC;"/>
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-4 mb-1">
+																<div class="row">
+																	<div class="col-md-6 mb-1">
+																		<label for="idNombre" class="title10pt">Fec. Fin: </label>
+																	</div>
+																	<div class="col-md-6 mb-1" align="center">
+																		<input type="text" class="form-control_v2 is-valid" placeholder="dd/MM/yyyy" th:field="${contrato.fechaFin}" readonly="readonly"  style="background-color:#ECECEC;" required="required"/>
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-4 mb-1">
+																
+																<div class="row">
+																	<div class="col-md-6 mb-1">
+																		<label  class="title10pt">Fecha Finalizaci&oacute;n: </label>
+																	</div>
+																	<div class="col-md-6 mb-1" align="center">
+																		<div  align="center" th:if="${contrato.estadoContrato} == 'VGN'">
+																			<input type="text" class="form-control_v2 is-valid" style="color:red" placeholder="dd/MM/yyyy" th:field="${contrato.fechaFinalizacion}"  autocomplete="off"/>
+																		</div>
+																		<div  align="center" th:if="${contrato.estadoContrato} != 'VGN'">
+																			<input type="text" class="form-control_v2 is-valid" style="background-color:#ECECEC;color:red" id="fec" placeholder="dd/MM/yyyy" th:field="${contrato.fechaFinalizacion}"  readonly="readonly"/>
+																		</div>
+																	</div>
+																</div>
+																
+																
+															</div>
+														</div>
+																
+														<div class="row">
+															<div class="col-md-4 mb-1">
+																<div class="row">
+																	<div class="col-md-6 mb-1">
+																		<label for="idNombre" class="title10pt">Monto Alquiler: </label>
+																	</div>
+																	<div class="col-md-6 mb-1" align="center">
+																		<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${contrato.montoAlquiler}" readonly="readonly"  style="background-color:#ECECEC;" required="required"/>
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-4 mb-1">
+																<div class="row">
+																	<div class="col-md-6 mb-1">
+																		<label for="idNombre" class="title10pt">Tipo de Moneda: </label>
+																	</div>
+																	<div class="col-md-6 mb-1" align="center">
+																		<!--/*/ <th:block th:include="fragments/util :: comboRequiredReadOnly" th:with="campo='tipoMonedaAlquiler',map=${mapTipoMoneda}"></th:block> /*/-->
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-4 mb-1">
+																<div class="row">
+																	<div class="col-md-6 mb-1">
+																		<label style="visibility: hidden;" for="idNombre" class="title10pt">Primer Cobro: </label>
+																	</div>
+																	<div class="col-md-6 mb-1" align="center">
+																		<input type="hidden" class="form-control_v2 is-valid" placeholder="Valor" th:field="${contrato.primerCobroAlquiler}" />
+																	</div>
+																</div>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-6 mb-0">
+																<div class="row">
+																	<div class="col-md-4 mb-0">
+																		<label for="idNombre" class="title10pt">Tipo de Documento: </label>
+																	</div>
+																	<div class="col-md-8 mb-0" align="center">
+																		<!--/*/ <th:block th:include="fragments/util :: comboRequiredReadOnly" th:with="campo='tipoDocumentoAlquiler',map=${mapTipoDocumento}"></th:block> /*/-->
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-6 mb-0">
+																<div class="row">
+																	<div class="col-md-4 mb-0">
+																		<label for="idNombre" class="title10pt">Fecha de Cobro: </label>
+																	</div>
+																	<div class="col-md-8 mb-0" align="center">
+																		<!--/*/ <th:block th:include="fragments/util :: comboRequiredReadOnly" th:with="campo='tipoCobro',map=${mapTipoCobro}"></th:block> /*/-->
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-4 mb-0" align="center">
+														<div class="row">
+															<div class="col-md-12 mb-1">
+																<div  align="center" th:if="${contrato.estadoContrato} == 'VGN'">
+																	<textarea rows="6" cols="60" class="form-control_v2 is-valid" th:field="${contrato.informacionAdicional}"></textarea>
+																</div>
+																<div  align="center" th:if="${contrato.estadoContrato} != 'VGN'">
+																	<textarea rows="6" cols="60" class="form-control_v2 is-valid" th:field="${contrato.informacionAdicional}" readonly="readonly" style="background-color:#ECECEC;"></textarea>
+																</div>
+															</div>
+														</div>
+														
+													</div>
+													
+												</div>
+												<div class="row" align="left" >
+													<div class="col-md-1 mb-0" align="left">
+														<label for="idNombre" class="title10pt">Garantia: </label>
+													</div>
+													<div class="col-md-2 mb-0" align="left">
+														<!--/*/ <th:block th:include="fragments/util :: comboRequiredReadOnly" th:with="campo='tipoGarantia',map=${mapTipoGarantia}"></th:block> /*/-->
+													</div>
+													<div class="col-md-1 mb-0" align="left">
+														<label for="idNombre" class="title10pt">Monto: </label>
+													</div>
+													<div class="col-md-2 mb-0" align="center">
+														<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${contrato.montoGarantia}" readonly="readonly"  style="background-color:#ECECEC;"/>
+													</div>
+													<div class="col-md-1 mb-0" align="left">
+														<label for="idNombre" class="title10pt">Tipo de Moneda: </label>
+													</div>
+													<div class="col-md-2 mb-0" align="center">
+														<!--/*/ <th:block th:include="fragments/util :: comboRequiredReadOnly" th:with="campo='tipoMonedaGarantia',map=${mapTipoMoneda}"></th:block> /*/-->
+													</div>
+													<div class="col-md-1 mb-0" align="left">
+														<label for="idNombre" class="title10pt">Tipo de Documento: </label>
+													</div>
+													<div class="col-md-2 mb-0" align="center">
+														<!--/*/ <th:block th:include="fragments/util :: comboRequiredReadOnly" th:with="campo='tipoDocumentoGarantia',map=${mapTipoDocumento}"></th:block> /*/-->
+													</div>
+												</div>
+											</fieldset>
+											
+											
+										  </div>
+										  <div id="tabs-2"  style="background-color:#FEEF8B;">
+											<fieldset class="scheduler-border">
+												
+												
+												<div  align="center">
+								  					<div id="c_tablas" th:if="${not #lists.isEmpty(listaServicio)}">
+														<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr>
+																<td width="15%" height="17" align="center">Rubro</td>
+																<td width="12%" height="17">Monto</td>
+																<td width="15%" height="17">Tipo de Moneda</td>	    
+																<td width="15%" height="17">Tipo de Documento</td>
+																
+																
+															</tr>
+															<tr th:each="servicio : ${listaServicio}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td th:text="${servicio.tblTipoServicio.nombre}">nombre</td>
+																<td th:text="${servicio.monto}">monto</td>
+																<td align="center">
+																	<div th:replace="fragments/util :: tipoMoneda(tipo=${servicio.tipoMonedaServicio})"></div>
+																</td>
+																<td align="center">
+																	<div th:replace="fragments/util :: tipoDocumento(tipo=${servicio.tipoDocumentoServicio})"></div>
+																</td>
+																
+																
+															</tr>
+															
+														</table>
+													</div>
+													<div id="c_tablas" th:if="${#lists.isEmpty(listaServicio)}">
+														<table id="t02" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr>
+																<td width="15%" height="17" align="center">Rubro</td>
+																<td width="12%" height="17">Monto</td>
+																<td width="15%" height="17">Tipo de Moneda</td>	    
+																<td width="15%" height="17">Tipo de Documento</td>
+																
+																
+															</tr>
+															<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td colspan="4" align="center">No se encontr&oacute; elementos</td>
+															</tr>
+														</table>
+													</div>
+													<br></br><br></br><br></br>
+												</div>
+											</fieldset>
+										  </div>
+										  
+										  <div id="tabs-4" style="background-color:#FEEF8B;">
+											<fieldset class="scheduler-border">
+												<legend class="scheduler-border title10pt">Listado de Observaciones </legend>
+												
+												<div class="row">
+													<div class="col-md-3 mb-1" align="center">
+														<label for="idNombre" class="textBold9pt">Asunto:</label>
+													</div>
+													<div class="col-md-6 mb-1" align="center">
+														<input type="text" class="form-control_v2 is-valid" placeholder="Asunto" th:field="${observacion.asunto}" />
+													</div>
+													<div class="col-md-3 mb-1" align="center">
+														<div th:if="${!contrato.estadoContrato.equals('FNL')} ">
+															<button id="idObservacionFinalizacionEdicion" class="btn btn-primary" onclick="jsAdicionarObservacionFinalizacionContrato()" style="cursor: pointer">Adicionar</button>
+														</div>
+													</div>
+													
+												</div>
+												
+												<div class="row">
+													<div class="col-md-3 mb-1" align="center">
+														<label for="idNombre" class="textBold9pt">Descripci&oacute;n:</label>
+													</div>
+													<div class="col-md-6 mb-1" align="center">
+														<textarea rows="1" cols="120" class="form-control_v2 is-valid" th:field="${observacion.descripcion}"></textarea>										</div>
+													<div class="col-md-3 mb-1" align="center">
+														
+													</div>
+													
+												</div>
+												
+												<div  align="center">
+								  					<div id="c_tablas" th:if="${not #lists.isEmpty(listaObservacion)}">
+														<table id="t05" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<th width="25%">Asunto</th>
+																<th width="60%">Descripcion</th>
+																<th width="15%">Fecha</th>
+															</tr>
+															<tr th:each="observacion : ${listaObservacion}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td th:text="${observacion.asunto}">asunto</td>
+																<td th:text="${observacion.descripcion}">descripcion</td>
+																<td th:text="${observacion.fechaCreacion}">fecha</td>
+															</tr>
+															
+														</table>
+													</div>
+													<div id="c_tablas" th:if="${#lists.isEmpty(listaObservacion)}">
+														<table id="t05" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<th>Asunto</th>
+																<th>Descripcion</th>
+																<th>Fecha</th>
+															</tr>
+															<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td colspan="3" align="center">No se encontr&oacute; elementos</td>
+															</tr>
+														</table>
+													</div>
+												</div>
+											</fieldset>
+											
+										  </div>
+										  
+										  <div id="tabs-6"  style="background-color:#FEEF8B;">
+											<fieldset class="scheduler-border">
+												<legend class="scheduler-border title10pt">Contratos Anteriores </legend>
+												
+												<div  align="center">
+								  					<div id="c_tablas" th:if="${not #lists.isEmpty(listaContratoAnterior)}">
+														<table id="t05" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<th>N&uacute;mero</th>
+																<th>Fecha Inicio</th>
+																<th>Fecha Fin</th>
+																<th>Monto Alquiler</th>
+																<th>Moneda</th>
+															</tr>
+															<tr th:each="contratoAntiguo : ${listaContratoAnterior}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td th:text="${contratoAntiguo.numero}">numero</td>
+																<td th:text="${#dates.format(contratoAntiguo.fechaInicio, 'dd/MM/yyyy')}">fecha inicio</td>
+																<td th:text="${#dates.format(contratoAntiguo.fechaFin, 'dd/MM/yyyy')}">fecha fin</td>
+																<td th:text="${contratoAntiguo.montoAlquiler}">saldo</td>
+																<td align="center">
+																	<div th:replace="fragments/util :: tipoMoneda(tipo=${contratoAntiguo.tipoMonedaAlquiler})"></div>
+																</td>
+															</tr>
+															
+														</table>
+													</div>
+													<div id="c_tablas" th:if="${#lists.isEmpty(listaContratoAnterior)}">
+														<table id="t05" class="table   table-bordered table-active tabla_cabecera_general">
+															<tr> 
+																<th>N&uacute;mero</th>
+																<th>Fecha Inicio</th>
+																<th>Fecha Fin</th>
+																<th>Monto Alquiler</th>
+																<th>Moneda</th>
+															</tr>
+															<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																<td colspan="5" align="center">No se encontr&oacute; elementos</td>
+															</tr>
+														</table>
+													</div>
+												</div>
+											</fieldset>
+											
+										  </div>
+										  <br/>
+								  		 <div class="row">
+											<div class="col-md-12 mb-3" align="center">
+												<div th:if="${!contrato.estadoContrato.equals('FNL')} ">
+													
+													<div class="col-md-12 mb-3" align="center" th:if="${contrato.estadoContrato} == 'VGN'">
+													
+														<button class="btn btn-primary" type="button" onclick="if(confirm('Esta seguro de finalizar el Contrato?')){ jsFinalizarContrato();}">Finalizar Contrato</button>
+													</div>
+													<div class="col-md-12 mb-3" align="center" th:if="${contrato.estadoContrato} != 'VGN'" style="color: red">
+														El estado del contrato debe estar en VIGENTE para poder finalizar.
+													</div>
+												</div>
+												
+											</div>
+										 </div>
+										</div>
+										
+									</div>
+									 <div class="row">
+										<div class="col-md-12 mb-3" align="center">
+											 <br/><br/><br/> <br/><br/><br/>
+										</div>
+									 </div>
+								
+						  	</div>
+						  	
+						</form>
+						
+						
+			
+					</div>
+		
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+	
+</body>
+</html>

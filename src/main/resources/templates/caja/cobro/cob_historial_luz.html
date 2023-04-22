@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#"		onclick="jsRegresarCobro();"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Historial de Cobros de Luz</div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/cobro/luz/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
+									<table id="t01"  class="table   table-bordered table-active tabla_cabecera_general" >
+										<tr>
+											<td width="20%" height="17">Fecha Cobro</td>
+											<td width="20%" height="17">Monto Soles</td>
+											<td width="20%" height="17">Tipo de Cambio</td>	    
+											<td width="20%" height="17">Monto Dolares</td>
+											<td width="20%" height="17">Fecha Registro</td>
+										</tr>
+										<tr th:each="cobroAlquiler : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td th:text="${#dates.format(cobroAlquiler.fechaCobro, 'dd/MM/yyyy')}">fecha</td>
+											<td th:text="${cobroAlquiler.montoSoles}">soles</td>
+											<td th:text="${cobroAlquiler.tipoCambio}">tipo</td>
+											<td th:text="${cobroAlquiler.montoDolares}">dolares</td>
+											<td th:text="${cobroAlquiler.fechaCreacion}">fecha</td>
+										</tr>
+										
+									</table>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<td width="20%" height="17">Fecha Cobro</td>
+											<td width="20%" height="17">Monto Soles</td>
+											<td width="20%" height="17">Tipo de Cambio</td>	    
+											<td width="20%" height="17">Monto Dolares</td>
+											<td width="20%" height="17">Fecha Registro</td>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="5" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

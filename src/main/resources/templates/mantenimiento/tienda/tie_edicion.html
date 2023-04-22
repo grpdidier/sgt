@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body>
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="${'/tiendas/' + entidad.TblEdificio.codigoEdificio}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Mantenimiento de Locales - Edici&oacute;n</div>
+						</div>
+						
+						<form id="form" th:object="${entidad}" th:action="@{/tienda/nuevo/editar}" method="post">
+							<input type="hidden" th:field="${entidad.TblEdificio.codigoEdificio}" />
+							<input type="hidden" th:field="${entidad.codigoTienda}" />
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border">
+									<legend class="scheduler-border title10pt">Datos Edici&oacute;n de la Locales</legend>
+										
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="textBold9pt">Tipo </label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipo',map=${mapTipoTienda}"></th:block> /*/-->
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idDireccion" class="textBold9pt">Piso</label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='piso',map=${mapTipoPiso}"></th:block> /*/-->
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idDireccion" class="textBold9pt">C&oacute;digo</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Numero" th:field="${entidad.numero}" required="required"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idDireccion" class="textBold9pt">Area</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Area" th:field="${entidad.area}"/>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="textBold9pt">Suministro </label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tblSuministro.codigoSuministro',map=${mapListaSuministro}"></th:block> /*/-->
+											</div>
+											<div class="col-md-3 mb-3">
+												
+											</div>
+											<div class="col-md-3 mb-3">
+												
+											</div>
+											<div class="col-md-3 mb-3">
+												
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12 mb-3">
+												<label for="idDescripcion" class="textBold9pt">Descripci&oacute;n</label>
+												<textarea rows="5" cols="60" class="form-control_v2 is-valid" th:field="${entidad.observacion}"></textarea>
+												
+											</div>
+											
+										</div>
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+										<div class="col-md-3 mb-3"></div>
+										
+						  				<div class="col-md-6 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" /> 
+						  					<button class="btn btn-success" type="submit">Guardar</button>
+						  				</div>
+						  				<div class="col-md-3 mb-3"></div>
+						  			</div>
+						  		</div>
+						  	</div>
+						</form>
+			
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
