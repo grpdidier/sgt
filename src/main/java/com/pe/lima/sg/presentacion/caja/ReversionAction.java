@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,15 +40,17 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los contratos
  *
  * 			
  */
+@Slf4j
 @Controller
 public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 
-	private static final Logger logger = LogManager.getLogger(ReversionAction.class);
 	
 	@Autowired
 	private IContratoDAO contratoDao;
@@ -144,8 +144,8 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 		Filtro filtro								= new Filtro();
 		TblContrato contrato						= null;
 		try{
-			logger.debug("[mostrarDetalleSolicitud] Inicio");
-			logger.debug("[mostrarDetalleSolicitud] id:"+ id + " - tipo:"+tipo);
+			log.debug("[mostrarDetalleSolicitud] Inicio");
+			log.debug("[mostrarDetalleSolicitud] id:"+ id + " - tipo:"+tipo);
 			path = "caja/reversion/rev_aprobacion_detalle";
 			
 			/*listaCobro = cobroDao.listarAllActivosxDesembolso(id);
@@ -171,7 +171,7 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 			model.addAttribute("contrato", contrato);
 			model.addAttribute("registros", listaCobroBean);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[mostrarDetalleSolicitud] Fin");
+			log.debug("[mostrarDetalleSolicitud] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -258,7 +258,7 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 			this.cargarListasRequestBeanContrato(model, beanRequest);
 			request.getSession().setAttribute("beanRequest", beanRequest);
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			listaDesembolsoBean	= null;
@@ -327,7 +327,7 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 			}
 			
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuestaReversion", "Se genero un error inesperado:"+e.getMessage());
 		}finally{
@@ -379,7 +379,7 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 			}
 			
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuestaReversion", "Se genero un error inesperado:"+e.getMessage());
 		}finally{
@@ -417,15 +417,15 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		path = "caja/reversion/rev_aprobacion_listado";
 		try{
-			logger.debug("[regresarSolicitudReversion] Inicio");
+			log.debug("[regresarSolicitudReversion] Inicio");
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			this.cargarListasRequestBeanContrato(model, beanRequest);
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			logger.debug("[regresarSolicitudReversion] Fin");
+			log.debug("[regresarSolicitudReversion] Fin");
 		}catch(Exception e){
-			logger.debug("[regresarSolicitudReversion] Error:"+e.getMessage());
+			log.debug("[regresarSolicitudReversion] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -458,22 +458,22 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarDesembolso(TblDesembolso entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarDesembolso] Inicio" );
+			log.debug("[preEditarDesembolso] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarDesembolso] Fin" );
+			log.debug("[preEditarDesembolso] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	public void preEditarDesembolso(TblDesembolsoArbitrio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarDesembolso] Inicio" );
+			log.debug("[preEditarDesembolso] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarDesembolso] Fin" );
+			log.debug("[preEditarDesembolso] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -483,11 +483,11 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -497,11 +497,11 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarDocumentoArbitrio(TblArbitrio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarDocumentoArbitrio] Inicio" );
+			log.debug("[preEditarDocumentoArbitrio] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarDocumentoArbitrio] Fin" );
+			log.debug("[preEditarDocumentoArbitrio] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -712,12 +712,12 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarCobro(TblCobro entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarCobro] Inicio" );
+			log.debug("[preEditarCobro] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
 			
-			logger.debug("[preEditarCobro] Fin" );
+			log.debug("[preEditarCobro] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -727,12 +727,12 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarCobroArbitrio(TblCobroArbitrio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarCobroArbitrio] Inicio" );
+			log.debug("[preEditarCobroArbitrio] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
 			
-			logger.debug("[preEditarCobroArbitrio] Fin" );
+			log.debug("[preEditarCobroArbitrio] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -742,12 +742,12 @@ public class ReversionAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarAdelanto(TblAdelanto entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarAdelanto] Inicio" );
+			log.debug("[preEditarAdelanto] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
 			
-			logger.debug("[preEditarAdelanto] Fin" );
+			log.debug("[preEditarAdelanto] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}

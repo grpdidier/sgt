@@ -11,8 +11,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,9 +26,10 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.rs.reporte.ContratoXVencerDao;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class ContratoXVencerrAction {
-	private static final Logger logger = LogManager.getLogger(ContratoXVencerrAction.class);
 	@Autowired
 	private ContratoXVencerExcel contratoXVencerExcel;
 	@Autowired
@@ -44,7 +43,7 @@ public class ContratoXVencerrAction {
 	public String mostrarFormulario(Model model, String path) {
 		CriterioReporteBean filtro = null;
 		try{
-			logger.debug("[mostrarFormulario] Inicio");
+			log.debug("[mostrarFormulario] Inicio");
 			path = "reporte/contrato/ven_listado";
 			filtro = new CriterioReporteBean();
 			filtro.setFechaInicio(UtilSGT.getFecha("dd/MM/yyyy"));
@@ -52,9 +51,9 @@ public class ContratoXVencerrAction {
 			model.addAttribute("filtro", filtro);
 			//ingresoEgresoDao = new IngresoEgresoDao();
 			//ingresoEgresoDao.getreporteContratoXVencer();
-			logger.debug("[mostrarFormulario] Fin");
+			log.debug("[mostrarFormulario] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -69,7 +68,7 @@ public class ContratoXVencerrAction {
 		List<RespuestaReporteBean> listaRespuesta	= null;
 		RespuestaReporteBean respuestaReporteBean	= null;
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			listaContrato = this.listarContratoXVencer(filtro);
 			if (listaContrato != null){
 				listaRespuesta = new ArrayList<RespuestaReporteBean>();
@@ -80,7 +79,7 @@ public class ContratoXVencerrAction {
 				model.addAttribute("registros", listaRespuesta);
 				request.getSession().setAttribute("reporteContratoXVencer", listaContrato);
 				request.getSession().setAttribute("criterioIngresoEgreso", filtro);
-				logger.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
+				log.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
 			}else{
 				model.addAttribute("registros", respuestaReporteBean);
 				request.getSession().setAttribute("reporteContratoXVencer", listaContrato);
@@ -88,7 +87,7 @@ public class ContratoXVencerrAction {
 			model.addAttribute("filtro", filtro);
 			
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
@@ -96,7 +95,7 @@ public class ContratoXVencerrAction {
 			listaRespuesta			= null;
 			respuestaReporteBean	= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -106,11 +105,11 @@ public class ContratoXVencerrAction {
 			if (filtro.getFechaFin()==null || filtro.getFechaFin().equals("")){
 				filtro.setFechaFin(UtilSGT.getDateStringFormat(UtilSGT.addDays(new Date(), 1)));
 			}
-			logger.debug("[listarIngresoEgreso] Fec Fin:"+filtro.getFechaFin());
+			log.debug("[listarIngresoEgreso] Fec Fin:"+filtro.getFechaFin());
 			entidades = contratoXVencerDao.getReporteContratoXVencer(filtro.getFechaFin());
 			
 			
-			logger.debug("[listarIngresoEgreso] entidades:"+entidades);
+			log.debug("[listarIngresoEgreso] entidades:"+entidades);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -124,7 +123,7 @@ public class ContratoXVencerrAction {
 		CriterioReporteBean criterio		= null;
 		path = "reporte/contrato/ven_listado";
 		try{
-			logger.debug("[mostrarXls] Inicio");
+			log.debug("[mostrarXls] Inicio");
 			entidades = (List<ContratoXVencerBean>)request.getSession().getAttribute("reporteContratoXVencer");
 			if (entidades != null && !entidades.isEmpty()){
 				criterio = (CriterioReporteBean)request.getSession().getAttribute("criterioIngresoEgreso");
@@ -135,9 +134,9 @@ public class ContratoXVencerrAction {
 			}
 			
 			
-			logger.debug("[mostrarXls] Fin");
+			log.debug("[mostrarXls] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarXls] Error:"+e.getMessage());
+			log.debug("[mostrarXls] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -149,7 +148,7 @@ public class ContratoXVencerrAction {
 		CriterioReporteBean criterio		= null;
 		path = "reporte/contrato/ven_listado";
 		try{
-			logger.debug("[mostrarPdf] Inicio");
+			log.debug("[mostrarPdf] Inicio");
 			entidades = (List<ContratoXVencerBean>)request.getSession().getAttribute("reporteContratoXVencer");
 			if (entidades != null && !entidades.isEmpty()){
 				criterio = (CriterioReporteBean)request.getSession().getAttribute("criterioIngresoEgreso");
@@ -159,9 +158,9 @@ public class ContratoXVencerrAction {
 				this.fileDownload(fullPath, response, filename, ".pdf");
 			}
 			
-			logger.debug("[mostrarPdf] Fin");
+			log.debug("[mostrarPdf] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarXls] Error:"+e.getMessage());
+			log.debug("[mostrarXls] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		

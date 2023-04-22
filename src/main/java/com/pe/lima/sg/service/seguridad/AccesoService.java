@@ -2,8 +2,6 @@ package com.pe.lima.sg.service.seguridad;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -18,9 +16,11 @@ import org.springframework.stereotype.Service;
 
 import com.pe.lima.sg.dao.seguridad.IAccesoDAO;
 import com.pe.lima.sg.entity.seguridad.TblAcceso;
+
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 public class AccesoService  {
-	private static final Logger logger = LogManager.getLogger(AccesoService.class);
 	@Autowired
 	private IAccesoDAO accesoDao;
 	
@@ -28,14 +28,14 @@ public class AccesoService  {
 	  * getAllAccesos : Lista todos los accesos
 	  * */
 	public List<TblAcceso> getAllAccesos() {
-		logger.debug("[getAllAccesos] Inicio");
+		log.debug("[getAllAccesos] Inicio");
 		List<TblAcceso> listaAcceso = null;
 		try{
 			listaAcceso = accesoDao.findAll();
 		}catch(Exception e){
 			listaAcceso = null;
 		}
-		logger.debug("[getAllAccesos] Fin");
+		log.debug("[getAllAccesos] Fin");
 		return listaAcceso;
 	}
 
@@ -43,7 +43,7 @@ public class AccesoService  {
 	  * getAccesoById : Obtiene un acceso
 	  * */
 	public TblAcceso getAccesoById(Integer id) {
-		logger.debug("[getAccesoById] Inicio");
+		log.debug("[getAccesoById] Inicio");
 		TblAcceso acceso = null;
 		try{
 			acceso = accesoDao.findOne(id);
@@ -51,7 +51,7 @@ public class AccesoService  {
 			e.printStackTrace();
 			acceso = null;
 		}
-		logger.debug("[getAccesoById] Fin");
+		log.debug("[getAccesoById] Fin");
 		return acceso;
 	}
 
@@ -59,7 +59,7 @@ public class AccesoService  {
 	  * addAcceso : Registra un acceso
 	  * */
 	public boolean addAcceso(TblAcceso acceso) {
-		logger.debug("[addAcceso] Inicio");
+		log.debug("[addAcceso] Inicio");
 		boolean resultado = false;
 		try{
 			accesoDao.save(acceso);
@@ -67,7 +67,7 @@ public class AccesoService  {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		logger.debug("[addAcceso] Fin:"+resultado);
+		log.debug("[addAcceso] Fin:"+resultado);
 		return resultado;
 	}
 
@@ -75,7 +75,7 @@ public class AccesoService  {
 	  * addAcceso : Actualiza un acceso
 	  * */
 	public boolean updateAcceso(TblAcceso acceso) {
-		logger.debug("[updateAcceso] Inicio");
+		log.debug("[updateAcceso] Inicio");
 		boolean resultado = false;
 		try{
 			accesoDao.save(acceso);
@@ -84,7 +84,7 @@ public class AccesoService  {
 			e.printStackTrace();
 			resultado = false;
 		}
-		logger.debug("[updateAcceso] Fin:"+resultado);
+		log.debug("[updateAcceso] Fin:"+resultado);
 		return resultado;
 	}
 
@@ -92,7 +92,7 @@ public class AccesoService  {
 	  * deleteAcceso : Elimina un acceso
 	  * */
 	public boolean deleteAcceso(TblAcceso acceso) {
-		logger.debug("[deleteAcceso] Inicio");
+		log.debug("[deleteAcceso] Inicio");
 		boolean resultado = false;
 		try{
 			accesoDao.delete(acceso);
@@ -101,7 +101,7 @@ public class AccesoService  {
 			e.printStackTrace();
 			resultado = false;
 		}
-		logger.debug("[deleteAcceso] Fin:"+resultado);
+		log.debug("[deleteAcceso] Fin:"+resultado);
 		return resultado;
 				
 	}

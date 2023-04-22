@@ -14,8 +14,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -40,15 +38,17 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de las personas
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class PersonaAction extends BasePresentacion<TblPersona> {
-	private static final Logger logger = LogManager.getLogger(PersonaAction.class);
 	@Autowired
 	private IPersonaDAO personaDao;
 
@@ -76,7 +76,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		//Map<String, Object> campos = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "mantenimiento/persona/per_listado";
 			//campos = configurarCamposConsulta();
 			//model.addAttribute("contenido", campos);
@@ -87,9 +87,9 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			//campos		= null;
@@ -111,7 +111,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		//Map<String, Object> campos = null;
 		path = "mantenimiento/persona/per_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarPersonas(model, filtro, pageable, this.urlPaginado);
 			//campos = configurarCamposConsulta();
 			//model.addAttribute("contenido", campos);
@@ -120,15 +120,15 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Personas ***/
@@ -137,7 +137,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		Sort sort = new Sort(new Sort.Order(Direction.DESC, "nombre"));
 		try{
 			//entidades = personaDao.listarCriterios(filtro.getNombre(), filtro.getPaterno(), filtro.getMaterno(), filtro.getDni(), filtro.getRuc(), filtro.getRazonSocial());
-			//logger.debug("[listarPersonaes] entidades:"+entidades);
+			//log.debug("[listarPersonaes] entidades:"+entidades);
 			//model.addAttribute("registros", entidades);
 			Specification<TblPersona> criterio = Specifications.where(conNombre(filtro.getNombre()))
 					.and(conPaterno(filtro.getPaterno()))
@@ -163,7 +163,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		Sort sort = new Sort(new Sort.Order(Direction.DESC, "nombre"));
 		try{
 			//entidades = personaDao.listarCriterios(filtro.getNombre(), filtro.getPaterno(), filtro.getMaterno(), filtro.getDni(), filtro.getRuc(), filtro.getRazonSocial());
-			//logger.debug("[listarPersonaes] entidades:"+entidades);
+			//log.debug("[listarPersonaes] entidades:"+entidades);
 			//model.addAttribute("registros", entidades);
 			Specification<TblPersona> criterio = Specifications.where(conNombre(filtro.getNombre()))
 					.and(conPaterno(filtro.getPaterno()))
@@ -218,12 +218,12 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 	@RequestMapping(value = "persona/nuevo", method = RequestMethod.GET)
 	public String crearPersona(Model model) {
 		try{
-			logger.debug("[crearPersona] Inicio");
+			log.debug("[crearPersona] Inicio");
 			model.addAttribute("entidad", new TblPersona());
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
-			logger.debug("[crearPersona] Fin");
+			log.debug("[crearPersona] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -233,7 +233,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 	@Override
 	public void preGuardar(TblPersona entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
@@ -243,7 +243,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			entidad.setPaterno(entidad.getPaterno().toUpperCase());
 			entidad.setMaterno(entidad.getMaterno().toUpperCase());
 			entidad.setRazonSocial(entidad.getRazonSocial().toUpperCase());
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -282,12 +282,12 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		path = "mantenimiento/persona/per_listado";
 		Filtro filtro = new Filtro();
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					//List<TblPersona> entidades = personaDao.buscarOneByDniRuc(entidad.getNumeroDni(), entidad.getNumeroRuc());
 					//model.addAttribute("registros", entidades);
@@ -320,7 +320,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -333,7 +333,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 	@Override
 	public void preEditar(TblPersona entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
@@ -342,7 +342,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			entidad.setPaterno(entidad.getPaterno().toUpperCase());
 			entidad.setMaterno(entidad.getMaterno().toUpperCase());
 			entidad.setRazonSocial(entidad.getRazonSocial().toUpperCase());
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -377,7 +377,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			entidadEnBd.setTipoPersona(entidad.getTipoPersona());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				//List<TblPersona> entidades = personaDao.buscarOneByDniRuc(entidadEnBd.getNumeroDni(), entidadEnBd.getNumeroRuc());
@@ -425,7 +425,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		String path 				= null;
 		Map<String, Object> campos 	= null;
 		try{
-			logger.debug("[eliminarPersona] Inicio");
+			log.debug("[eliminarPersona] Inicio");
 			entidad = personaDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
@@ -435,7 +435,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			path = "mantenimiento/persona/per_listado";
 			this.traerRegistrosFiltrados(model, new Filtro(), path, pageable, request);
 			//List<TblPersona> entidades = personaDao.listarAllActivos();
-			//logger.debug("[eliminarPersona] entidades:"+entidades);
+			//log.debug("[eliminarPersona] entidades:"+entidades);
 			//model.addAttribute("registros", entidades);
 			
 			
@@ -445,7 +445,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
-			logger.debug("[eliminarPersona] Fin");
+			log.debug("[eliminarPersona] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -493,7 +493,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		String path = null;
 		Map<String, Object> campos = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "mantenimiento/persona/per_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -514,7 +514,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			this.listarPersonas(model, filtro, pageable, this.urlPaginado);
 			
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

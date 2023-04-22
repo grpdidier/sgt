@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,15 +24,17 @@ import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los parametros
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class ParametroAction extends BasePresentacion<TblParametro> {
-	private static final Logger logger = LogManager.getLogger(ParametroAction.class);
 	@Autowired
 	private IParametroDAO parametroDao;
 
@@ -56,16 +56,16 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 		Map<String, Object> campos = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "mantenimiento/parametro/par_listado";
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
 			this.listarParametros(model, filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			campos		= null;
@@ -87,20 +87,20 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 		Map<String, Object> campos = null;
 		path = "mantenimiento/parametro/par_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarParametros(model, filtro);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Parametros ***/
@@ -108,7 +108,7 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 		List<TblParametro> entidades = new ArrayList<TblParametro>();
 		try{
 			entidades = parametroDao.listarCriterios(filtro.getNombre(), filtro.getDato());
-			logger.debug("[listarParametroes] entidades:"+entidades);
+			log.debug("[listarParametroes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -149,9 +149,9 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 	@RequestMapping(value = "parametro/nuevo", method = RequestMethod.GET)
 	public String crearParametro(Model model) {
 		try{
-			logger.debug("[crearParametro] Inicio");
+			log.debug("[crearParametro] Inicio");
 			model.addAttribute("entidad", new TblParametro());
-			logger.debug("[crearParametro] Fin");
+			log.debug("[crearParametro] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -161,12 +161,12 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 	@Override
 	public void preGuardar(TblParametro entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -203,12 +203,12 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 		Map<String, Object> campos 	= null;
 		path = "mantenimiento/parametro/par_listado";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					List<TblParametro> entidades = parametroDao.buscarOneByNombre(entidad.getNombre());
 					model.addAttribute("registros", entidades);
@@ -225,7 +225,7 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -238,11 +238,11 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 	@Override
 	public void preEditar(TblParametro entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -262,7 +262,7 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 			entidadEnBd.setDescripcion(entidad.getDescripcion());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				List<TblParametro> entidades = parametroDao.buscarOneByNombre(entidadEnBd.getNombre());
@@ -296,20 +296,20 @@ public class ParametroAction extends BasePresentacion<TblParametro> {
 		String path 				= null;
 		Map<String, Object> campos 	= null;
 		try{
-			logger.debug("[eliminarParametro] Inicio");
+			log.debug("[eliminarParametro] Inicio");
 			entidad = parametroDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
 			parametroDao.save(entidad);
 			model.addAttribute("respuesta", "Eliminación exitosa");
 			List<TblParametro> entidades = parametroDao.listarAllActivos();
-			logger.debug("[eliminarParametro] entidades:"+entidades);
+			log.debug("[eliminarParametro] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 			path = "mantenimiento/parametro/par_listado";
 			model.addAttribute("filtro", new Filtro());
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
-			logger.debug("[eliminarParametro] Fin");
+			log.debug("[eliminarParametro] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

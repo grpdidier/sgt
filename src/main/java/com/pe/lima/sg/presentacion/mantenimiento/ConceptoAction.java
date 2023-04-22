@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,15 +25,17 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los conceptos
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class ConceptoAction extends BasePresentacion<TblConcepto> {
-	private static final Logger logger = LogManager.getLogger(ConceptoAction.class);
 	@Autowired
 	private IConceptoDAO conceptoDao;
 
@@ -60,7 +60,7 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 		Map<String, Object> campos = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "mantenimiento/concepto/con_listado";
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
@@ -69,9 +69,9 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 			filtro.setEstadoUsuario("-1");
 			this.listarConceptos(model, filtro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_CONCEPTO);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			campos		= null;
@@ -93,21 +93,21 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 		Map<String, Object> campos = null;
 		path = "mantenimiento/concepto/con_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarConceptos(model, filtro);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_CONCEPTO);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Conceptos ***/
@@ -115,7 +115,7 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 		List<TblConcepto> entidades = new ArrayList<TblConcepto>();
 		try{
 			entidades = conceptoDao.listarCriterios(filtro.getNombre(), filtro.getTipo());
-			logger.debug("[listarConceptoes] entidades:"+entidades);
+			log.debug("[listarConceptoes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -157,10 +157,10 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 	@RequestMapping(value = "concepto/nuevo", method = RequestMethod.GET)
 	public String crearConcepto(Model model) {
 		try{
-			logger.debug("[crearConcepto] Inicio");
+			log.debug("[crearConcepto] Inicio");
 			model.addAttribute("entidad", new TblConcepto());
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_CONCEPTO);
-			logger.debug("[crearConcepto] Fin");
+			log.debug("[crearConcepto] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -170,12 +170,12 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 	@Override
 	public void preGuardar(TblConcepto entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -212,12 +212,12 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 		Map<String, Object> campos 	= null;
 		path = "mantenimiento/concepto/con_listado";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					List<TblConcepto> entidades = conceptoDao.buscarOneByNombre(entidad.getNombre());
 					model.addAttribute("registros", entidades);
@@ -237,7 +237,7 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -250,11 +250,11 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 	@Override
 	public void preEditar(TblConcepto entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -272,7 +272,7 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 			entidadEnBd.setDescripcion(entidad.getDescripcion());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				List<TblConcepto> entidades = conceptoDao.buscarOneByNombre(entidadEnBd.getNombre());
@@ -308,21 +308,21 @@ public class ConceptoAction extends BasePresentacion<TblConcepto> {
 		String path 				= null;
 		Map<String, Object> campos 	= null;
 		try{
-			logger.debug("[eliminarConcepto] Inicio");
+			log.debug("[eliminarConcepto] Inicio");
 			entidad = conceptoDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
 			conceptoDao.save(entidad);
 			model.addAttribute("respuesta", "Eliminación exitosa");
 			List<TblConcepto> entidades = conceptoDao.listarAllActivos();
-			logger.debug("[eliminarConcepto] entidades:"+entidades);
+			log.debug("[eliminarConcepto] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 			path = "mantenimiento/concepto/con_listado";
 			model.addAttribute("filtro", new Filtro());
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_CONCEPTO);
-			logger.debug("[eliminarConcepto] Fin");
+			log.debug("[eliminarConcepto] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

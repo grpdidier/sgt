@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,9 +18,10 @@ import com.pe.lima.sg.bean.reporte.ReporteBancarizadoBean;
 import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Component
 public class BancarizadoDao {
-	private static final Logger logger = LogManager.getLogger(BancarizadoDao.class);
 	@Value("${spring.datasource.url}")
 	private String urlTienda;
 
@@ -128,7 +127,7 @@ public class BancarizadoDao {
 		pstmt.setString(3, filtro.getFechaInicio());
 		pstmt.setString(4, filtro.getFechaFin());
 
-		logger.debug(query);
+		log.debug(query);
 		return pstmt;
 	}
 
@@ -141,7 +140,7 @@ public class BancarizadoDao {
 		pstmt = con.prepareStatement(query);
 		pstmt.setString(1, filtro.getFechaInicio());
 		pstmt.setString(2, filtro.getFechaFin());		
-		logger.debug(query);
+		log.debug(query);
 		return pstmt;
 	}
 

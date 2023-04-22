@@ -6,18 +6,16 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
 import com.pe.lima.sg.dao.BaseOperacionDAO;
-import com.pe.lima.sg.presentacion.cliente.ArbitrioAction;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 public abstract class BaseOperacionPresentacion<E> {
-	private static final Logger logger = LogManager.getLogger(BaseOperacionPresentacion.class);
 	public abstract BaseOperacionDAO getDao();
 	
 	public abstract E getNuevaEntidad();

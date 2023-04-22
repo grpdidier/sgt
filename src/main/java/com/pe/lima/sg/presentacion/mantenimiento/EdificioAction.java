@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,15 +25,17 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los edificios
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class EdificioAction extends BasePresentacion<TblEdificio> {
-	private static final Logger logger = LogManager.getLogger(EdificioAction.class);
 	@Autowired
 	private IEdificioDAO edificioDao;
 
@@ -60,16 +60,16 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 		Map<String, Object> campos = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "mantenimiento/edificio/edi_listado";
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
 			this.listarEdificios(model, filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			campos		= null;
@@ -91,21 +91,21 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 		Map<String, Object> campos = null;
 		path = "mantenimiento/edificio/edi_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarEdificios(model, filtro);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Edificios ***/
@@ -113,7 +113,7 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 		List<TblEdificio> entidades = new ArrayList<TblEdificio>();
 		try{
 			entidades = edificioDao.listarCriterios(filtro.getNombre());
-			logger.debug("[listarEdificioes] entidades:"+entidades);
+			log.debug("[listarEdificioes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -155,10 +155,10 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 	@RequestMapping(value = "edificio/nuevo", method = RequestMethod.GET)
 	public String crearEdificio(Model model) {
 		try{
-			logger.debug("[crearEdificio] Inicio");
+			log.debug("[crearEdificio] Inicio");
 			model.addAttribute("entidad", new TblEdificio());
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[crearEdificio] Fin");
+			log.debug("[crearEdificio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -168,12 +168,12 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 	@Override
 	public void preGuardar(TblEdificio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -210,12 +210,12 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 		Map<String, Object> campos 	= null;
 		path = "mantenimiento/edificio/edi_listado";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					List<TblEdificio> entidades = edificioDao.buscarOneByNombre(entidad.getNombre());
 					model.addAttribute("registros", entidades);
@@ -235,7 +235,7 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -248,11 +248,11 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 	@Override
 	public void preEditar(TblEdificio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -270,7 +270,7 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 			entidadEnBd.setDescripcion(entidad.getDescripcion());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				List<TblEdificio> entidades = edificioDao.buscarOneByNombre(entidadEnBd.getNombre());
@@ -306,21 +306,21 @@ public class EdificioAction extends BasePresentacion<TblEdificio> {
 		String path 				= null;
 		Map<String, Object> campos 	= null;
 		try{
-			logger.debug("[eliminarEdificio] Inicio");
+			log.debug("[eliminarEdificio] Inicio");
 			entidad = edificioDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
 			edificioDao.save(entidad);
 			model.addAttribute("respuesta", "Eliminación exitosa");
 			List<TblEdificio> entidades = edificioDao.listarAllActivos();
-			logger.debug("[eliminarEdificio] entidades:"+entidades);
+			log.debug("[eliminarEdificio] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 			path = "mantenimiento/edificio/edi_listado";
 			model.addAttribute("filtro", new Filtro());
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[eliminarEdificio] Fin");
+			log.debug("[eliminarEdificio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

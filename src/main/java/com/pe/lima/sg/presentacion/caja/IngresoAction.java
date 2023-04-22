@@ -13,8 +13,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -41,17 +39,19 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * Clase Bean que se encarga de la administracion de la caja chica
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 	
-	private static final Logger logger = LogManager.getLogger(IngresoAction.class);
 	
 	@Autowired
 	private IIngresoDAO ingresoDao;
@@ -80,7 +80,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 		Filtro filtro = null;
 		
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "caja/ingreso/ing_listado";
 			
 			filtro = new Filtro();
@@ -94,9 +94,9 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 			request.getSession().setAttribute("ListadoIngreso",null);
 			request.getSession().setAttribute("PageIngreso",null);
 			
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -121,7 +121,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 			model.addAttribute("registros", lista);
 			model.addAttribute("page", page);
 			
-			logger.debug("[listarIngreso] entidades:"+entidades);
+			log.debug("[listarIngreso] entidades:"+entidades);
 			request.getSession().setAttribute("CriterioFiltroIngreso", entidad);
 			request.getSession().setAttribute("ListadoIngreso", lista);
 			request.getSession().setAttribute("PageIngreso", page);
@@ -144,7 +144,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 			model.addAttribute("registros", this.procesarListaIngreso(page.getContent(), request));
 			model.addAttribute("page", page);
 			
-			logger.debug("[listarIngresoxCodigoInterno] entidades:"+entidades);
+			log.debug("[listarIngresoxCodigoInterno] entidades:"+entidades);
 			
 		}catch(Exception e){
 			e.printStackTrace();
@@ -209,22 +209,22 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 	public String traerRegistrosFiltrados(Model model, Filtro filtro, String path ,  PageableSG pageable,HttpServletRequest request) {
 		path = "caja/ingreso/ing_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			if (filtro.getNumero().isEmpty()){
 				filtro.setNumero("1");
 			}
 			filtro.setFechaIngreso(UtilSGT.addMonths(new Date(), new Integer(filtro.getNumero())*(-1)));
 			this.listarIngreso(model, filtro, pageable, this.urlPaginado, request);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -263,7 +263,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 	public String crearIngreso(Model model) {
 		TblEdificio edificio = new TblEdificio();
 		try{
-			logger.debug("[crearIngreso] Inicio");
+			log.debug("[crearIngreso] Inicio");
 			edificio.setCodigoEdificio(Constantes.CODIGO_INMUEBLE_LA_REYNA);
 			TblIngreso ingreso = new TblIngreso();
 			ingreso.setTblEdificio(edificio);
@@ -273,7 +273,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 			ingreso.setTipoPago(Constantes.TIPO_PAGO_COD_EFECTIVO);
 			ingreso.setFechaOperacion(new Date());
 			model.addAttribute("entidad", ingreso);
-			logger.debug("[crearIngreso] Fin");
+			log.debug("[crearIngreso] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -283,12 +283,12 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 	@Override
 	public void preGuardar(TblIngreso entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -367,14 +367,14 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 	public String guardarEntidad(Model model, TblIngreso entidad, HttpServletRequest request, String path , PageableSG pageable) {
 		path = "caja/ingreso/ing_listado";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				entidad.setCodigoInterno(UUID.randomUUID().toString());
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					this.listarIngresoxCodigoInterno(model, entidad.getCodigoInterno(), pageable, this.urlPaginado, request);
 					model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroIngreso"));
@@ -388,7 +388,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -399,11 +399,11 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 	@Override
 	public void preEditar(TblIngreso entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -429,7 +429,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 				entidadEnBd.setFechaOperacion(entidad.getFechaOperacion());
 				this.preEditar(entidadEnBd, request);
 				boolean exitoso = super.guardar(entidadEnBd, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					
 					this.listarIngresoxCodigoInterno(model, entidadEnBd.getCodigoInterno(), pageable, this.urlPaginado, request);
@@ -467,7 +467,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 		String path 				= null;
 		Filtro filtro				= null;
 		try{
-			logger.debug("[eliminarIngreso] Inicio");
+			log.debug("[eliminarIngreso] Inicio");
 			path = "caja/ingreso/ing_listado";
 			
 			entidad = ingresoDao.findOne(id);
@@ -478,7 +478,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 			model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroIngreso"));
 			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroIngreso");
 			this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
-			logger.debug("[eliminarIngreso] Fin");
+			log.debug("[eliminarIngreso] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -501,7 +501,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 		Filtro filtro = null;
 		String path = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "caja/ingreso/ing_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -522,7 +522,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 			
 			
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -536,7 +536,7 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 		List<IngresoBean> lista = null;
 		PageWrapper<TblIngreso> page = null;
 		try{
-			logger.debug("[regresar] Inicio");
+			log.debug("[regresar] Inicio");
 			path = "caja/ingreso/ing_listado";
 			
 			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroIngreso");
@@ -547,9 +547,9 @@ public class IngresoAction extends BaseOperacionPresentacion<TblIngreso> {
 			model.addAttribute("page", page);
 			
 			
-			logger.debug("[regresar] Fin");
+			log.debug("[regresar] Fin");
 		}catch(Exception e){
-			logger.debug("[regresar] Error:"+e.getMessage());
+			log.debug("[regresar] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

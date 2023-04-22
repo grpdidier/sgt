@@ -20,8 +20,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -55,15 +53,16 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
 /**
  * Clase que se encarga de la administracion de los arbitrios
  *
  * 			
  */
+@Slf4j
 @Controller
 public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 	
-	private static final Logger logger = LogManager.getLogger(ArbitrioAction.class);
 
 	@Autowired
 	private IArbitrioDAO arbitrioDao;
@@ -102,7 +101,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		Filtro filtro = null;
 		List<TblParametro> listaParametro;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "cliente/arbitrio/arb_listado";
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
@@ -115,9 +114,9 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			this.cargarListaAnio(model,request);
 			this.listarArbitrios(model, filtro, pageable, this.urlPaginado,request);
 			request.getSession().setAttribute("sessionFiltroCriterioArbitrio", filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -169,20 +168,20 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 	public String traerRegistrosFiltrados(Model model, Filtro filtro, String path,  PageableSG pageable, HttpServletRequest request) {
 		path = "cliente/arbitrio/arb_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarArbitrios(model, filtro, pageable, this.urlPaginado,request);
 			//this.cargarListaAnio(model);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroCriterioArbitrio", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Arbitrios ***/
@@ -207,7 +206,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			request.getSession().setAttribute("PageableSGArbitrio", pageable);
 			
 			/*entidades = arbitrioDao.findAll(criterio);
-			logger.debug("[listarArbitrios] entidades:"+entidades);
+			log.debug("[listarArbitrios] entidades:"+entidades);
 			model.addAttribute("registros", entidades);*/
 		}catch(Exception e){
 			e.printStackTrace();
@@ -254,7 +253,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		TblArbitrio arbitrio = null;
 		Filtro filtro		 = null;
 		try{
-			logger.debug("[crearArbitrio] Inicio");
+			log.debug("[crearArbitrio] Inicio");
 			filtro = new Filtro();
 			arbitrio = new TblArbitrio();
 			arbitrio.setTblTienda(new TblTienda());
@@ -262,7 +261,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			filtro.setArbitrio(arbitrio);
 			model.addAttribute("entidad", filtro);
 			model.addAttribute("registros",null);
-			logger.debug("[crearArbitrio] Fin");
+			log.debug("[crearArbitrio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -276,9 +275,9 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		List<TblTienda> listaTienda = null;
 		BeanRequest beanRequest		= null;
 		try{
-			logger.debug("[listarLocales] Inicio");
+			log.debug("[listarLocales] Inicio");
 			beanRequest = new BeanRequest();
-			logger.debug("[listarLocales] Edificio:"+entidad.getArbitrio().getTblTienda().getTblEdificio().getCodigoEdificio());
+			log.debug("[listarLocales] Edificio:"+entidad.getArbitrio().getTblTienda().getTblEdificio().getCodigoEdificio());
 			listaTienda = tiendaDao.listarxInmueble(entidad.getArbitrio().getTblTienda().getTblEdificio().getCodigoEdificio());
 			beanRequest.setListaTienda(listaTienda);
 			this.cargarLocales(model, listaTienda);
@@ -286,7 +285,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			request.getSession().setAttribute("beanRequest", beanRequest);
 			model.addAttribute("entidad", entidad);
 			model.addAttribute("registros",entidad.getListaArbitrio());
-			logger.debug("[listarLocales] Fin");
+			log.debug("[listarLocales] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -320,7 +319,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		TblTienda tienda			= null;
 		BeanRequest beanRequest		= null;
 		try{
-			logger.debug("[asignarArbitrio] Inicio");
+			log.debug("[asignarArbitrio] Inicio");
 			entidad.setListaArbitrio( new ArrayList<TblArbitrio>());
 			Map<String, String> mapPeriodo = UtilSGT.getMapFechaPeriodo();
 			tienda = tiendaDao.findOne(entidad.getArbitrio().getTblTienda().getCodigoTienda());
@@ -347,7 +346,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			model.addAttribute("entidad", entidad);
 			//model.addAttribute("registros",entidad.getListaArbitrio());
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			logger.debug("[asignarArbitrio] Fin");
+			log.debug("[asignarArbitrio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -368,7 +367,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		Double porcentaje = null;
 		List<TblParametro> listaParametro;
 		try{
-			logger.debug("[crearArbitrio] Inicio");
+			log.debug("[crearArbitrio] Inicio");
 			listaParametro = parametroDao.buscarOneByNombre(Constantes.PAR_ARBITRIO_PORCENTAJE_INCREMENTO);
 			if(listaParametro!=null && listaParametro.size()>0){
 				try{
@@ -386,7 +385,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 				model.addAttribute("respuesta", "Se genero exitosamente los arbitrios");
 			}
 			this.listarArbitrios(model, filtro);
-			logger.debug("[crearArbitrio] Fin");
+			log.debug("[crearArbitrio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -581,7 +580,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 	public void preGuardarListado(TblArbitrio arbitrio, HttpServletRequest request) {
 		
 		try{
-			logger.debug("[preGuardarListado] Inicio" );
+			log.debug("[preGuardarListado] Inicio" );
 
 			arbitrio.setFechaCreacion(new Date(System.currentTimeMillis()));
 			arbitrio.setIpCreacion(request.getRemoteAddr());
@@ -591,7 +590,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			arbitrio.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
 			arbitrio.setEstadoArbitrio("S");
 			
-			logger.debug("[preGuardarListado] Fin" );
+			log.debug("[preGuardarListado] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -651,29 +650,29 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 	@Override
 	public void preEditar(TblArbitrio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	
 	private void actualizarSaldo(TblArbitrio entidadEnBd,TblArbitrio entidad) {
-		logger.debug("[actualizarSaldo] Inicio" );
+		log.debug("[actualizarSaldo] Inicio" );
 		int count = cobroArbitrioDao.countCobroArbitrio(entidad.getCodigoArbitrio());
-		logger.debug("[actualizarSaldo] count:"+count );
+		log.debug("[actualizarSaldo] count:"+count );
 		if (count > 0) {
 			BigDecimal monto = cobroArbitrioDao.montoCobroArbitrio(entidad.getCodigoArbitrio());
-			logger.debug("[actualizarSaldo] monto:"+monto );
+			log.debug("[actualizarSaldo] monto:"+monto );
 			entidadEnBd.setSaldo(entidad.getMontoGenerado().subtract(monto));
-			logger.debug("[actualizarSaldo] Saldo Final:"+entidadEnBd.getSaldo() );
+			log.debug("[actualizarSaldo] Saldo Final:"+entidadEnBd.getSaldo() );
 		}else {
 			entidadEnBd.setSaldo(entidad.getMontoGenerado());
 		}
-		logger.debug("[actualizarSaldo] Fin" );
+		log.debug("[actualizarSaldo] Fin" );
 	}
 
 	@RequestMapping(value = "/cliente/arbitrio/editar", method = RequestMethod.POST)
@@ -690,7 +689,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			entidadEnBd.setObservacion(entidad.getObservacion());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				filtro = new Filtro();
 				model.addAttribute("filtro", filtro);
@@ -736,9 +735,9 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		TblTienda tienda						= null;
 		TblContrato contrato 					= null;
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocioListado(model, entidad.getArbitrio(), request,entidad.getListaArbitrio())){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				contrato = contratoDao.findByNumeroTiendaParaArbitrios(entidad.getArbitrio().getTblTienda().getCodigoTienda());
 				tienda = tiendaDao.findOne(entidad.getArbitrio().getTblTienda().getCodigoTienda());
 				for(TblArbitrio arbitrio:entidad.getListaArbitrio()){
@@ -754,7 +753,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 				}
 				
 				
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					this.traerRegistros(model, path, pageable, request);
 					
@@ -778,7 +777,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 				//model.addAttribute("registros",entidad.getListaArbitrio());
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -802,7 +801,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		String path 				= "cliente/arbitrio/arb_listado";
 		Filtro entidadFiltro		= null;
 		try{
-			logger.debug("[eliminarArbitrio] Inicio");
+			log.debug("[eliminarArbitrio] Inicio");
 			entidad = arbitrioDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
@@ -812,7 +811,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			model.addAttribute("filtro", entidadFiltro);
 			this.traerRegistrosFiltrados(model, entidadFiltro, path, pageable, request);
 			//this.traerRegistros(model, path, pageable, request);
-			logger.debug("[eliminarArbitrio] Fin");
+			log.debug("[eliminarArbitrio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -884,13 +883,13 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			}
 			if(valor == 0){
 				resultado = new Double("0");
-				logger.debug("[factorCalculoArbitrio] Arbitrio: FecIni: "+arbitrio.getFechaInicio()+" FecFin:"+arbitrio.getFechaFin());
-				logger.debug("[factorCalculoArbitrio] Contrato: FecIni: "+contrato.getFechaInicio());
+				log.debug("[factorCalculoArbitrio] Arbitrio: FecIni: "+arbitrio.getFechaInicio()+" FecFin:"+arbitrio.getFechaFin());
+				log.debug("[factorCalculoArbitrio] Contrato: FecIni: "+contrato.getFechaInicio());
 				totalDias = UtilSGT.getDiasFechas(UtilSGT.getDateStringFormat(arbitrio.getFechaInicio()), UtilSGT.getDateStringFormat(arbitrio.getFechaFin()));
 				totalResta = UtilSGT.getDiasFechas(UtilSGT.getDateStringFormat(contrato.getFechaInicio()), UtilSGT.getDateStringFormat(arbitrio.getFechaFin()));
-				logger.debug("[factorCalculoArbitrio] totalDias: "+totalDias+ " totalResta:"+totalResta);
+				log.debug("[factorCalculoArbitrio] totalDias: "+totalDias+ " totalResta:"+totalResta);
 				resultado = new Double(totalResta*(new Double(1))/totalDias);
-				logger.debug("[factorCalculoArbitrio] resultado: "+resultado);
+				log.debug("[factorCalculoArbitrio] resultado: "+resultado);
 			}
 			
 			
@@ -913,11 +912,11 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		String anio			= null;
 		List<TblParametro> listaParametro;
 		try{
-			logger.debug("[anioAnteriorPosterior] Inicio" );
+			log.debug("[anioAnteriorPosterior] Inicio" );
 			operacion = cadena.substring(0, 1);
 			anio = cadena.substring(1);
-			logger.debug("[anioAnteriorPosterior] operacion:"+operacion );
-			logger.debug("[anioAnteriorPosterior] anio: "+anio );
+			log.debug("[anioAnteriorPosterior] operacion:"+operacion );
+			log.debug("[anioAnteriorPosterior] anio: "+anio );
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
 			filtro.setCodigoEdificacionFiltro(-1);
@@ -937,7 +936,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 				}
 			}
 			this.listarArbitrios(model, filtro,pageable, this.urlPaginado,request);
-			logger.debug("[anioAnteriorPosterior] Fin" );
+			log.debug("[anioAnteriorPosterior] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -960,7 +959,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		List<TblArbitrio> listaArbitrio = null;
 		List<TiendaArbitrioBean> lista	= null;
 		try{
-			logger.debug("[listarPendienteArbitrio] Inicio");
+			log.debug("[listarPendienteArbitrio] Inicio");
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
 			filtro.setCodigoEdificacionFiltro(-1);
@@ -976,7 +975,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			model.addAttribute("registros",lista);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_ASIGNACION);
 			request.getSession().setAttribute("listaTiendaxArbitrio", lista);
-			logger.debug("[listarPendienteArbitrio] Fin");
+			log.debug("[listarPendienteArbitrio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1042,7 +1041,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		List<TiendaArbitrioBean> lista	= null;
 		List<TiendaArbitrioBean> listaEstado	= null;
 		try{
-			logger.debug("[listarPendientesxEstado] Inicio");
+			log.debug("[listarPendientesxEstado] Inicio");
 			lista = (ArrayList<TiendaArbitrioBean>)request.getSession().getAttribute("listaTiendaxArbitrio");
 			listaEstado = new ArrayList<TiendaArbitrioBean>();
 			if (entidad.getEstado().equals("-1")){
@@ -1058,7 +1057,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_ASIGNACION);
 			model.addAttribute("entidad", entidad);
 			model.addAttribute("registros",listaEstado);
-			logger.debug("[listarPendientesxEstado] Fin");
+			log.debug("[listarPendientesxEstado] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -1074,7 +1073,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		List<TiendaArbitrioBean> lista	= null;
 		List<TiendaArbitrioBean> listaFiltro	= null;
 		try{
-			logger.debug("[buscarPendientes] Inicio");
+			log.debug("[buscarPendientes] Inicio");
 			model.addAttribute("filtro", filtro);
 			//this.cargarListaAnio(model);
 			listaLocales = tiendaDao.listarAllActivos(filtro.getCodigoEdificacionFiltro());
@@ -1094,7 +1093,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			model.addAttribute("registros",listaFiltro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_ASIGNACION);
 			request.getSession().setAttribute("listaTiendaxArbitrio", lista);
-			logger.debug("[buscarPendientes] Fin");
+			log.debug("[buscarPendientes] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1109,7 +1108,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		Filtro filtro = null;
 		String path = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "cliente/arbitrio/arb_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -1129,7 +1128,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			this.listarArbitrios(model, filtro, pageable, this.urlPaginado,request);
 			
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -1144,7 +1143,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		List<TblContrato> lista = null;
 		PageWrapper<TblContrato> page = null;
 		try{
-			logger.debug("[regresar] Inicio");
+			log.debug("[regresar] Inicio");
 			path = "cliente/arbitrio/arb_listado";
 			
 			filtro = (Filtro)request.getSession().getAttribute("sessionFiltroCriterioArbitrio");
@@ -1154,9 +1153,9 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			page = (PageWrapper<TblContrato>) request.getSession().getAttribute("PageArbitrio");
 			model.addAttribute("page", page);
 						
-			logger.debug("[regresar] Fin");
+			log.debug("[regresar] Fin");
 		}catch(Exception e){
-			logger.debug("[regresar] Error:"+e.getMessage());
+			log.debug("[regresar] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -1187,7 +1186,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			for(int i=0; i<subListArbitrio.size(); i++) {
 				TblArbitrio arb = subListArbitrio.get(i);
 				arb.setFechaFin(UtilSGT.getFechaFinPeriodo(subListArbitrio.size(),arb.getAnio(),i+1,arb.getTrimestre(),mapPeriodo));
-				logger.debug("[calculoAsignacionFechas] codigo:"+arb.getCodigoArbitrio()+ " anio:"+ arb.getAnio()+" periodo:"+arb.getTrimestre()+" i:"+i + " Fecha:"+arb.getFechaFin());
+				log.debug("[calculoAsignacionFechas] codigo:"+arb.getCodigoArbitrio()+ " anio:"+ arb.getAnio()+" periodo:"+arb.getTrimestre()+" i:"+i + " Fecha:"+arb.getFechaFin());
 				arbitrioDao.save(arb);
 			}
 		}
@@ -1206,7 +1205,7 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 		Filtro filtro = null;
 		List<TblParametro> listaParametro;
 		try{
-			logger.debug("[asignarFechasArbitrios] Inicio");
+			log.debug("[asignarFechasArbitrios] Inicio");
 			
 			calculoAsignacionFechas();
 			
@@ -1222,9 +1221,9 @@ public class ArbitrioAction extends BaseOperacionPresentacion<TblArbitrio> {
 			this.cargarListaAnio(model,request);
 			this.listarArbitrios(model, filtro, pageable, this.urlPaginado,request);
 			request.getSession().setAttribute("sessionFiltroCriterioArbitrio", filtro);
-			logger.debug("[asignarFechasArbitrios] Fin");
+			log.debug("[asignarFechasArbitrios] Fin");
 		}catch(Exception e){
-			logger.debug("[asignarFechasArbitrios] Error:"+e.getMessage());
+			log.debug("[asignarFechasArbitrios] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

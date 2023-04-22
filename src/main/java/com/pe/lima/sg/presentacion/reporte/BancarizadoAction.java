@@ -11,8 +11,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,9 +26,10 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.rs.reporte.BancarizadoDao;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class BancarizadoAction {
-	private static final Logger logger = LogManager.getLogger(BancarizadoAction.class);
 	@Autowired
 	private BancarizadoPdf bancarizadoPdf;
 	@Autowired
@@ -42,15 +41,15 @@ public class BancarizadoAction {
 	public String mostrarFormulario(Model model, String path) {
 		Filtro filtro = null;
 		try{
-			logger.debug("[mostrarFormulario] Inicio");
+			log.debug("[mostrarFormulario] Inicio");
 			path = "reporte/bancarizado/ban_listado";
 			filtro = new Filtro();
 			filtro.setFechaInicio(UtilSGT.getFecha("dd/MM/yyyy"));
 			filtro.setFechaFin(UtilSGT.getFecha("dd/MM/yyyy"));
 			model.addAttribute("filtro", filtro);
-			logger.debug("[mostrarFormulario] Fin");
+			log.debug("[mostrarFormulario] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -64,7 +63,7 @@ public class BancarizadoAction {
 		List<IngresoEgresoBean> listaIngresoEgreso 	= null;
 		RespuestaReporteBean respuestaReporteBean	= null;
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			if (this.validarCriterio(filtro,model)){
 				//Realiza la busqueda para efectivo o bancarizado				
 				this.buscarIngresoEgresoEfectivoBancarizado(model, filtro, path, request);
@@ -79,14 +78,14 @@ public class BancarizadoAction {
 			
 			
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			listaIngresoEgreso		= null;
 			respuestaReporteBean	= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -106,7 +105,7 @@ public class BancarizadoAction {
 			model.addAttribute("registros", listaRespuesta);
 			request.getSession().setAttribute("reporteIngresoEgresoBancarizado", listaIngresoEgreso);
 			request.getSession().setAttribute("criterioIngresoEgresoBancarizado", filtro);
-			logger.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
+			log.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
 		}else{
 			model.addAttribute("registros", respuestaReporteBean);
 			request.getSession().setAttribute("reporteIngresoEgresoBancarizado", listaIngresoEgreso);
@@ -145,10 +144,10 @@ public class BancarizadoAction {
 			if (filtro.getFechaFin()==null || filtro.getFechaFin().equals("")){
 				filtro.setFechaFin(UtilSGT.getDateStringFormat(UtilSGT.addDays(new Date(), 1)));
 			}
-			logger.debug("[listarIngresoEgreso] Fec Inicio:"+filtro.getFechaInicio());
-			logger.debug("[listarIngresoEgreso] Fec Fin:"+filtro.getFechaFin());
+			log.debug("[listarIngresoEgreso] Fec Inicio:"+filtro.getFechaInicio());
+			log.debug("[listarIngresoEgreso] Fec Fin:"+filtro.getFechaFin());
 			entidades = bancarizadoDao.getReporteIngresoEgreso(filtro);
-			logger.debug("[listarIngresoEgreso] entidades:"+entidades.size());
+			log.debug("[listarIngresoEgreso] entidades:"+entidades.size());
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -164,7 +163,7 @@ public class BancarizadoAction {
 		
 		try{
 			path = "reporte/bancarizado/ban_listado";
-			logger.debug("[mostrarPdf] Inicio");
+			log.debug("[mostrarPdf] Inicio");
 			entidades = (List<ReporteBancarizadoBean>)request.getSession().getAttribute("reporteIngresoEgresoBancarizado");
 			
 			if (entidades != null && !entidades.isEmpty()){
@@ -176,9 +175,9 @@ public class BancarizadoAction {
 				this.fileDownload(fullPath, response, filename, ".pdf");
 			}
 			
-			logger.debug("[mostrarPdf] Fin");
+			log.debug("[mostrarPdf] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarPdf] Error:"+e.getMessage());
+			log.debug("[mostrarPdf] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		

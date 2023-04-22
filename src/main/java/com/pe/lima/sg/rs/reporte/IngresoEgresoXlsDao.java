@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,9 +17,10 @@ import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Component
 public class IngresoEgresoXlsDao {
-	private static final Logger logger = LogManager.getLogger(IngresoEgresoDao.class);
 	
 	@Value("${spring.datasource.url}")
 	private String urlTienda;
@@ -125,7 +124,7 @@ public class IngresoEgresoXlsDao {
 		pstmt.setString(10, filtro.getFechaInicio());
 		pstmt.setString(11, filtro.getFechaFin());
 		pstmt.setInt(12,  filtro.getCodigoEdificacion());
-		logger.debug(query);
+		log.debug(query);
 		return pstmt;
 	}
 	

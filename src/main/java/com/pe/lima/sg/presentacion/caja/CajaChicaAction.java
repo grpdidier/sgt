@@ -11,8 +11,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -32,15 +30,17 @@ import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de la caja chica
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
-	private static final Logger logger = LogManager.getLogger(CajaChicaAction.class);
 	@Autowired
 	private ICajaChicaDAO cajaChicaDao;
 
@@ -61,14 +61,14 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 	public String traerRegistros(Model model, String path) {
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "caja/cchica/cch_listado";
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
 			this.listarCajaChica(model, filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -88,7 +88,7 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 					.or(conMes(new Integer(entidad.getMesFiltro()==null?"0":entidad.getMesFiltro())))
 					.and(conEstado(Constantes.ESTADO_REGISTRO_ACTIVO));
 			entidades = cajaChicaDao.findAll(filtro,sort);
-			logger.debug("[listarCajaChica] entidades:"+entidades);
+			log.debug("[listarCajaChica] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -109,18 +109,18 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 	public String traerRegistrosFiltrados(Model model, Filtro filtro, String path,HttpServletRequest request) {
 		path = "caja/cchica/cch_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarCajaChica(model, filtro);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -163,9 +163,9 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 	@RequestMapping(value = "/caja/cchica/nuevo", method = RequestMethod.GET)
 	public String crearCajaChica(Model model) {
 		try{
-			logger.debug("[crearCajaChica] Inicio");
+			log.debug("[crearCajaChica] Inicio");
 			model.addAttribute("entidad", new TblCajaChica());
-			logger.debug("[crearCajaChica] Fin");
+			log.debug("[crearCajaChica] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -175,13 +175,13 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 	@Override
 	public void preGuardar(TblCajaChica entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
 			entidad.setEstadoCaja(Constantes.CAJA_CHICA_ABIERTO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -218,13 +218,13 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 		path = "caja/cchica/cch_listado";
 		List<TblCajaChica> entidades = null;
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			entidad.setNombre(entidad.getNombre().toUpperCase());
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					entidades = cajaChicaDao.listarAnioMesNombreCajaChica(entidad.getAnio(), entidad.getMes(), entidad.getNombre());
 					model.addAttribute("registros", entidades);
@@ -239,7 +239,7 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -252,11 +252,11 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 	@Override
 	public void preEditar(TblCajaChica entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -276,7 +276,7 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 			entidadEnBd.setEstadoCaja(entidad.getEstadoCaja());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				entidades = cajaChicaDao.listarAnioMesNombreCajaChica(entidadEnBd.getAnio(), entidadEnBd.getMes(), entidadEnBd.getNombre());
@@ -311,7 +311,7 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 		String path 				= null;
 		Filtro filtro				= null;
 		try{
-			logger.debug("[eliminarCajaChica] Inicio");
+			log.debug("[eliminarCajaChica] Inicio");
 			path = "caja/cchica/cch_listado";
 			
 			entidad = cajaChicaDao.findOne(id);
@@ -322,7 +322,7 @@ public class CajaChicaAction extends BaseOperacionPresentacion<TblCajaChica> {
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
 			this.listarCajaChica(model, filtro);
-			logger.debug("[eliminarCajaChica] Fin");
+			log.debug("[eliminarCajaChica] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

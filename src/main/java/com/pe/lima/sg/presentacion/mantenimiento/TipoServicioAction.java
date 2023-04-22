@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,15 +25,17 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los tiposervicios
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
-	private static final Logger logger = LogManager.getLogger(TipoServicioAction.class);
 	@Autowired
 	private ITipoServicioDAO tiposervicioDao;
 
@@ -59,7 +59,7 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 		Map<String, Object> campos = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "mantenimiento/tiposervicio/tse_listado";
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
@@ -67,9 +67,9 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 			model.addAttribute("filtro", filtro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_RUBRO);
 			this.listarTipoServicios(model, filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			campos		= null;
@@ -90,21 +90,21 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 		Map<String, Object> campos = null;
 		path = "mantenimiento/tiposervicio/tse_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarTipoServicios(model, filtro);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_RUBRO);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de TipoServicios ***/
@@ -112,7 +112,7 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 		List<TblTipoServicio> entidades = new ArrayList<TblTipoServicio>();
 		try{
 			entidades = tiposervicioDao.listarCriterios(filtro.getNombre());
-			logger.debug("[listarTipoServicioes] entidades:"+entidades);
+			log.debug("[listarTipoServicioes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -154,10 +154,10 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 	@RequestMapping(value = "tiposervicio/nuevo", method = RequestMethod.GET)
 	public String crearTipoServicio(Model model) {
 		try{
-			logger.debug("[crearTipoServicio] Inicio");
+			log.debug("[crearTipoServicio] Inicio");
 			model.addAttribute("entidad", new TblTipoServicio());
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_RUBRO);
-			logger.debug("[crearTipoServicio] Fin");
+			log.debug("[crearTipoServicio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -167,12 +167,12 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 	@Override
 	public void preGuardar(TblTipoServicio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -210,12 +210,12 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 		Map<String, Object> campos 	= null;
 		path = "mantenimiento/tiposervicio/tse_listado";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					List<TblTipoServicio> entidades = tiposervicioDao.buscarOneByNombre(entidad.getNombre());
 					model.addAttribute("registros", entidades);
@@ -232,7 +232,7 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -245,11 +245,11 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 	@Override
 	public void preEditar(TblTipoServicio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -267,7 +267,7 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 			entidadEnBd.setDescripcion(entidad.getDescripcion());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				List<TblTipoServicio> entidades = tiposervicioDao.buscarOneByNombre(entidadEnBd.getNombre());
@@ -301,20 +301,20 @@ public class TipoServicioAction extends BasePresentacion<TblTipoServicio> {
 		String path 				= null;
 		Map<String, Object> campos 	= null;
 		try{
-			logger.debug("[eliminarTipoServicio] Inicio");
+			log.debug("[eliminarTipoServicio] Inicio");
 			entidad = tiposervicioDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
 			tiposervicioDao.save(entidad);
 			model.addAttribute("respuesta", "Eliminación exitosa");
 			List<TblTipoServicio> entidades = tiposervicioDao.listarAllActivos();
-			logger.debug("[eliminarTipoServicio] entidades:"+entidades);
+			log.debug("[eliminarTipoServicio] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 			path = "mantenimiento/tiposervicio/tse_listado";
 			model.addAttribute("filtro", new Filtro());
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
-			logger.debug("[eliminarTipoServicio] Fin");
+			log.debug("[eliminarTipoServicio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

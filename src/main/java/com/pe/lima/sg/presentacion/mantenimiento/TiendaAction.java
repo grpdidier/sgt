@@ -12,8 +12,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -42,15 +40,17 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los tiendas
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class TiendaAction extends BasePresentacion<TblTienda> {
-	private static final Logger logger = LogManager.getLogger(TiendaAction.class);
 	@Autowired
 	private ITiendaDAO tiendaDao;
 	
@@ -83,7 +83,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 		TblEdificio edificio = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			edificio = edificioDao.findOne(id);
 			filtro = new Filtro();
 			filtro.setCodigo(edificio.getCodigoEdificio());
@@ -95,9 +95,9 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroCriterio", filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			campos		= null;
@@ -119,7 +119,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 		TblEdificio edificio = null;
 		path = "mantenimiento/tienda/tie_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			edificio = edificioDao.findOne(filtro.getCodigo());
 			filtro.setCodigo(edificio.getCodigoEdificio());
 			model.addAttribute("edificio", edificio);
@@ -129,16 +129,16 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroCriterio", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 			edificio	= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Tiendas ***/
@@ -205,7 +205,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 		TblTienda entidad = new TblTienda();
 		List<TblSuministro> listaSuministro = null;
 		try{
-			logger.debug("[crearTienda] Inicio");
+			log.debug("[crearTienda] Inicio");
 			edificio = edificioDao.findOne(idEdificio);
 			model.addAttribute("edificio", edificio);
 			entidad.setTblEdificio(edificio);
@@ -215,7 +215,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PISO);
 			listaSuministro = suministroDao.listarAllActivos();
 			model.addAttribute("mapListaSuministro", ListaUtilAction.obtenerValoresListaSuministroActivo(listaSuministro));
-			logger.debug("[crearTienda] Fin");
+			log.debug("[crearTienda] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -227,14 +227,14 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 	@Override
 	public void preGuardar(TblTienda entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
 			entidad.setEstadoTienda(Constantes.ESTADO_TIENDA_DESOCUPADO);
 			entidad.setNumero(entidad.getNumero().toUpperCase());
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -283,16 +283,16 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 		Filtro filtro						 	= null;
 		List<TblSuministro> listaSuministro 	= null;
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				edificio = edificioDao.findOne(entidad.getTblEdificio().getCodigoEdificio());
 				entidad.setTblEdificio(edificio);
 				suministro = suministroDao.findOne(entidad.getTblSuministro().getCodigoSuministro());
 				entidad.setTblSuministro(suministro);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				model.addAttribute("edificio", edificio);
 				if (exitoso){
 					edificio = edificioDao.findOne(entidad.getTblEdificio().getCodigoEdificio());
@@ -323,7 +323,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -336,11 +336,11 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 	@Override
 	public void preEditar(TblTienda entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -368,7 +368,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
 			model.addAttribute("edificio", edificio);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				//List<TblTienda> entidades = tiendaDao.buscarOneByNumero(entidadEnBd.getTblEdificio().getCodigoEdificio(),entidadEnBd.getNumero());
@@ -412,7 +412,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 		Filtro filtro 				= null;
 		TblEdificio edificio 		= null;
 		try{
-			logger.debug("[eliminarTienda] Inicio");
+			log.debug("[eliminarTienda] Inicio");
 			entidad = tiendaDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
@@ -432,7 +432,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			path = "mantenimiento/tienda/tie_listado";
 			
 			/*List<TblTienda> entidades = tiendaDao.listarAllActivos(entidad.getTblEdificio().getCodigoEdificio());
-			logger.debug("[eliminarTienda] entidades:"+entidades);
+			log.debug("[eliminarTienda] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 			path = "mantenimiento/tienda/tie_listado";
 			filtro = new Filtro();
@@ -446,7 +446,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PISO);
 			listaSuministro = suministroDao.listarAllActivos();
 			model.addAttribute("mapListaSuministro", ListaUtilAction.obtenerValoresListaSuministroActivo(listaSuministro));*/
-			logger.debug("[eliminarTienda] Fin");
+			log.debug("[eliminarTienda] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -499,7 +499,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 		TblEdificio edificio = null;
 		Map<String, Object> campos = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "mantenimiento/tienda/tie_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -521,9 +521,9 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			this.listarTiendas(model, filtro, pageable,this.urlPaginado);
 			edificio = edificioDao.findOne(filtro.getCodigo());
 			model.addAttribute("edificio", edificio);
-			//LOGGER.debug("[traerRegistros] Fin");
+			//log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

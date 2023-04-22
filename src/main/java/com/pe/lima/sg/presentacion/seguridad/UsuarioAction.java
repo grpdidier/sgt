@@ -10,8 +10,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 //import javax.servlet.http.HttpSession;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,11 +36,12 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class UsuarioAction extends BasePresentacion<TblUsuario> {
-	private static final Logger logger = LogManager.getLogger(UsuarioAction.class);
 	@Autowired
 	private IUsuarioDAO usuarioDao;
 	
@@ -80,7 +79,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		Map<String, Object> campos = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "seguridad/usuario/usu_listado";
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
@@ -89,9 +88,9 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 			filtro.setEstadoUsuario("-1");
 			this.listarUsuarios(model, filtro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			campos		= null;
@@ -115,21 +114,21 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		Map<String, Object> campos = null;
 		path = "seguridad/usuario/usu_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarUsuarios(model, filtro);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -138,7 +137,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		List<TblUsuario> entidades = new ArrayList<TblUsuario>();
 		try{
 			entidades = usuarioDao.listarCriterios(filtro.getLogin(), filtro.getNombre(), filtro.getEstadoUsuario());
-			logger.debug("[listarUsuarios] entidades:"+entidades);
+			log.debug("[listarUsuarios] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -156,11 +155,11 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 	@RequestMapping(value = "usuario/nuevo", method = RequestMethod.GET)
 	public String irNuevo(Model model) {
 		try{
-			logger.debug("[irNuevo] Inicio");
+			log.debug("[irNuevo] Inicio");
 			model.addAttribute("entidad", new TblUsuario());
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_CADUCIDAD);
-			logger.debug("[irNuevo] Fin");
+			log.debug("[irNuevo] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -182,7 +181,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		TblUsuario entidad 			= null;
 		List<TblPerfil> perfiles	= null;
 		try{
-			logger.debug("[perfilUsuario] Inicio");
+			log.debug("[perfilUsuario] Inicio");
 			entidad = usuarioDao.findOneByCodigo(id);
 			perfiles = new ArrayList<TblPerfil>();
 			if (entidad.getTblPerfil() == null) {
@@ -193,7 +192,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 			model.addAttribute("usuario", entidad);
 			model.addAttribute("perfiles", perfiles);
 			
-			logger.debug("[perfilUsuario] Fin");
+			log.debug("[perfilUsuario] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -209,13 +208,13 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		TblUsuario entidad 			= null;
 		List<TblPermiso> permisos	= null;
 		try{
-			logger.debug("[permisolUsuario] Inicio");
+			log.debug("[permisolUsuario] Inicio");
 			entidad = usuarioDao.findOneByCodigo(id);
 			permisos = permisoDao.listarAllActivos();
 			copiarPermiso(entidad, permisos);
 			model.addAttribute("usuario", entidad);
 			model.addAttribute("permisos", entidad.getListaPermiso());
-			logger.debug("[permisolUsuario] Fin");
+			log.debug("[permisolUsuario] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -268,7 +267,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		TblUsuario miUsuario 			= null;
 		List<TblPerfil> perfiles 		= null;
 		try{
-			logger.debug("[asociarPerfilUsuario] Inicio");
+			log.debug("[asociarPerfilUsuario] Inicio");
 			perfilesNuevos = new ArrayList<TblPerfil>();
 			// Búsqueda de usuario
 			miUsuario = usuarioDao.findOneByCodigo(usuario);
@@ -281,7 +280,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 				model.addAttribute("perfiles", perfiles);
 				Map<String, Object> campos = configurarCamposPerfil(miUsuario);
 				model.addAttribute("contenido", campos);
-				logger.debug("[asociarPerfilUsuario] Fin Middle");
+				log.debug("[asociarPerfilUsuario] Fin Middle");
 				return "seguridad/usuario/usu_perfil";
 			}
 			
@@ -298,7 +297,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 			model.addAttribute("perfiles", perfilesNuevos);
 			Map<String, Object> campos = configurarCamposPerfil(miUsuario);
 			model.addAttribute("contenido", campos);
-			logger.debug("[asociarPerfilUsuario] Fin");
+			log.debug("[asociarPerfilUsuario] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -319,7 +318,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		TblUsuario entidad 					= null;
 		List<TblPermiso> permisos			= null;
 		try{
-			logger.debug("[asociarPermisoUsuario] Inicio");
+			log.debug("[asociarPermisoUsuario] Inicio");
 			tblUsuario = usuarioDao.findOneByCodigo(usuario);
 			tblPermiso = permisoDao.findOneByCodigo(permiso);
 								
@@ -337,7 +336,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 			model.addAttribute("usuario", entidad);
 			model.addAttribute("permisos", entidad.getListaPermiso());
 			
-			logger.debug("[asociarPermisoUsuario] Fin");
+			log.debug("[asociarPermisoUsuario] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -359,7 +358,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		TblUsuario entidad 					= null;
 		List<TblPermiso> permisos			= null;
 		try{
-			logger.debug("[desasociarPermisoUsuario] Inicio");
+			log.debug("[desasociarPermisoUsuario] Inicio");
 			tblUsuarioPermiso = usuarioPermisoDao.findOneByUsuarioPermiso(usuario, permiso);
 			usuarioPermisoDao.delete(tblUsuarioPermiso);
 			entidad = usuarioDao.findOneByCodigo(usuario);
@@ -378,7 +377,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 			model.addAttribute("usuario", entidad);
 			model.addAttribute("permisos", entidad.getListaPermiso());
 			
-			logger.debug("[desasociarPermisoUsuario] Fin");
+			log.debug("[desasociarPermisoUsuario] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -403,20 +402,20 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		String path 				= null;
 		Map<String, Object> campos 	= null;
 		try{
-			logger.debug("[eliminarUsuario] Inicio");
+			log.debug("[eliminarUsuario] Inicio");
 			entidad = usuarioDao.findOneByCodigo(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
 			usuarioDao.save(entidad);
 			model.addAttribute("respuesta", "Eliminación exitosa");
 			List<TblUsuario> entidades = usuarioDao.listarAllActivos();
-			logger.debug("[eliminarUsuario] entidades:"+entidades);
+			log.debug("[eliminarUsuario] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 			path = "seguridad/usuario/usu_listado";
 			model.addAttribute("filtro", new Filtro());
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
-			logger.debug("[eliminarUsuario] Fin");
+			log.debug("[eliminarUsuario] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -430,12 +429,12 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 	@Override
 	public void preGuardar(TblUsuario entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -467,13 +466,13 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		Map<String, Object> campos 	= null;
 		path = "seguridad/usuario/usu_listado";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
 				this.asignarNegocio(entidad, Constantes.OPERACION_NUEVO);
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					//List<TblUsuario> entidades = usuarioDao.listarAllActivos();
 					List<TblUsuario> entidades = usuarioDao.buscarOneByLogin(entidad.getLogin());
@@ -497,7 +496,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -514,7 +513,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 	private void asignarNegocio(TblUsuario entidad, String strOperacion){
 		String claveGenerada 		= null;
 		try{
-			logger.debug("[asignarNegocio] Inicio" );
+			log.debug("[asignarNegocio] Inicio" );
 			/**Siempre se realiza esta opearción*/
 			//Caducidad
 			if (entidad.getTipoCaducidad().equals(Constantes.TIPO_CADUCIDAD_INDEFINIDO)){
@@ -522,7 +521,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 				entidad.setDiasCaducidad(null);
 			}else if (entidad.getTipoCaducidad().equals(Constantes.TIPO_CADUCIDAD_CADUCA_30)){
 				entidad.setFechaCaducidad(UtilSGT.addDays( new Date(), Constantes.NUMERO_DIAS_30));
-				logger.debug("[asignarNegocio] setFechaCaducidad:"+entidad.getFechaCaducidad());
+				log.debug("[asignarNegocio] setFechaCaducidad:"+entidad.getFechaCaducidad());
 				entidad.setDiasCaducidad(Constantes.NUMERO_DIAS_30);
 			}else{
 				entidad.setFechaCaducidad(null);
@@ -540,7 +539,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 				entidad.setClave(new BCryptPasswordEncoder().encode(claveGenerada));
 				
 			}
-			logger.debug("[asignarNegocio] Fin");
+			log.debug("[asignarNegocio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -593,13 +592,13 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 		SecureRandom rnd 	= null;
 		StringBuilder sb 	= null;
 		try{
-			logger.debug("[generarClave] Inicio" );
+			log.debug("[generarClave] Inicio" );
 			AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 			rnd = new SecureRandom();
 			sb = new StringBuilder(longitud);
 			for (int i = 0; i < longitud; i++)
 				sb.append(AB.charAt(rnd.nextInt(AB.length())));
-			logger.debug("[generarClave] Fin" );
+			log.debug("[generarClave] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -640,11 +639,11 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 	@Override
 	public void preEditar(TblUsuario entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -668,7 +667,7 @@ public class UsuarioAction extends BasePresentacion<TblUsuario> {
 			this.asignarNegocio(entidadEnBd,Constantes.OPERACION_EDITAR);
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				//List<TblUsuario> entidades = usuarioDao.listarAllActivos();
 				List<TblUsuario> entidades = usuarioDao.buscarOneByLogin(entidadEnBd.getLogin());

@@ -13,8 +13,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,10 +30,10 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.rs.reporte.LocalDao;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class LocalAction {
-	
-	private static final Logger logger = LogManager.getLogger(LocalAction.class);
 	
 	@Autowired
 	private LocalPdf localPdf;
@@ -50,7 +48,7 @@ public class LocalAction {
 	public String mostrarFormulario(Model model, String path) {
 		Filtro filtro = null;
 		try{
-			logger.debug("[mostrarFormulario] Inicio");
+			log.debug("[mostrarFormulario] Inicio");
 			path = "reporte/local/loc_listado";
 			filtro = new Filtro();
 			filtro.setFechaInicio(UtilSGT.getFecha("dd/MM/yyyy"));
@@ -60,9 +58,9 @@ public class LocalAction {
 			filtro.setMesFin(UtilSGT.getFecha("MM"));
 			filtro.setCodigoEdificacion(1);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[mostrarFormulario] Fin");
+			log.debug("[mostrarFormulario] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -76,7 +74,7 @@ public class LocalAction {
 		path = "reporte/local/loc_listado";
 		RespuestaReporteBean respuestaReporteBean	= null;
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			if (this.validarCriterio(filtro,model)){
 				//Realiza la busqueda de morosos				
 				this.buscarLocalxInmueble(model, filtro, path, request);
@@ -87,13 +85,13 @@ public class LocalAction {
 				request.getSession().setAttribute("reporteLocalxInmueble", null);
 			}
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			respuestaReporteBean	= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	@SuppressWarnings("unchecked")
@@ -104,7 +102,7 @@ public class LocalAction {
 		List<LocalTotalBean> listaDataReporte 	= null;
 		try{
 			path = "reporte/local/loc_listado";
-			logger.debug("[mostraExcel] Inicio");
+			log.debug("[mostraExcel] Inicio");
 			entidades = (List<LocalBean>)request.getSession().getAttribute("reporteLocalxInmueble");
 			if (entidades != null && !entidades.isEmpty()){
 				//Preparando la data para ser mostrada (ingresos y gastos)
@@ -119,9 +117,9 @@ public class LocalAction {
 				this.fileDownload(fullPath, response, filename, ".xlsx");
 			}
 			
-			logger.debug("[mostraExcel] Fin");
+			log.debug("[mostraExcel] Fin");
 		}catch(Exception e){
-			logger.debug("[mostraExcel] Error:"+e.getMessage());
+			log.debug("[mostraExcel] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -134,7 +132,7 @@ public class LocalAction {
 		List<LocalTotalBean> listaDataReporte 	= null;
 		try{
 			path = "reporte/local/loc_listado";
-			logger.debug("[mostrarPdf] Inicio");
+			log.debug("[mostrarPdf] Inicio");
 			entidades = (List<LocalBean>)request.getSession().getAttribute("reporteLocalxInmueble");
 			if (entidades != null && !entidades.isEmpty()){
 				//Preparando la data para ser mostrada (ingresos y gastos)
@@ -149,9 +147,9 @@ public class LocalAction {
 				this.fileDownload(fullPath, response, filename, ".pdf");
 			}
 			
-			logger.debug("[mostrarPdf] Fin");
+			log.debug("[mostrarPdf] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarPdf] Error:"+e.getMessage());
+			log.debug("[mostrarPdf] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -160,7 +158,7 @@ public class LocalAction {
 	public boolean validarCriterio(Filtro filtro,Model model){
 		boolean resultado = true;
 		try{
-			logger.debug("[validarCriterio] Inicio");
+			log.debug("[validarCriterio] Inicio");
 			//Edificación
 			if (filtro.getCodigoEdificacion().compareTo(-1)==0){
 				resultado = false;
@@ -178,9 +176,9 @@ public class LocalAction {
 				resultado = false;
 				model.addAttribute("respuesta", "Debe ingresar un mes valido");
 			}
-			logger.debug("[validarCriterio] Fin");
+			log.debug("[validarCriterio] Fin");
 		}catch(Exception e){
-			logger.debug("[validarCriterio] Error:"+e.getMessage());
+			log.debug("[validarCriterio] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -188,8 +186,8 @@ public class LocalAction {
 	}
 	/*Generamos la fecha fin segun el mes seleccionado*/
 	private void obtenerFechaFin(Filtro filtro){
-		logger.debug("[obtenerFechaFin] Inicio");
-		logger.debug("[obtenerFechaFin] Mes:"+filtro.getMesFin());
+		log.debug("[obtenerFechaFin] Inicio");
+		log.debug("[obtenerFechaFin] Mes:"+filtro.getMesFin());
 		if (filtro.getMesFin().equals("-1")){
 			filtro.setFechaFin(null);
 		}else{
@@ -221,15 +219,15 @@ public class LocalAction {
 				}
 			}
 		}
-		logger.debug("[obtenerFechaFin] Nombre Mes:"+filtro.getNombreMes());
-		logger.debug("[obtenerFechaFin] Fin");
+		log.debug("[obtenerFechaFin] Nombre Mes:"+filtro.getNombreMes());
+		log.debug("[obtenerFechaFin] Fin");
 	}
 	/*Reporte Moroso*/
 	private void buscarLocalxInmueble(Model model, Filtro filtro, String path, HttpServletRequest request){
 		List<LocalBean> listaLocal 				= null;
 		List<RespuestaReporteBean> listaRespuesta	= null;
 		RespuestaReporteBean respuestaReporteBean	= null;
-		logger.debug("[buscarLocalxInmueble] Inicio");
+		log.debug("[buscarLocalxInmueble] Inicio");
 		listaLocal = this.listarLocalxInmueble(filtro);
 		if (listaLocal != null && listaLocal.size()>0){
 			listaRespuesta = new ArrayList<RespuestaReporteBean>();
@@ -240,26 +238,26 @@ public class LocalAction {
 			model.addAttribute("registros", listaRespuesta);
 			request.getSession().setAttribute("reporteLocalxInmueble", listaLocal);
 			request.getSession().setAttribute("criterioLocal", filtro);
-			logger.debug("[buscarLocalxInmueble] listaRespuesta:"+listaRespuesta.size());
+			log.debug("[buscarLocalxInmueble] listaRespuesta:"+listaRespuesta.size());
 		}else{
 			model.addAttribute("registros", respuestaReporteBean);
 			request.getSession().setAttribute("reporteLocalxInmueble", listaLocal);
-			logger.debug("[buscarLocalxInmueble] No se encontro registros");
+			log.debug("[buscarLocalxInmueble] No se encontro registros");
 		}
 		model.addAttribute("filtro", filtro);
-		logger.debug("[buscarLocalxInmueble] Fin");
+		log.debug("[buscarLocalxInmueble] Fin");
 	}
 	
 	/*Listado de los locales por inmueble*/
 	private List<LocalBean> listarLocalxInmueble(Filtro filtro){
 		List<LocalBean> entidades = new ArrayList<LocalBean>();
 		try{
-			logger.debug("[listarMoroso] Inicio");
-			logger.debug("[listarMoroso] Anio:"+filtro.getAnio());
-			logger.debug("[listarMoroso] Mes:"+filtro.getMesFin());
+			log.debug("[listarMoroso] Inicio");
+			log.debug("[listarMoroso] Anio:"+filtro.getAnio());
+			log.debug("[listarMoroso] Mes:"+filtro.getMesFin());
 			entidades = localDao.getReporteLocalxInmueble(filtro);
-			logger.debug("[listarIngresoEgreso] entidades:"+entidades.size());
-			logger.debug("[listarMoroso] Fin");
+			log.debug("[listarIngresoEgreso] entidades:"+entidades.size());
+			log.debug("[listarMoroso] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -300,7 +298,7 @@ public class LocalAction {
 		List<LocalTotalBean> listaDataReporte 		= null;
 		LocalTotalBean localTotalBean 				= new LocalTotalBean();
 		Map<String, LocalSubTotalBean> mapLocal		= new HashMap<String, LocalSubTotalBean>();
-		logger.debug("[preparaDataLocalxInmueble] Inicio");
+		log.debug("[preparaDataLocalxInmueble] Inicio");
 		
 		
 		//Agrupamos por ListaDeuda y SubTotal
@@ -323,7 +321,7 @@ public class LocalAction {
 		}
 		listaDataReporte = new ArrayList<LocalTotalBean>();
 		listaDataReporte.add(localTotalBean);
-		logger.debug("[preparaDataLocalxInmueble] Fin");
+		log.debug("[preparaDataLocalxInmueble] Fin");
 		return listaDataReporte;
 	}
 	/*Adiciona un elemento*/

@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -19,12 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.pe.lima.sg.entity.seguridad.TblOpcion;
 import com.pe.lima.sg.presentacion.cliente.ArbitrioAction;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
+import com.pe.lima.sg.service.seguridad.AccesoService;
 import com.pe.lima.sg.util.SysOutPrintln;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 public class IndexAction {
-	private static final Logger logger = LogManager.getLogger(IndexAction.class);
 	@Autowired
 	private ListaUtilAction listaUtil;
 
@@ -40,10 +40,10 @@ public class IndexAction {
 	 */
 	@RequestMapping("/")
 	String cargarPagina(HttpSession httpSession, Authentication authentication) {
-		logger.debug("[cargarPagina] Inicio" );
+		log.debug("[cargarPagina] Inicio" );
 		if (authentication != null) {
 			User currentUser = (User) authentication.getPrincipal();
-			logger.debug("[cargarPagina] User:"+currentUser.getUsername() );
+			log.debug("[cargarPagina] User:"+currentUser.getUsername() );
 			/*Optional<TblUsuario> entidad = usuario.findOneByLogin(currentUser.getUsername());
 			if (entidad != null && entidad.get() !=null && entidad.get().getNombre() != null){
 				httpSession.setAttribute("usuario", entidad.get().getNombre());
@@ -57,15 +57,15 @@ public class IndexAction {
 				
 			/*}*/
 			this.cargarDatos(httpSession);
-			logger.debug("[cargarPagina] Tipo Caducidad:"+httpSession.getAttribute("sesMapTiposCaducidad"));
+			log.debug("[cargarPagina] Tipo Caducidad:"+httpSession.getAttribute("sesMapTiposCaducidad"));
 			
-			logger.debug("[cargarPagina] Estado:"+httpSession.getAttribute("sesMapEstadousuario"));
+			log.debug("[cargarPagina] Estado:"+httpSession.getAttribute("sesMapEstadousuario"));
 			
 			
 			//this.cargarMenu(httpSession, entidad.get().getTblPerfil().getCodigoPerfil());
 			
 		}
-		logger.debug("[cargarPagina] Fin" );
+		log.debug("[cargarPagina] Fin" );
 		//return "index";
 		return "inicio";
 	}
@@ -78,14 +78,14 @@ public class IndexAction {
 	 *            Sesion del usuario
 	 */
 	private void cargarDatos(HttpSession httpSession) {
-		logger.debug("[cargarDatos] Inicio" );
+		log.debug("[cargarDatos] Inicio" );
 		Map<String, Object> map = null;
 		map = listaUtil.obtenerValoresTipoCaducidad();
 		httpSession.setAttribute("sesMapTiposCaducidad", map);
 		map = listaUtil.obtenerValoresEstadoUsuario();
 		httpSession.setAttribute("sesMapEstadousuario", map);
 		
-		logger.debug("[cargarDatos] Fin" );
+		log.debug("[cargarDatos] Fin" );
 	}
 	/**
 	 * Obtener arbol de ID de las opciones

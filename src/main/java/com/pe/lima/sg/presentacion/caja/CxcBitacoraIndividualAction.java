@@ -18,8 +18,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -65,15 +63,17 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los cxcs
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCxcBitacora> {
-	private static final Logger logger = LogManager.getLogger(CxcBitacoraIndividualAction.class);
 	@Autowired
 	private ICxCBitacoraDAO cxcBitacoraDao;
 
@@ -127,7 +127,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 	public String traerRegistros(Model model, String path,  PageableSG pageable, HttpServletRequest request) {
 		TblContrato filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "caja/cxi_individual/cxi_contrato_listado";
 			filtro = new TblContrato();
 			filtro.setTblPersona(new TblPersona());
@@ -138,9 +138,9 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 			//listaUtil.cargarDatosModel(model, Constantes.MAP_LISTA_EDIFICIO);
 			
 			this.listarContratos(model, filtro, pageable, this.urlPaginado);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			
@@ -161,19 +161,19 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 		//Map<String, Object> campos = null;
 		path = "caja/cxi_individual/cxi_contrato_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarContratos(model, filtro, pageable, this.urlPaginado);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroContratoCriterio", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Contratos ***/
@@ -214,7 +214,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 		List<TblCxcBitacora> entidades 		= null;
 		String path							= null;
 		try{
-			logger.debug("[traerRegistrosBitacora] Inicio");
+			log.debug("[traerRegistrosBitacora] Inicio");
 			path = "caja/cxi_individual/cxi_listado";
 			filtro = new BitacoraBean();
 			filtro.setCodigoContrato(id);
@@ -232,9 +232,9 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 			
 			request.getSession().setAttribute("SessionMapAnio", UtilSGT.getListaAnio(intAnioInicio, Calendar.getInstance().get(Calendar.YEAR) + 1 ));
 			request.getSession().setAttribute("SessionFiltroCriterio", filtro);
-			logger.debug("[traerRegistrosBitacora] Fin");
+			log.debug("[traerRegistrosBitacora] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosBitacora] Error:"+e.getMessage());
+			log.debug("[traerRegistrosBitacora] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -284,22 +284,22 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 		List<TblCxcBitacora> entidades 		= null;
 		path = "caja/cxi_individual/cxi_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.cargarListaCuentasxCobrar(model, filtro);
 			model.addAttribute("filtro", filtro);
 			//Listamos los datos
 			entidades = listarBitacora(model, filtro);
 			model.addAttribute("registros", entidades);
 			request.getSession().setAttribute("SessionFiltroCriterio", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			entidades		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Bitacora de la CxC ***/
@@ -312,7 +312,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 					.and(conCodigoContrato(filtro.getCodigoContrato()))
 					.and(conEstado(Constantes.ESTADO_REGISTRO_ACTIVO));
 			entidades = cxcBitacoraDao.findAll(criterio);
-			logger.debug("[listarBitacora] entidades:"+entidades);
+			log.debug("[listarBitacora] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -335,7 +335,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 		BitacoraBean entidad = new BitacoraBean();
 		BitacoraBean filtro = null;
 		try{
-			logger.debug("[crearBitacora] Inicio");
+			log.debug("[crearBitacora] Inicio");
 			filtro = (BitacoraBean)request.getSession().getAttribute("SessionFiltroCriterio");
 			entidad.setCodigoContrato(filtro.getCodigoContrato());
 			model.addAttribute("entidad", entidad);
@@ -347,7 +347,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 			entidad.setAnio(Calendar.getInstance().get(Calendar.YEAR));
 			entidad.setMes(UtilSGT.getMoth());
 			request.getSession().setAttribute("SessionBitacoraFiltro", entidad);
-			logger.debug("[crearBitacora] Fin");
+			log.debug("[crearBitacora] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -364,14 +364,14 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 		BitacoraBean filtro = null;
 		List<TblCxcBitacora> entidades 		= null;
 		try{
-			logger.debug("[regresarBitacora] Inicio");
+			log.debug("[regresarBitacora] Inicio");
 			filtro = (BitacoraBean)request.getSession().getAttribute("SessionFiltroCriterio");
 			this.cargarListaCuentasxCobrar(model, filtro);
 			//Listamos los datos
 			entidades = listarBitacora(model, filtro);
 			model.addAttribute("filtro", filtro);
 			model.addAttribute("registros", entidades);
-			logger.debug("[regresarBitacora] Fin");
+			log.debug("[regresarBitacora] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -380,12 +380,12 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 	@Override
 	public void preGuardar(TblCxcBitacora entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -393,12 +393,12 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 	@Override
 	public void preEditar(TblCxcBitacora entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
 			//entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -408,11 +408,11 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 	 */
 	public void preEditarSerie(TblSerie entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -422,12 +422,12 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 	 */
 	public void preGuardarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -437,12 +437,12 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 	 */
 	public void preGuardarSunatCabecera(TblSunatCabecera entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarSunatCabecera] Inicio" );
+			log.debug("[preGuardarSunatCabecera] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardarSunatCabecera] Fin" );
+			log.debug("[preGuardarSunatCabecera] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -454,12 +454,12 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 	 */
 	public void preGuardarSunatDetalle(TblSunatDetalle entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarSunatDetalle] Inicio" );
+			log.debug("[preGuardarSunatDetalle] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardarSunatDetalle] Fin" );
+			log.debug("[preGuardarSunatDetalle] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -501,13 +501,13 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 		path 								= "caja/cxi_individual/cxi_listado";
 		List<TblCxcBitacora> entidades 		= null;
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				
 				boolean exitoso = this.procesarTipoCobro(model, entidad, request);
 				
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					model.addAttribute("filtro", entidad);
 					//Listamos los datos
@@ -527,7 +527,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 				model.addAttribute("entidad", entidad);
 			}
 
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -542,7 +542,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -563,7 +563,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -584,7 +584,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -1950,7 +1950,7 @@ public class CxcBitacoraIndividualAction extends BaseOperacionPresentacion<TblCx
 			this.listarContratos(model, filtro, pageable, this.urlPaginado);
 			
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

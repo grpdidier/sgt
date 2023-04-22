@@ -2,8 +2,6 @@ package com.pe.lima.sg.service.seguridad;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -21,9 +19,11 @@ import org.springframework.stereotype.Service;
 import com.pe.lima.sg.dao.seguridad.IPerfilOpcionDAO;
 import com.pe.lima.sg.entity.seguridad.TblPerfilOpcion;
 import com.pe.lima.sg.entity.seguridad.TblPerfilOpcionId;
+
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 public class PerfilOpcionService  {
-	private static final Logger logger = LogManager.getLogger(PerfilOpcionService.class);
 	@Autowired
 	private IPerfilOpcionDAO perfilOpcionDao;
 	
@@ -32,14 +32,14 @@ public class PerfilOpcionService  {
 	  * getAllPerfilOpcions : Lista todos los perfilOpcions
 	  * */
 	public List<TblPerfilOpcion> getAllPerfilOpcions() {
-		logger.debug("[getAllPerfilOpcions] Inicio");
+		log.debug("[getAllPerfilOpcions] Inicio");
 		List<TblPerfilOpcion> listaPerfilOpcion = null;
 		try{
 			listaPerfilOpcion = perfilOpcionDao.findAll();
 		}catch(Exception e){
 			listaPerfilOpcion = null;
 		}
-		logger.debug("[getAllPerfilOpcions] Fin");
+		log.debug("[getAllPerfilOpcions] Fin");
 		return listaPerfilOpcion;
 	}
 
@@ -47,7 +47,7 @@ public class PerfilOpcionService  {
 	  * getPerfilOpcionById : Obtiene un perfilOpcion
 	  * */
 	public TblPerfilOpcion getPerfilOpcionById(TblPerfilOpcionId id) {
-		logger.debug("[getPerfilOpcionById] Inicio");
+		log.debug("[getPerfilOpcionById] Inicio");
 		TblPerfilOpcion perfilOpcion = null;
 		try{
 			//perfilOpcion = perfilOpcionDao.findOne( id);
@@ -55,7 +55,7 @@ public class PerfilOpcionService  {
 			e.printStackTrace();
 			perfilOpcion = null;
 		}
-		logger.debug("[getPerfilOpcionById] Fin");
+		log.debug("[getPerfilOpcionById] Fin");
 		return perfilOpcion;
 	}
 
@@ -63,7 +63,7 @@ public class PerfilOpcionService  {
 	  * addPerfilOpcion : Registra un perfilOpcion
 	  * */
 	public boolean addPerfilOpcion(TblPerfilOpcion perfilOpcion) {
-		logger.debug("[addPerfilOpcion] Inicio");
+		log.debug("[addPerfilOpcion] Inicio");
 		boolean resultado = false;
 		try{
 			perfilOpcionDao.save(perfilOpcion);
@@ -71,7 +71,7 @@ public class PerfilOpcionService  {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		logger.debug("[addPerfilOpcion] Fin:"+resultado);
+		log.debug("[addPerfilOpcion] Fin:"+resultado);
 		return resultado;
 	}
 
@@ -79,7 +79,7 @@ public class PerfilOpcionService  {
 	  * addPerfilOpcion : Actualiza un perfilOpcion
 	  * */
 	public boolean updatePerfilOpcion(TblPerfilOpcion perfilOpcion) {
-		logger.debug("[updatePerfilOpcion] Inicio");
+		log.debug("[updatePerfilOpcion] Inicio");
 		boolean resultado = false;
 		try{
 			perfilOpcionDao.save(perfilOpcion);
@@ -88,7 +88,7 @@ public class PerfilOpcionService  {
 			e.printStackTrace();
 			resultado = false;
 		}
-		logger.debug("[updatePerfilOpcion] Fin:"+resultado);
+		log.debug("[updatePerfilOpcion] Fin:"+resultado);
 		return resultado;
 	}
 
@@ -96,7 +96,7 @@ public class PerfilOpcionService  {
 	  * deletePerfilOpcion : Elimina un perfilOpcion
 	  * */
 	public boolean deletePerfilOpcion(TblPerfilOpcion perfilOpcion) {
-		logger.debug("[deletePerfilOpcion] Inicio");
+		log.debug("[deletePerfilOpcion] Inicio");
 		boolean resultado = false;
 		try{
 			perfilOpcionDao.delete(perfilOpcion);
@@ -105,7 +105,7 @@ public class PerfilOpcionService  {
 			e.printStackTrace();
 			resultado = false;
 		}
-		logger.debug("[deletePerfilOpcion] Fin:"+resultado);
+		log.debug("[deletePerfilOpcion] Fin:"+resultado);
 		return resultado;
 				
 	}

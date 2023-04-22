@@ -10,8 +10,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,15 +33,17 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los perfiles
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class PerfilAction extends BasePresentacion<TblPerfil> {
-	private static final Logger logger = LogManager.getLogger(PerfilAction.class);
 	@Autowired
 	private IPerfilDAO perfilDao;
 	
@@ -79,7 +79,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 		Map<String, Object> campos = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "seguridad/perfil/per_listado";
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
@@ -88,9 +88,9 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 			filtro.setEstadoUsuario("-1");
 			this.listarPerfiles(model, filtro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			campos		= null;
@@ -112,21 +112,21 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 		Map<String, Object> campos = null;
 		path = "seguridad/perfil/per_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarPerfiles(model, filtro);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Usuarios ***/
@@ -134,7 +134,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 		List<TblPerfil> entidades = new ArrayList<TblPerfil>();
 		try{
 			entidades = perfilDao.listarCriterios(filtro.getNombre(), filtro.getEstado());
-			logger.debug("[listarPerfiles] entidades:"+entidades);
+			log.debug("[listarPerfiles] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -253,10 +253,10 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 	@RequestMapping(value = "perfil/nuevo", method = RequestMethod.GET)
 	public String crearPerfil(Model model) {
 		try{
-			logger.debug("[crearPerfil] Inicio");
+			log.debug("[crearPerfil] Inicio");
 			model.addAttribute("entidad", new TblPerfil());
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[crearPerfil] Fin");
+			log.debug("[crearPerfil] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -266,12 +266,12 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 	@Override
 	public void preGuardar(TblPerfil entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -309,12 +309,12 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 		Map<String, Object> campos 	= null;
 		path = "seguridad/perfil/per_listado";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					List<TblPerfil> entidades = perfilDao.buscarOneByNombre(entidad.getNombre());
 					model.addAttribute("registros", entidades);
@@ -334,7 +334,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -347,11 +347,11 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 	@Override
 	public void preEditar(TblPerfil entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -369,7 +369,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 			entidadEnBd.setDescripcion(entidad.getDescripcion());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				List<TblPerfil> entidades = perfilDao.buscarOneByNombre(entidadEnBd.getNombre());
@@ -405,21 +405,21 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 		String path 				= null;
 		Map<String, Object> campos 	= null;
 		try{
-			logger.debug("[eliminarPerfil] Inicio");
+			log.debug("[eliminarPerfil] Inicio");
 			entidad = perfilDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
 			perfilDao.save(entidad);
 			model.addAttribute("respuesta", "Eliminación exitosa");
 			List<TblPerfil> entidades = perfilDao.listarAllActivos();
-			logger.debug("[eliminarPerfil] entidades:"+entidades);
+			log.debug("[eliminarPerfil] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 			path = "seguridad/perfil/per_listado";
 			model.addAttribute("filtro", new Filtro());
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
-			logger.debug("[eliminarPerfil] Fin");
+			log.debug("[eliminarPerfil] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -532,7 +532,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 		Integer intPos = new Integer(0);
 		TblOpcion opc	= null;
 		try{
-			logger.debug("[editarOpcion] Inicio");
+			log.debug("[editarOpcion] Inicio");
 			entidad = perfilDao.findOne(id);
 			model.addAttribute("entidad", entidad);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_USUARIO);
@@ -556,10 +556,10 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 			
 			
 			this.orderOpcion(listaOpciones, intPos, listaOpcionesNueva, opc.getCodigoOpcion());
-			logger.debug("[editarOpcion] listaOpcionesNueva:"+listaOpcionesNueva.size());
+			log.debug("[editarOpcion] listaOpcionesNueva:"+listaOpcionesNueva.size());
 			model.addAttribute("registros", listaOpcionesNueva);
 			session.setAttribute("perfilesOpciones", listaOpcionesNueva);
-			logger.debug("[editarOpcion] Fin");
+			log.debug("[editarOpcion] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -578,19 +578,19 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 	private void orderOpcion(List<TblOpcion> listado, Integer intPos, List<TblOpcion> listaOpciones, Integer intModulo){
 		TblOpcion opc	= null;
 		try{
-			logger.debug("[orderOpcion] Inicio : intPos"+intPos);
+			log.debug("[orderOpcion] Inicio : intPos"+intPos);
 			while (intPos < listado.size()){
 				opc = listado.get(intPos);
 				if (opc.getModulo().compareTo(intModulo)==0){
 					listaOpciones.add(opc);
 					intPos++;
-					logger.debug("[orderOpcion] Llamando a : "+ intPos);
+					log.debug("[orderOpcion] Llamando a : "+ intPos);
 					this.orderOpcion(listado, intPos, listaOpciones, opc.getCodigoOpcion());
 				}else{
 					intPos++;
 				}
 			}
-			logger.debug("[orderOpcion] Fin : intPos"+intPos);
+			log.debug("[orderOpcion] Fin : intPos"+intPos);
 		}catch(Exception e){
 			
 		}finally{
@@ -628,7 +628,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 		List<TblOpcion> entidadesOrdenadas = null;
 		TblPerfil entidadPerfil = null;
 		try{
-			logger.debug("[asociarOpcion] Inicio");
+			log.debug("[asociarOpcion] Inicio");
 			ip = request.getRemoteAddr();
 			entidad = new TblPerfilOpcion();
 			entidad.setId(new TblPerfilOpcionId());
@@ -657,7 +657,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 			//model.addAttribute("perfilesOpciones", entidadesOrdenadas);
 			model.addAttribute("registros", entidadesOrdenadas);
 			session.setAttribute("perfilesOpciones", entidadesOrdenadas);
-			logger.debug("[asociarOpcion] Fin");
+			log.debug("[asociarOpcion] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 			
@@ -687,7 +687,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 		List<TblOpcion> entidadesOrdenadas = null;
 		TblPerfil entidadPerfil = null;
 		try{
-			logger.debug("[desasociarOpcion] Inicio");
+			log.debug("[desasociarOpcion] Inicio");
 			entidad = new TblPerfilOpcion();
 			entidad.setId(new TblPerfilOpcionId());
 			entidad.getId().setCodigoPerfil(idPerfil);
@@ -708,7 +708,7 @@ public class PerfilAction extends BasePresentacion<TblPerfil> {
 			//model.addAttribute("perfilesOpciones", entidadesOrdenadas);
 			model.addAttribute("registros", entidadesOrdenadas);
 			session.setAttribute("perfilesOpciones", entidadesOrdenadas);
-			logger.debug("[desasociarOpcion] Fin");
+			log.debug("[desasociarOpcion] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

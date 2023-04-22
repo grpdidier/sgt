@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,9 +18,10 @@ import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Component
 public class IngresoEgresoDao {
-	private static final Logger logger = LogManager.getLogger(IngresoEgresoDao.class);
 	
 	@Value("${spring.datasource.url}")
 	private String urlTienda;
@@ -240,7 +239,7 @@ public class IngresoEgresoDao {
 			pstmt.setString(8,  filtro.getFechaFin());
 			pstmt.setInt(9,  filtro.getCodigoEdificacion());
 		}
-		logger.debug(query);
+		log.debug(query);
 		return pstmt;
 	}
 	/*Consulta de Cobros Bancarizados*/
@@ -256,7 +255,7 @@ public class IngresoEgresoDao {
 		pstmt.setString(4, filtro.getFechaInicio());
 		pstmt.setString(5, filtro.getFechaFin());
 		pstmt.setInt(6,  filtro.getCodigoEdificacion());
-		logger.debug(query);
+		log.debug(query);
 		return pstmt;
 	}
 	/*Consulta de Cobros fuera de fecha*/
@@ -269,7 +268,7 @@ public class IngresoEgresoDao {
 		pstmt.setString(1, filtro.getFechaInicio());
 		pstmt.setString(2, filtro.getFechaFin());
 
-		logger.debug(query);
+		log.debug(query);
 		return pstmt;
 	}
 

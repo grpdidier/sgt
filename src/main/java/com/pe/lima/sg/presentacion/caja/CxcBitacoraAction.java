@@ -15,9 +15,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
@@ -57,17 +54,17 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los cxcs
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora> {
-
-	private static final Logger logger = LogManager.getLogger(CxcBitacoraAction.class);
-	
 	@Autowired
 	private ICxCBitacoraDAO cxcBitacoraDao;
 
@@ -125,7 +122,7 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 		Integer intAnioInicio				= null;
 		List<TblCxcBitacora> entidades 		= null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "caja/cxc/cxc_listado";
 			filtro = new BitacoraBean();
 			model.addAttribute("filtro", filtro);
@@ -152,9 +149,9 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 			
 			request.getSession().setAttribute("SessionMapAnio", UtilSGT.getListaAnio(intAnioInicio, Calendar.getInstance().get(Calendar.YEAR) + 1 ));
 			request.getSession().setAttribute("SessionFiltroCriterio", filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -186,22 +183,22 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 		List<TblCxcBitacora> entidades 		= null;
 		path = "caja/cxc/cxc_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.cargarListaCuentasxCobrar(model, filtro);
 			model.addAttribute("filtro", filtro);
 			//Listamos los datos
 			entidades = listarBitacora(model, filtro);
 			model.addAttribute("registros", entidades);
 			request.getSession().setAttribute("SessionFiltroCriterio", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			entidades		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Bitacora de la CxC ***/
@@ -213,7 +210,7 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 					.and(conTipoCobro(filtro.getTipoCobro()))
 					.and(conEstado(Constantes.ESTADO_REGISTRO_ACTIVO));
 			entidades = cxcBitacoraDao.findAll(criterio);
-			logger.debug("[listarBitacora] entidades:"+entidades);
+			log.debug("[listarBitacora] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -255,7 +252,7 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 	public String crearBitacora(Model model) {
 		BitacoraBean entidad = new BitacoraBean();
 		try{
-			logger.debug("[crearBitacora] Inicio");
+			log.debug("[crearBitacora] Inicio");
 			model.addAttribute("entidad", entidad);
 			this.cargarListaCuentasxCobrar(model, entidad);
 			entidad.setAlquiler(Constantes.TIPO_NO);
@@ -264,7 +261,7 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 			entidad.setServicio(Constantes.TIPO_NO);
 			entidad.setAnio(Calendar.getInstance().get(Calendar.YEAR));
 			entidad.setMes(UtilSGT.getMoth());
-			logger.debug("[crearBitacora] Fin");
+			log.debug("[crearBitacora] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -274,12 +271,12 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 	@Override
 	public void preGuardar(TblCxcBitacora entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -287,12 +284,12 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 	@Override
 	public void preEditar(TblCxcBitacora entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
 			//entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -302,11 +299,11 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 	 */
 	public void preEditarSerie(TblSerie entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -317,12 +314,12 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 	 */
 	public void preGuardarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -333,12 +330,12 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 	 */
 	public void preGuardarSunatCabecera(TblSunatCabecera entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarSunatCabecera] Inicio" );
+			log.debug("[preGuardarSunatCabecera] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardarSunatCabecera] Fin" );
+			log.debug("[preGuardarSunatCabecera] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -349,12 +346,12 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 	 */
 	public void preGuardarSunatDetalle(TblSunatDetalle entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarSunatDetalle] Inicio" );
+			log.debug("[preGuardarSunatDetalle] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardarSunatDetalle] Fin" );
+			log.debug("[preGuardarSunatDetalle] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -415,13 +412,13 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 		path 								= "caja/cxc/cxc_listado";
 		List<TblCxcBitacora> entidades 		= null;
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				
 				boolean exitoso = this.procesarTipoCobro(model, entidad, request);
 				
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					model.addAttribute("filtro", entidad);
 					//Listamos los datos
@@ -441,7 +438,7 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 				model.addAttribute("entidad", entidad);
 			}
 
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -456,7 +453,7 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -477,7 +474,7 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -498,7 +495,7 @@ public class CxcBitacoraAction extends BaseOperacionPresentacion<TblCxcBitacora>
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);

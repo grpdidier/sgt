@@ -14,8 +14,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,9 +30,10 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.rs.reporte.IngresoEgresoDao;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class IngresoEgresoAction {
-	private static final Logger logger = LogManager.getLogger(IngresoEgresoAction.class);
 	@Autowired
 	private IngresoEgresoExcel fileExcelBase;
 	@Autowired
@@ -48,7 +47,7 @@ public class IngresoEgresoAction {
 	public String mostrarFormulario(Model model, String path) {
 		Filtro filtro = null;
 		try{
-			logger.debug("[mostrarFormulario] Inicio");
+			log.debug("[mostrarFormulario] Inicio");
 			path = "reporte/ingreso/ing_listado";
 			filtro = new Filtro();
 			filtro.setFechaInicio(UtilSGT.getFecha("dd/MM/yyyy"));
@@ -58,9 +57,9 @@ public class IngresoEgresoAction {
 			model.addAttribute("filtro", filtro);
 			//ingresoEgresoDao = new IngresoEgresoDao();
 			//ingresoEgresoDao.getReporteIngresoEgreso();
-			logger.debug("[mostrarFormulario] Fin");
+			log.debug("[mostrarFormulario] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -74,7 +73,7 @@ public class IngresoEgresoAction {
 		List<IngresoEgresoBean> listaIngresoEgreso 	= null;
 		RespuestaReporteBean respuestaReporteBean	= null;
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			if (this.validarCriterio(filtro,model)){
 				//Realiza la busqueda para efectivo o bancarizado				
 				this.buscarIngresoEgresoEfectivoBancarizado(model, filtro, path, request);
@@ -89,14 +88,14 @@ public class IngresoEgresoAction {
 			
 			
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			listaIngresoEgreso		= null;
 			respuestaReporteBean	= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -121,7 +120,7 @@ public class IngresoEgresoAction {
 			model.addAttribute("registros", listaRespuesta);
 			request.getSession().setAttribute("reporteIngresoEgreso", listaIngresoEgreso);
 			request.getSession().setAttribute("criterioIngresoEgreso", filtro);
-			logger.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
+			log.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
 		}else{
 			model.addAttribute("registros", respuestaReporteBean);
 			request.getSession().setAttribute("reporteIngresoEgreso", listaIngresoEgreso);
@@ -170,10 +169,10 @@ public class IngresoEgresoAction {
 			if (filtro.getFechaFin()==null || filtro.getFechaFin().equals("")){
 				filtro.setFechaFin(UtilSGT.getDateStringFormat(UtilSGT.addDays(new Date(), 1)));
 			}
-			logger.debug("[listarIngresoEgreso] Fec Inicio:"+filtro.getFechaInicio());
-			logger.debug("[listarIngresoEgreso] Fec Fin:"+filtro.getFechaFin());
+			log.debug("[listarIngresoEgreso] Fec Inicio:"+filtro.getFechaInicio());
+			log.debug("[listarIngresoEgreso] Fec Fin:"+filtro.getFechaFin());
 			entidades = ingresoEgresoDao.getReporteIngresoEgreso(filtro);
-			logger.debug("[listarIngresoEgreso] entidades:"+entidades.size());
+			log.debug("[listarIngresoEgreso] entidades:"+entidades.size());
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -187,7 +186,7 @@ public class IngresoEgresoAction {
 		Filtro criterio		= null;
 		path = "reporte/ingreso/ing_listado";
 		try{
-			logger.debug("[mostrarXls] Inicio");
+			log.debug("[mostrarXls] Inicio");
 			entidades = (List<IngresoEgresoBean>)request.getSession().getAttribute("reporteIngresoEgreso");
 			if (entidades != null && !entidades.isEmpty()){
 				criterio = (Filtro)request.getSession().getAttribute("criterioIngresoEgreso");
@@ -198,9 +197,9 @@ public class IngresoEgresoAction {
 			}
 			
 			
-			logger.debug("[mostrarXls] Fin");
+			log.debug("[mostrarXls] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarXls] Error:"+e.getMessage());
+			log.debug("[mostrarXls] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -215,7 +214,7 @@ public class IngresoEgresoAction {
 		
 		try{
 			path = "reporte/ingreso/ing_listado";
-			logger.debug("[mostrarPdf] Inicio");
+			log.debug("[mostrarPdf] Inicio");
 			entidades = (List<IngresoEgresoBean>)request.getSession().getAttribute("reporteIngresoEgreso");
 			tipoPago = (String)request.getSession().getAttribute("sessionRepIngEgrTipoPago");
 			if (entidades != null && !entidades.isEmpty()){
@@ -237,9 +236,9 @@ public class IngresoEgresoAction {
 				this.fileDownload(fullPath, response, filename, ".pdf");
 			}
 			
-			logger.debug("[mostrarPdf] Fin");
+			log.debug("[mostrarPdf] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarPdf] Error:"+e.getMessage());
+			log.debug("[mostrarPdf] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		

@@ -25,8 +25,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -80,16 +78,18 @@ import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
+import com.pe.lima.sg.service.seguridad.AccesoService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Clase Bean que se encarga de la administracion de los contratos
  *
  * 			
  */
+@Slf4j
 @Controller
 public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrato> {
-
-	private static final Logger logger = LogManager.getLogger(RenovadoContratoAction.class);
 	
 	@Autowired
 	private IContratoDAO contratoDao;
@@ -157,7 +157,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 	public String traerRegistros(Model model, String path,  PageableSG pageable, HttpServletRequest request) {
 		TblContrato filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "cliente/renovacion/rnv_listado";
 			filtro = new TblContrato();
 			filtro.setTblPersona(new TblPersona());
@@ -177,9 +177,9 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			request.getSession().setAttribute("sessionListaContratoRemoto",null);
 			request.getSession().setAttribute("PageContratoRemoto",null);
 			
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -200,19 +200,19 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		//Map<String, Object> campos = null;
 		path = "cliente/renovacion/rnv_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarContratos(model, filtro, pageable, this.urlPaginado, request);
 			model.addAttribute("filtro", filtro);
 			//listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_CONCEPTO);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 
@@ -249,7 +249,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			request.getSession().setAttribute("sessionFiltroCriterioRenovacion", tblContrato);
 			request.getSession().setAttribute("sessionListaContratoRenovacion", page.getContent());
 			request.getSession().setAttribute("PageContratoRenovacion", page);
-			logger.debug("[listarContratos] entidades:"+entidades);
+			log.debug("[listarContratos] entidades:"+entidades);
 			//model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -263,7 +263,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		List<TblContrato> entidades = new ArrayList<TblContrato>();
 		try{
 			entidades = contratoDao.listAllContratoActivosxCodigoContrato(tblContrato.getCodigoContrato());
-			logger.debug("[listarContratosXCodigo] entidades:"+entidades);
+			log.debug("[listarContratosXCodigo] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -556,7 +556,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		Map<String, Object> campos 	= null;
 		BeanRequest beanRequest		= null;
 		try{
-			logger.debug("[listarLocales] Inicio");
+			log.debug("[listarLocales] Inicio");
 			if (contrato.getTblTienda().getTblEdificio().getCodigoEdificio() <= 0){
 				beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 				contrato = beanRequest.getContrato();
@@ -576,7 +576,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 				model.addAttribute("resultadoContrato", "Debe seleccionar el Inmueble antes de listar los Locales");
 				return "cliente/renovacion/rnv_nuevo"; 
 			}
-			logger.debug("[listarLocales] Codigo :"+contrato.getTblTienda().getTblEdificio().getCodigoEdificio());
+			log.debug("[listarLocales] Codigo :"+contrato.getTblTienda().getTblEdificio().getCodigoEdificio());
 			model.addAttribute("contrato", contrato);
 			edificio = edificioDao.findOne(contrato.getTblTienda().getTblEdificio().getCodigoEdificio());
 			model.addAttribute("edificio", edificio);
@@ -594,7 +594,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
 		}catch(Exception e){
-			logger.debug("[listarLocales] Error: "+e.getMessage());
+			log.debug("[listarLocales] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
@@ -602,7 +602,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			filtro		= null;
 			campos		= null;
 		}
-		logger.debug("[listarLocales] Fin");
+		log.debug("[listarLocales] Fin");
 		return path;
 	}
 	/**
@@ -622,7 +622,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		List<TblTienda> entidades = new ArrayList<TblTienda>();
 		try{
 			entidades = tiendaDao.listarTiendaDesocupada(filtro.getCodigo(), filtro.getNumero());
-			logger.debug("[listarTiendaes] entidades:"+entidades);
+			log.debug("[listarTiendaes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -644,8 +644,8 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		TblEdificio edificio = null;
 		path = "cliente/renovacion/rnv_tie_listado";
 		try{
-			logger.debug("[listarLocalesFiltrados] Inicio");
-			logger.debug("[listarLocalesFiltrados] Operacion:"+filtro.getStrOperacion());
+			log.debug("[listarLocalesFiltrados] Inicio");
+			log.debug("[listarLocalesFiltrados] Operacion:"+filtro.getStrOperacion());
 			edificio = edificioDao.findOne(filtro.getCodigo());
 			filtro.setCodigo(edificio.getCodigoEdificio());
 			model.addAttribute("edificio", edificio);
@@ -654,14 +654,14 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
 		}catch(Exception e){
-			logger.debug("[listarLocalesFiltrados] Error: "+e.getMessage());
+			log.debug("[listarLocalesFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 			edificio	= null;
 		}
-		logger.debug("[listarLocalesFiltrados] Fin");
+		log.debug("[listarLocalesFiltrados] Fin");
 		return path;
 	}
 
@@ -756,7 +756,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		Filtro filtro 				= null;
 		BeanRequest beanRequest		= null;
 		try{
-			logger.debug("[listarClientes] Inicio");
+			log.debug("[listarClientes] Inicio");
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 
 			filtro = new Filtro();
@@ -772,13 +772,13 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			filtro		= null;
 		}
-		logger.debug("[listarClientes] Fin");
+		log.debug("[listarClientes] Fin");
 		return path;
 	}
 	/*** Listado de Personas ***/
@@ -787,7 +787,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		Sort sort = new Sort(new Sort.Order(Direction.DESC, "nombre"));
 		try{
 			/*entidades = personaDao.listarCriterios(filtro.getNombre(), filtro.getPaterno(), filtro.getMaterno(), filtro.getDni(), filtro.getRuc(), filtro.getRazonSocial());
-			logger.debug("[listarPersonaes] entidades:"+entidades);
+			log.debug("[listarPersonaes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);*/
 			Specification<TblPersona> criterio = Specifications.where(com.pe.lima.sg.dao.mantenimiento.PersonaSpecifications.conNombre(filtro.getNombre()))
 					.and(com.pe.lima.sg.dao.mantenimiento.PersonaSpecifications.conPaterno(filtro.getPaterno()))
@@ -813,7 +813,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		List<TblPersona> entidades = new ArrayList<TblPersona>();
 		try{
 			entidades = personaDao.listarCriterios(filtro.getNombre(), filtro.getPaterno(), filtro.getMaterno(), filtro.getDni(), filtro.getRuc(), filtro.getRazonSocial());
-			logger.debug("[listarPersonaes] entidades:"+entidades);
+			log.debug("[listarPersonaes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -833,21 +833,21 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 	public String listarPersonasFiltrados(Model model, Filtro filtro, String path, PageableSG pageable, HttpServletRequest request) {
 		path = "cliente/renovacion/rnv_tie_listado";
 		try{
-			logger.debug("[listarPersonasFiltrados] Inicio");
-			logger.debug("[listarPersonasFiltrados] Operacion:"+filtro.getStrOperacion());
+			log.debug("[listarPersonasFiltrados] Inicio");
+			log.debug("[listarPersonasFiltrados] Operacion:"+filtro.getStrOperacion());
 			path = "cliente/renovacion/rnv_per_listado";
-			logger.debug("[listarPersonasFiltrados] Operacion:"+filtro.getStrOperacion());
+			log.debug("[listarPersonasFiltrados] Operacion:"+filtro.getStrOperacion());
 			this.listarPersonas(model, filtro, pageable, this.urlPaginadoCliente);
 			this.cargarListaOperacionCliente(model);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroClienteRenovacionCriterio", filtro);
 		}catch(Exception e){
-			logger.debug("[listarPersonasFiltrados] Error: "+e.getMessage());
+			log.debug("[listarPersonasFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 		}
-		logger.debug("[listarPersonasFiltrados] Fin");
+		log.debug("[listarPersonasFiltrados] Fin");
 		return path;
 	}
 	/*
@@ -859,7 +859,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		Map<String, Object> campos = null;
 		String path = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "cliente/renovacion/rnv_per_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -880,7 +880,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -992,10 +992,10 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		BeanRequest beanRequest				= null;
 		
 		try{
-			logger.debug("[regresarContrato] Inicio");
+			log.debug("[regresarContrato] Inicio");
 			
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
-			logger.debug("[regresarAprobacion] oPERACION:"+filtro.getStrOperacion());
+			log.debug("[regresarAprobacion] oPERACION:"+filtro.getStrOperacion());
 
 			path = "cliente/renovacion/rnv_edicion";
 			//contrato = beanRequest.getContrato();
@@ -1005,9 +1005,9 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			request.getSession().setAttribute("beanRequest", beanRequest);
 		
 			
-			logger.debug("[regresarContrato] Fin");
+			log.debug("[regresarContrato] Fin");
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -1027,7 +1027,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		BeanRequest beanRequest				= null;
 
 		try{
-			logger.debug("[adicionarServicio] Inicio");
+			log.debug("[adicionarServicio] Inicio");
 			path = "cliente/renovacion/rnv_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			if (contratoServicio.getMonto()== null || contratoServicio.getMonto().doubleValue() <=0){
@@ -1037,8 +1037,8 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 				contratoServicio.setTotalSaldo(contratoServicio.getMonto());
 				contratoServicio.setTotalCobrado(new BigDecimal("0"));
 				contratoServicio.setTblTipoServicio(tipoServicioDao.findOne(contratoServicio.getTblTipoServicio().getCodigoTipoServicio()));
-				logger.debug("[adicionarServicio] Doc:"+contratoServicio.getTipoDocumentoServicio());
-				logger.debug("[adicionarServicio] Moneda:"+contratoServicio.getTipoMonedaServicio());
+				log.debug("[adicionarServicio] Doc:"+contratoServicio.getTipoDocumentoServicio());
+				log.debug("[adicionarServicio] Moneda:"+contratoServicio.getTipoMonedaServicio());
 				beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 				if (beanRequest.getListaServicio() == null) {
 					beanRequest.setListaServicio(new ArrayList<TblContratoServicio>());
@@ -1064,9 +1064,9 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarServicio] Fin");
+			log.debug("[adicionarServicio] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarServicio] Error:"+e.getMessage());
+			log.debug("[adicionarServicio] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -1109,18 +1109,18 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 	public String eliminarServicio(Model model, TblContrato entidad, HttpServletRequest request, Integer indice) {
 		BeanRequest beanRequest				= null;
 		try{
-			logger.debug("[eliminarServicio] Inicio");
+			log.debug("[eliminarServicio] Inicio");
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
-			logger.debug("[eliminarServicio] indice:"+indice);
-			logger.debug("[eliminarServicio] lista:"+beanRequest.getListaServicio().size());
+			log.debug("[eliminarServicio] indice:"+indice);
+			log.debug("[eliminarServicio] lista:"+beanRequest.getListaServicio().size());
 			beanRequest.getListaServicio().remove(beanRequest.getListaServicio().get(indice));
 			beanRequest.setContrato(entidad);
 			this.cargarListasRequestBeanContrato(model, beanRequest);
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			logger.debug("[eliminarServicio] lista:"+beanRequest.getListaServicio().size());
-			logger.debug("[eliminarServicio] Fin");
+			log.debug("[eliminarServicio] lista:"+beanRequest.getListaServicio().size());
+			log.debug("[eliminarServicio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -1171,12 +1171,12 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 	 */
 	public void preGuardarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1349,8 +1349,8 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		List<TblObservacion> listaObservacion			= null;
 		TblContratoServicio servicioNuevo 				= null;
 		try{
-			logger.debug("[actualizarEntidad] Inicio" );
-			logger.debug("[actualizarEntidad] Pre Guardar..." );
+			log.debug("[actualizarEntidad] Inicio" );
+			log.debug("[actualizarEntidad] Pre Guardar..." );
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			beanRequest.setContrato(entidad);
 			if (this.validarNegocio(model, entidad, request)){
@@ -1361,13 +1361,13 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 				contratoDao.save(contrato);
 				contrato = contratoDao.findByNumeroContrato(contrato.getNumero());
 				model.addAttribute("respuesta", "El contrato ["+entidad.getNumero()+"] fue renovado por ["+contrato.getNumero()+"]  - Tienda "+contrato.getTblTienda().getNumero()+" satisfactoriamente.");
-				logger.debug("[actualizarEntidad] Guardado..." );
+				log.debug("[actualizarEntidad] Guardado..." );
 
 
 				//registro de las observaciones
 				listaObservacion = beanRequest.getListaObservacion();
 				if (listaObservacion!=null && listaObservacion.size()>0){
-					logger.debug("[guardarEntidad] listaObservacion:"+listaObservacion.size());
+					log.debug("[guardarEntidad] listaObservacion:"+listaObservacion.size());
 					for(TblObservacion observacion: listaObservacion){
 						observacion.setCodigoContrato(contrato.getCodigoContrato());
 						observacionDao.save(observacion);
@@ -1375,10 +1375,10 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 				}
 
 				//registrando los servicios
-				logger.debug("[guardarEntidad] listaServicio:"+beanRequest.getListaServicio().size());
+				log.debug("[guardarEntidad] listaServicio:"+beanRequest.getListaServicio().size());
 				listaServicio = beanRequest.getListaServicio();
 				if (listaServicio!=null && listaServicio.size()>0){
-					logger.debug("[guardarEntidad] listaServicio:"+listaServicio.size());
+					log.debug("[guardarEntidad] listaServicio:"+listaServicio.size());
 					for(TblContratoServicio servicio: listaServicio){
 						servicioNuevo = this.obtenerServicioNuevo(servicio, request);
 						servicioNuevo.setTblContrato(contrato);
@@ -1443,7 +1443,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 				request.getSession().setAttribute("beanRequest", beanRequest);
 			}
 
-			logger.debug("[actualizarEntidad] Fin" );
+			log.debug("[actualizarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -1459,12 +1459,12 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 	 */
 	public void preGuardarBitacora(TblCxcBitacora entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarBitacora] Inicio" );
+			log.debug("[preGuardarBitacora] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardarBitacora] Fin" );
+			log.debug("[preGuardarBitacora] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1638,7 +1638,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		BeanRequest beanRequest				= null;
 		List<TblObservacion> listaObs		= null;
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
@@ -1696,7 +1696,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			}
 
 
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -1829,7 +1829,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		List<TblPersona> listaHistorial = null;
 		Filtro filtro 					= null;
 		try{
-			logger.debug("[listarClientesHistorial] Inicio");
+			log.debug("[listarClientesHistorial] Inicio");
 
 			listaHistorial = personaDao.listarPersonasxContrato(contrato.getCodigoContrato());
 
@@ -1841,13 +1841,13 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			model.addAttribute("filtro", filtro);
 
 		}catch(Exception e){
-			logger.debug("[listarClientesHistorial] Error: "+e.getMessage());
+			log.debug("[listarClientesHistorial] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			listaHistorial		= null;
 		}
-		logger.debug("[listarClientesHistorial] Fin");
+		log.debug("[listarClientesHistorial] Fin");
 		return path;
 	}
 	/**
@@ -1860,7 +1860,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 	public String adicionarObservacion(Model model, TblObservacion observacionBean, TblContrato contrato, String path, HttpServletRequest request) {
 		BeanRequest beanRequest				= null;
 		try{
-			logger.debug("[adicionarObservacion] Inicio:");
+			log.debug("[adicionarObservacion] Inicio:");
 			path = "cliente/renovacion/rnv_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			if (observacionBean.getAsunto()== null || observacionBean.getAsunto().equals("")){
@@ -1897,9 +1897,9 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			logger.debug("[adicionarObservacion] Fin");
+			log.debug("[adicionarObservacion] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarObservacion] Error:"+e.getMessage());
+			log.debug("[adicionarObservacion] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -1920,16 +1920,16 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		List<TblContratoPrimerCobro> lista	= new ArrayList<TblContratoPrimerCobro>();
 		Date fechaFinMes					= null;
 		try{
-			logger.debug("[generarPrimerosCobros] Inicio");
+			log.debug("[generarPrimerosCobros] Inicio");
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			fechaFinMes = UtilSGT.getDatetoString(UtilSGT.getLastDate(UtilSGT.getDateStringFormat(beanRequest.getContrato().getFechaInicio())));
-			logger.debug("[generarPrimerosCobros] fechaFinMes:"+fechaFinMes);
-			logger.debug("[generarPrimerosCobros] Alquiler 1:"+beanRequest.getContrato().getMontoAlquiler()+" Alquiler 2:"+beanRequest.getContratoAntiguo().getMontoAlquiler());
+			log.debug("[generarPrimerosCobros] fechaFinMes:"+fechaFinMes);
+			log.debug("[generarPrimerosCobros] Alquiler 1:"+beanRequest.getContrato().getMontoAlquiler()+" Alquiler 2:"+beanRequest.getContratoAntiguo().getMontoAlquiler());
 			if (beanRequest.getContrato().getMontoAlquiler().compareTo(beanRequest.getContratoAntiguo().getMontoAlquiler())!=0 ||
 					!beanRequest.getContrato().getFechaInicio().toString().equals(beanRequest.getContratoAntiguo().getFechaInicio().toString())	
 					){
 				//Alquiler
-				logger.debug("[generarPrimerosCobros] Cambio Monto Alquiler");
+				log.debug("[generarPrimerosCobros] Cambio Monto Alquiler");
 				primerCobro.setTblTipoServicio(new TblTipoServicio());
 				primerCobro.getTblTipoServicio().setCodigoTipoServicio(Constantes.TIPO_SERVICIO_ALQUILER);
 				//datFechaFinContrato = beanRequest.getContrato().getFechaFin();
@@ -1947,7 +1947,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			if(!igualesListaServicio(beanRequest.getListaServicio(), beanRequest.getContrato(),beanRequest)||
 					!beanRequest.getContrato().getFechaInicio().toString().equals(beanRequest.getContratoAntiguo().getFechaInicio().toString())
 					){
-				logger.debug("[generarPrimerosCobros] Cambio Servicio");
+				log.debug("[generarPrimerosCobros] Cambio Servicio");
 				if (beanRequest.getListaServicio() !=null && beanRequest.getListaServicio().size()>0){
 					for(TblContratoServicio servicio:beanRequest.getListaServicio()){
 						primerCobro 	= new TblContratoPrimerCobro();
@@ -1962,7 +1962,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 
 			}
 			beanRequest.setListaPrimerCobroNuevo(lista);
-			logger.debug("[generarPrimerosCobros] Fin");
+			log.debug("[generarPrimerosCobros] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -1982,7 +1982,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		TblContratoServicio servicioAnt	= null;
 		List<TblContratoServicio> listaServicioAntiguo = null;
 		try{
-			logger.debug("[igualesListaServicio] Inicio");
+			log.debug("[igualesListaServicio] Inicio");
 			listaServicioAntiguo = contratoServicioDao.listarAllActivosXContrato(contrato.getCodigoContrato());
 			beanRequest.setListaServicioAntiguo(listaServicioAntiguo);
 			if (listaServicio == null && listaServicioAntiguo==null){
@@ -2021,8 +2021,8 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 					}
 				}
 			}
-			logger.debug("[igualesListaServicio] encontrado:"+encontrado);
-			logger.debug("[igualesListaServicio] Fin");
+			log.debug("[igualesListaServicio] encontrado:"+encontrado);
+			log.debug("[igualesListaServicio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -2039,7 +2039,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		TblContrato filtro = null;
 		String path = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "cliente/renovacion/rnv_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -2061,7 +2061,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 			this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
 
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -2077,7 +2077,7 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		List<TblContrato> lista = null;
 		PageWrapper<TblContrato> page = null;
 		try{
-			logger.debug("[regresar] Inicio");
+			log.debug("[regresar] Inicio");
 			if (request.getSession().getAttribute("origenLLamada") !=null && request.getSession().getAttribute("origenLLamada").equals("MODULO_CONTRATO")){
 				
 				path = "cliente/contrato/con_listado";
@@ -2100,9 +2100,9 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 				model.addAttribute("page", page);
 
 			}
-			logger.debug("[regresar] Fin");
+			log.debug("[regresar] Fin");
 		}catch(Exception e){
-			logger.debug("[regresar] Error:"+e.getMessage());
+			log.debug("[regresar] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

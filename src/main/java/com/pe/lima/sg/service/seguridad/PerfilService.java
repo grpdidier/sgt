@@ -2,8 +2,6 @@ package com.pe.lima.sg.service.seguridad;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -20,9 +18,11 @@ import org.springframework.stereotype.Service;
 
 import com.pe.lima.sg.dao.seguridad.IPerfilDAO;
 import com.pe.lima.sg.entity.seguridad.TblPerfil;
+
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 public class PerfilService  {
-	private static final Logger logger = LogManager.getLogger(PerfilService.class);
 	@Autowired
 	private IPerfilDAO perfilDao;
 	
@@ -30,14 +30,14 @@ public class PerfilService  {
 	  * getAllPerfil : Lista todos los perfiles
 	  * */
 	public List<TblPerfil> getAllPerfil() {
-		logger.debug("[getAllPerfil] Inicio");
+		log.debug("[getAllPerfil] Inicio");
 		List<TblPerfil> listaPerfil = null;
 		try{
 			listaPerfil = perfilDao.findAll();
 		}catch(Exception e){
 			listaPerfil = null;
 		}
-		logger.debug("[getAllPerfil] Fin");
+		log.debug("[getAllPerfil] Fin");
 		return listaPerfil;
 	}
 
@@ -45,7 +45,7 @@ public class PerfilService  {
 	  * getPerfilById : Obtiene un Perfil
 	  * */
 	public TblPerfil getPerfilById(Integer id) {
-		logger.debug("[getPerfilById] Inicio");
+		log.debug("[getPerfilById] Inicio");
 		TblPerfil perfil = null;
 		try{
 			perfil = perfilDao.findOne(id);
@@ -53,7 +53,7 @@ public class PerfilService  {
 			e.printStackTrace();
 			perfil = null;
 		}
-		logger.debug("[getPerfilById] Fin");
+		log.debug("[getPerfilById] Fin");
 		return perfil;
 	}
 
@@ -61,13 +61,13 @@ public class PerfilService  {
 	  * addPerfil : Registra un Perfil
 	  * */
 	public boolean addPerfil(TblPerfil perfil) {
-		logger.debug("[addPerfil] Inicio");
+		log.debug("[addPerfil] Inicio");
 		List<TblPerfil>  lista = null;
 		boolean resultado = false;
 		try{
 			lista = perfilDao.findByNombreEstado(perfil.getNombre(), perfil.getEstado());
 			 if (lista != null && lista.size() > 0) {
-				 logger.debug("[addPerfil] Existe el elemento:"+lista.size());
+				 log.debug("[addPerfil] Existe el elemento:"+lista.size());
 				 resultado = false;
 	         } else {
 	        	 perfilDao.save(perfil);
@@ -75,9 +75,9 @@ public class PerfilService  {
 	         }
 		}catch(Exception e){
 			e.printStackTrace();
-			logger.debug("[addPerfil] Error:"+e.getMessage());
+			log.debug("[addPerfil] Error:"+e.getMessage());
 		}
-		logger.debug("[addPerfil] Fin");
+		log.debug("[addPerfil] Fin");
 		return resultado;
 	}
 
@@ -85,17 +85,17 @@ public class PerfilService  {
 	  * updatePerfil : Actualiza un Perfil
 	  * */
 	public boolean updatePerfil(TblPerfil perfil) {
-		logger.debug("[updatePerfil] Inicio");
+		log.debug("[updatePerfil] Inicio");
 		boolean resultado = false;
 		try{
 			perfilDao.save(perfil);
 			resultado = true;
 		}catch(Exception e){
 			e.printStackTrace();
-			logger.debug("[updatePerfil] Error:"+e.getMessage());
+			log.debug("[updatePerfil] Error:"+e.getMessage());
 			resultado = false;
 		}
-		logger.debug("[updatePerfil] Fin:"+resultado);
+		log.debug("[updatePerfil] Fin:"+resultado);
 		return resultado;
 	}
 
@@ -103,17 +103,17 @@ public class PerfilService  {
 	  * deletePerfil : Elimina un perfil
 	  * */
 	public boolean deletePerfil(TblPerfil perfil) {
-		logger.debug("[updatePerfil] Inicio");
+		log.debug("[updatePerfil] Inicio");
 		boolean resultado = false;
 		try{
 			perfilDao.delete(perfil);
 			resultado = true;
 		}catch(Exception e){
 			e.printStackTrace();
-			logger.debug("[updatePerfil] Error:"+e.getMessage());
+			log.debug("[updatePerfil] Error:"+e.getMessage());
 			resultado = false;
 		}
-		logger.debug("[updatePerfil] Fin:"+resultado);
+		log.debug("[updatePerfil] Fin:"+resultado);
 		return resultado;
 				
 	}
@@ -121,14 +121,14 @@ public class PerfilService  {
 	  * getPerfilByNombreEstado : Lista todos los perfiles por nombre y estado
 	  * */
 	public List<TblPerfil> getPerfilByNombreEstado(TblPerfil perfil) {
-		logger.debug("[getUsuarioByNombreEstado] Inicio");
+		log.debug("[getUsuarioByNombreEstado] Inicio");
 		List<TblPerfil> listaPerfil = null;
 		try{
 			listaPerfil = perfilDao.findByNombreEstado(perfil.getNombre(), perfil.getEstado());
 		}catch(Exception e){
 			listaPerfil = null;
 		}
-		logger.debug("[getUsuarioByNombreEstado] Fin");
+		log.debug("[getUsuarioByNombreEstado] Fin");
 		return listaPerfil;
 	}
 

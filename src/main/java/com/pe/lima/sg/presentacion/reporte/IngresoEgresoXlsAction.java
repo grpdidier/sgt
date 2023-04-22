@@ -14,8 +14,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,9 +29,10 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.rs.reporte.IngresoEgresoXlsDao;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class IngresoEgresoXlsAction {
-	private static final Logger logger = LogManager.getLogger(IngresoEgresoXlsAction.class);
 	@Autowired
 	private IngresoEgresoXls ingresoEgresoXls;
 
@@ -46,16 +45,16 @@ public class IngresoEgresoXlsAction {
 	public String mostrarFormulario(Model model, String path) {
 		Filtro filtro = null;
 		try{
-			logger.debug("[mostrarFormulario] Inicio");
+			log.debug("[mostrarFormulario] Inicio");
 			path = "reporte/ingreso_xls/ing_listado";
 			filtro = new Filtro();
 			filtro.setFechaInicio(UtilSGT.getDatetoString2(UtilSGT.addDays(new Date(), -30)));
 			filtro.setFechaFin(UtilSGT.getFecha("dd/MM/yyyy"));
 			filtro.setCodigoEdificacion(1);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[mostrarFormulario] Fin");
+			log.debug("[mostrarFormulario] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -69,7 +68,7 @@ public class IngresoEgresoXlsAction {
 		List<IngresoEgresoBean> listaIngresoEgreso 	= null;
 		RespuestaReporteBean respuestaReporteBean	= null;
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			if (this.validarCriterio(filtro,model)){
 				obtenerNombreEdificio(request, filtro);
 				//Realiza la busqueda para efectivo o bancarizado				
@@ -85,14 +84,14 @@ public class IngresoEgresoXlsAction {
 			
 			
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			listaIngresoEgreso		= null;
 			respuestaReporteBean	= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	private void obtenerNombreEdificio(HttpServletRequest request, Filtro filtro){
@@ -122,7 +121,7 @@ public class IngresoEgresoXlsAction {
 			model.addAttribute("registros", listaRespuesta);
 			request.getSession().setAttribute("reporteIngresoEgresoXls", listaIngresoEgreso);
 			request.getSession().setAttribute("criterioIngresoEgreso", filtro);
-			logger.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
+			log.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
 		}else{
 			model.addAttribute("registros", respuestaReporteBean);
 			request.getSession().setAttribute("reporteIngresoEgresoXls", listaIngresoEgreso);
@@ -169,10 +168,10 @@ public class IngresoEgresoXlsAction {
 			if (filtro.getFechaFin()==null || filtro.getFechaFin().equals("")){
 				filtro.setFechaFin(UtilSGT.getDateStringFormat(UtilSGT.addDays(new Date(), 1)));
 			}
-			logger.debug("[listarIngresoEgreso] Fec Inicio:"+filtro.getFechaInicio());
-			logger.debug("[listarIngresoEgreso] Fec Fin:"+filtro.getFechaFin());
+			log.debug("[listarIngresoEgreso] Fec Inicio:"+filtro.getFechaInicio());
+			log.debug("[listarIngresoEgreso] Fec Fin:"+filtro.getFechaFin());
 			entidades = ingresoEgresoDaoXls.getReporteIngresoEgresoXls(filtro);
-			logger.debug("[listarIngresoEgreso] entidades:"+entidades.size());
+			log.debug("[listarIngresoEgreso] entidades:"+entidades.size());
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -186,7 +185,7 @@ public class IngresoEgresoXlsAction {
 		Filtro criterio		= null;
 		path = "reporte/ingreso_xls/ing_listado";
 		try{
-			logger.debug("[mostrarXls] Inicio");
+			log.debug("[mostrarXls] Inicio");
 			entidades = (List<IngresoEgresoBean>)request.getSession().getAttribute("reporteIngresoEgresoXls");
 			if (entidades != null && !entidades.isEmpty()){
 				criterio = (Filtro)request.getSession().getAttribute("criterioIngresoEgreso");
@@ -197,9 +196,9 @@ public class IngresoEgresoXlsAction {
 			}
 			
 			
-			logger.debug("[mostrarXls] Fin");
+			log.debug("[mostrarXls] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarXls] Error:"+e.getMessage());
+			log.debug("[mostrarXls] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -305,7 +304,7 @@ public class IngresoEgresoXlsAction {
 	private void fileDownload(String fullPath, HttpServletResponse response, String filename, String extension){
 		File file = new File(fullPath);
 		final int BUFFER_ZISE = 4096;
-		logger.debug("[fileDownload] Inicio");
+		log.debug("[fileDownload] Inicio");
 		if (file.exists()){
 			try{
 				FileInputStream inputStream = new FileInputStream(file);
@@ -321,13 +320,13 @@ public class IngresoEgresoXlsAction {
 				inputStream.close();
 				outputStream.close();
 				file.delete();
-				logger.debug("[fileDownload] filename:"+filename);
+				log.debug("[fileDownload] filename:"+filename);
 				
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		logger.debug("[fileDownload] Fin");
+		log.debug("[fileDownload] Fin");
 		
 	}
 	

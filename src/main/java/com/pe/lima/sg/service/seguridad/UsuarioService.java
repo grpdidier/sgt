@@ -2,8 +2,6 @@ package com.pe.lima.sg.service.seguridad;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -20,11 +18,11 @@ import org.springframework.stereotype.Service;
 
 import com.pe.lima.sg.dao.seguridad.IUsuarioDAO;
 import com.pe.lima.sg.entity.seguridad.TblUsuario;
-import com.pe.lima.sg.presentacion.cliente.ArbitrioAction;
-import com.pe.lima.sg.util.SysOutPrintln;
+
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 public class UsuarioService  {
-	private static final Logger logger = LogManager.getLogger(UsuarioService.class);
 	@Autowired
 	private IUsuarioDAO usuarioDao;
 	
@@ -32,14 +30,14 @@ public class UsuarioService  {
 	  * getAllUsuarios : Lista todos los usuarios
 	  * */
 	public List<TblUsuario> getAllUsuarios() {
-		logger.debug("[getAllUsuarios] Inicio");
+		log.debug("[getAllUsuarios] Inicio");
 		List<TblUsuario> listaUsuario = null;
 		try{
 			listaUsuario = usuarioDao.findAll();
 		}catch(Exception e){
 			listaUsuario = null;
 		}
-		logger.debug("[getAllUsuarios] Fin");
+		log.debug("[getAllUsuarios] Fin");
 		return listaUsuario;
 	}
 
@@ -47,14 +45,14 @@ public class UsuarioService  {
 	  * getUsuarioById : Obtiene un usuario
 	  * */
 	public TblUsuario getUsuarioById(Integer id) {
-		logger.debug("[getUsuarioById] Inicio");
+		log.debug("[getUsuarioById] Inicio");
 		TblUsuario usuario = null;
 		try{
 			usuario = usuarioDao.findOne(id);
 		}catch(Exception e){
 			usuario = null;
 		}
-		logger.debug("[getUsuarioById] Fin");
+		log.debug("[getUsuarioById] Fin");
 		return usuario;
 	}
 	
@@ -63,7 +61,7 @@ public class UsuarioService  {
 	  * addUsuario : Registra un usuario
 	  * */
 	public boolean addUsuario(TblUsuario usuario) {
-		logger.debug("[addUsuario] Inicio");
+		log.debug("[addUsuario] Inicio");
 		List<TblUsuario>  lista = null;
 		boolean resultado = false;
 		try{
@@ -76,9 +74,9 @@ public class UsuarioService  {
 	         }
 		}catch(Exception e){
 			e.printStackTrace();
-			logger.debug("[addUsuario] Error:"+e.getMessage());
+			log.debug("[addUsuario] Error:"+e.getMessage());
 		}
-		logger.debug("[addUsuario] Fin");
+		log.debug("[addUsuario] Fin");
 		return resultado;
 	}
 
@@ -86,7 +84,7 @@ public class UsuarioService  {
 	  * updateUsuario : Actualiza un usuario
 	  * */
 	public boolean updateUsuario(TblUsuario usuario) {
-		logger.debug("[updateUsuario] Inicio");
+		log.debug("[updateUsuario] Inicio");
 		boolean resultado = false;
 		try{
 			usuarioDao.save(usuario);
@@ -94,9 +92,9 @@ public class UsuarioService  {
 		}catch(Exception e){
 			e.printStackTrace();
 			resultado = false;
-			logger.debug("[updateUsuario] Error:"+e.getMessage());
+			log.debug("[updateUsuario] Error:"+e.getMessage());
 		}
-		logger.debug("[updateUsuario] Fin");
+		log.debug("[updateUsuario] Fin");
 		return resultado;
 	}
 
@@ -104,7 +102,7 @@ public class UsuarioService  {
 	  * deleteUsuario : Elimina un usuario
 	  * */
 	public boolean deleteUsuario(TblUsuario usuario) {
-		logger.debug("[deleteUsuario] Inicio");
+		log.debug("[deleteUsuario] Inicio");
 		boolean resultado = false;
 		try{
 			usuarioDao.delete(usuario);
@@ -112,9 +110,9 @@ public class UsuarioService  {
 		}catch(Exception e){
 			e.printStackTrace();
 			resultado = false;
-			logger.debug("[deleteUsuario] Error:"+e.getMessage());
+			log.debug("[deleteUsuario] Error:"+e.getMessage());
 		}
-		logger.debug("[deleteUsuario] Fin");
+		log.debug("[deleteUsuario] Fin");
 		return resultado;
 				
 	}
@@ -123,28 +121,28 @@ public class UsuarioService  {
 	  * getUsuarioByNombreEstado : Lista todos los usuarios por nombre y estado
 	  * */
 	public List<TblUsuario> getUsuarioByNombreEstado(TblUsuario usuario) {
-		logger.debug("[getUsuarioByNombreEstado] Inicio");
+		log.debug("[getUsuarioByNombreEstado] Inicio");
 		List<TblUsuario> listaUsuario = null;
 		try{
 			listaUsuario = usuarioDao.findByNombreEstado(usuario.getLogin(), usuario.getEstado());
 		}catch(Exception e){
 			listaUsuario = null;
 		}
-		logger.debug("[getUsuarioByNombreEstado] Fin");
+		log.debug("[getUsuarioByNombreEstado] Fin");
 		return listaUsuario;
 	}
 	/**
 	  * getUsuarioByFiltros : Lista todos los usuarios por Filtros
 	  * */
 	/*public List<TblUsuario> getUsuarioByFiltros(TblUsuario usuario) {
-		logger.debug("[getUsuarioByFiltros] Inicio");
+		log.debug("[getUsuarioByFiltros] Inicio");
 		List<TblUsuario> listaUsuario = null;
 		try{
 			listaUsuario = usuarioDao.listarConFiltros(usuario.getLogin(), usuario.getNombre(), usuario.getEstado());
 		}catch(Exception e){
 			listaUsuario = null;
 		}
-		logger.debug("[getUsuarioByFiltros] Fin");
+		log.debug("[getUsuarioByFiltros] Fin");
 		return listaUsuario;
 	}	*/
 	
@@ -152,14 +150,14 @@ public class UsuarioService  {
 	  * getUsuarioByFiltros : Lista todos los usuarios por Filtros
 	  * */
 	public List<TblUsuario> getUsuarioByFiltros(String strDato) {
-		logger.debug("[getUsuarioByFiltros] Inicio");
+		log.debug("[getUsuarioByFiltros] Inicio");
 		List<TblUsuario> listaUsuario = null;
 		try{
 			listaUsuario = usuarioDao.listarConFiltros(strDato);
 		}catch(Exception e){
 			listaUsuario = null;
 		}
-		logger.debug("[getUsuarioByFiltros] Fin");
+		log.debug("[getUsuarioByFiltros] Fin");
 		return listaUsuario;
 	}	
 

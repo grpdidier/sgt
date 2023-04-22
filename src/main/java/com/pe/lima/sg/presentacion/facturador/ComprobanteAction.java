@@ -8,8 +8,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,9 +31,10 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.rs.facturador.ComprobanteDao;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class ComprobanteAction {
-	private static final Logger logger = LogManager.getLogger(ComprobanteAction.class);
 	@Autowired
 	private ComprobanteDao comprobanteDao;
 
@@ -52,14 +51,14 @@ public class ComprobanteAction {
 	public String mostrarFormulario(Model model, String path, HttpServletRequest request) {
 		List<DocumentoBean> listaComprobante	= null;
 		try{
-			logger.debug("[mostrarFormulario] Inicio");
+			log.debug("[mostrarFormulario] Inicio");
 			path = "facturador/fac_listado";
 			listaComprobante = this.listarComprobante();
 			model.addAttribute("registros", listaComprobante);
 			request.getSession().setAttribute("listaComprobanteSUNAT", listaComprobante);
-			logger.debug("[mostrarFormulario] Fin");
+			log.debug("[mostrarFormulario] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -70,7 +69,7 @@ public class ComprobanteAction {
 		List<DocumentoBean> entidades = new ArrayList<>();
 		try{
 			entidades = comprobanteDao.getDocumentoSinComprobante();
-			logger.debug("[listarComprobante] entidades:"+entidades);
+			log.debug("[listarComprobante] entidades:"+entidades);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -89,7 +88,7 @@ public class ComprobanteAction {
 		TblSerie serieFactura					= null;
 		TblSerie serieBoleta					= null;
 		try{
-			logger.debug("[procesarComprobante] Inicio");
+			log.debug("[procesarComprobante] Inicio");
 			serieFactura = new TblSerie();//serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_FACTURA);
 			serieBoleta = new TblSerie();//serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_BOLETA);
 			listaDatos = (List<DocumentoBean>) request.getSession().getAttribute("listaComprobanteSUNAT");
@@ -115,15 +114,15 @@ public class ComprobanteAction {
 				List<DocumentoBean> lista = this.listarComprobante();
 				model.addAttribute("registros", lista);
 				request.getSession().setAttribute("listaComprobanteSUNAT", lista);
-			logger.debug("[procesarComprobante] Fin");
+			log.debug("[procesarComprobante] Fin");
 		}catch(Exception e){
-			logger.debug("[procesarComprobante] Error: "+e.getMessage());
+			log.debug("[procesarComprobante] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 
 		}
-		logger.debug("[procesarComprobante] Fin");
+		log.debug("[procesarComprobante] Fin");
 		return path;
 	}
 	

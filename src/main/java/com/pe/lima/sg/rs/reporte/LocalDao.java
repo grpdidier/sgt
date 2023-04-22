@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +18,10 @@ import com.pe.lima.sg.bean.reporte.LocalBean;
 import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Component
 public class LocalDao {
-	
-	private static final Logger logger = LogManager.getLogger(LocalDao.class);
 	
 	@Value("${spring.datasource.url}")
 	private String urlTienda;
@@ -47,7 +45,7 @@ public class LocalDao {
 		ResultSet rs 					= null;
 		Map<String, LocalBean> mapLocal	= null;
 		try{
-			logger.debug("[getReporteMoroso] Inicio");
+			log.debug("[getReporteMoroso] Inicio");
 			url = urlTienda + userUrl + nombreUsuario + userPass + credencialUsuario;
 			con = DriverManager.getConnection(url);
 			//Obtenemos todos los locales (tiendas)
@@ -80,7 +78,7 @@ public class LocalDao {
 				con = null;
 			}
 		}
-		logger.debug("[getReporteMoroso] Fin");
+		log.debug("[getReporteMoroso] Fin");
 		return listaLocal;
 	}
 	
@@ -89,7 +87,7 @@ public class LocalDao {
 		LocalBean localBean 			= null;
 		Map<String, LocalBean> mapLocal	= null;
 		if (rs !=null){
-			logger.debug("[setLocal] Inicio");
+			log.debug("[setLocal] Inicio");
 			mapLocal = new HashMap<String, LocalBean>();
 			while(rs.next()){
 				localBean = new LocalBean();
@@ -107,7 +105,7 @@ public class LocalDao {
 				localBean.setMontoGarantia(new BigDecimal(0));
 				mapLocal.put(rs.getString("tienda"), localBean);
 			}
-			logger.debug("[setLocal] Fin:"+mapLocal.size());
+			log.debug("[setLocal] Fin:"+mapLocal.size());
 			
 		}
 		return mapLocal;
@@ -125,18 +123,18 @@ public class LocalDao {
 		LocalBean localBean 			= null;
 		String key						= null;
 		if (rs !=null){
-			logger.debug("[setMontoAlquilerServicioContrato] Inicio");
+			log.debug("[setMontoAlquilerServicioContrato] Inicio");
 			while(rs.next()){
-				//logger.debug("[setMontoAlquilerServicioContrato] tienda:"+rs.getString("tienda"));
+				//log.debug("[setMontoAlquilerServicioContrato] tienda:"+rs.getString("tienda"));
 				key = rs.getString("tienda");
 				localBean = mapLocal.get(key);
-				//logger.debug("[setMontoAlquilerServicioContrato] localBean:"+localBean);
+				//log.debug("[setMontoAlquilerServicioContrato] localBean:"+localBean);
 				if (localBean != null){
-					//logger.debug("[setMontoAlquilerServicioContrato] nombre:"+rs.getString("nombre"));
+					//log.debug("[setMontoAlquilerServicioContrato] nombre:"+rs.getString("nombre"));
 					//Detalle - Nombre del cliente
 					localBean.setNombreCliente(rs.getString("nombre"));
 					//Montos
-					//logger.debug("[setMontoAlquilerServicioContrato] tipo_referencia:"+rs.getString("tipo_referencia"));
+					//log.debug("[setMontoAlquilerServicioContrato] tipo_referencia:"+rs.getString("tipo_referencia"));
 					if (rs.getString("tipo_referencia").equals(Constantes.TIPO_COBRO_ALQUILER)){
 						localBean.setMontoAlquiler(getBigDecimal("total",rs));
 					} else if (rs.getString("tipo_referencia").equals(Constantes.TIPO_COBRO_SERVICIO)){
@@ -146,10 +144,10 @@ public class LocalDao {
 							localBean.setMontoServicio(getBigDecimal("total",rs));
 						}
 					} else{
-						logger.debug("[setMontoAlquilerServicioContrato] Oh!!, servicio no identificado:"+rs.getString("tipo_referencia"));
+						log.debug("[setMontoAlquilerServicioContrato] Oh!!, servicio no identificado:"+rs.getString("tipo_referencia"));
 					}
 					//Estado
-					//logger.debug("[setMontoAlquilerServicioContrato] monto_alquiler:"+rs.getString("monto_alquiler"));
+					//log.debug("[setMontoAlquilerServicioContrato] monto_alquiler:"+rs.getString("monto_alquiler"));
 					if (rs.getBigDecimal("monto_alquiler").compareTo(new BigDecimal(0)) > 0){
 						localBean.setEstado(Constantes.ESTADO_ALQUILADO);
 						localBean.setOrden("1");
@@ -164,12 +162,12 @@ public class LocalDao {
 					localBean.setMontoGarantia(getBigDecimal("monto_garantia",rs));
 					
 				}else{
-					logger.debug("[setMontoAlquilerServicioContrato] ¡Houston! we have a problem:, Tienda not Found:"+key);
+					log.debug("[setMontoAlquilerServicioContrato] ¡Houston! we have a problem:, Tienda not Found:"+key);
 				}
 				
 				
 			}
-			logger.debug("[setMontoAlquilerServicioContrato] Fin:"+mapLocal.size());
+			log.debug("[setMontoAlquilerServicioContrato] Fin:"+mapLocal.size());
 			
 		}
 		return mapLocal;
@@ -179,13 +177,13 @@ public class LocalDao {
 	private PreparedStatement sqlConsultaLocales(Filtro filtro, Connection con) throws SQLException{
 		String query = null;
 		PreparedStatement pstmt = null;
-		logger.debug("[sqlConsultaLocales] Inicio");
+		log.debug("[sqlConsultaLocales] Inicio");
 		query = this.sqlConsultaLocales();
 		pstmt = con.prepareStatement(query);
 		pstmt.setInt(1, filtro.getCodigoEdificacion());
 		
-		logger.debug("[sqlConsultaLocales] query:"+query);
-		logger.debug("[sqlConsultaLocales] Fin");
+		log.debug("[sqlConsultaLocales] query:"+query);
+		log.debug("[sqlConsultaLocales] Fin");
 		return pstmt;
 	}
 	private String sqlConsultaLocales(){
@@ -207,14 +205,14 @@ public class LocalDao {
 	private PreparedStatement sqlConsultaMontoAlquilerServicioContrato(Filtro filtro, Connection con) throws SQLException{
 		String query = null;
 		PreparedStatement pstmt = null;
-		logger.debug("[sqlConsultaMontoAlquilerServicioContrato] Inicio");
+		log.debug("[sqlConsultaMontoAlquilerServicioContrato] Inicio");
 		query = this.sqlConsultaMontoAlquilerServicioContrato();
 		pstmt = con.prepareStatement(query);
 		pstmt.setInt(1, filtro.getCodigoEdificacion());
 		pstmt.setString(2,  filtro.getMesFin()+filtro.getAnio());
 		pstmt.setString(3,  filtro.getAnio()+filtro.getMesFin());
-		logger.debug("[sqlConsultaMontoAlquilerServicioContrato] query:"+query);
-		logger.debug("[sqlConsultaMontoAlquilerServicioContrato] Fin");
+		log.debug("[sqlConsultaMontoAlquilerServicioContrato] query:"+query);
+		log.debug("[sqlConsultaMontoAlquilerServicioContrato] Fin");
 		return pstmt;
 	}
 	private String sqlConsultaMontoAlquilerServicioContrato(){

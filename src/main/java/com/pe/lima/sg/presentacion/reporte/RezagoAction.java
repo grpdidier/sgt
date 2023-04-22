@@ -14,8 +14,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,10 +29,11 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.rs.reporte.IngresoEgresoDao;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class RezagoAction {
 	
-	private static final Logger logger = LogManager.getLogger(RezagoAction.class);
 	@Autowired
 	private IngresoEgresoPdf pdfIngresoEgreso;
 	@Autowired
@@ -46,15 +45,15 @@ public class RezagoAction {
 	public String mostrarFormulario(Model model, String path) {
 		Filtro filtro = null;
 		try{
-			logger.debug("[mostrarFormulario] Inicio");
+			log.debug("[mostrarFormulario] Inicio");
 			path = "reporte/rezago/rez_listado";
 			filtro = new Filtro();
 			filtro.setFechaInicio(UtilSGT.getFecha("dd/MM/yyyy"));
 			filtro.setFechaFin(UtilSGT.getFecha("dd/MM/yyyy"));
 			model.addAttribute("filtro", filtro);
-			logger.debug("[mostrarFormulario] Fin");
+			log.debug("[mostrarFormulario] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -68,7 +67,7 @@ public class RezagoAction {
 		List<IngresoEgresoBean> listaCobro 	= null;
 		RespuestaReporteBean respuestaReporteBean	= null;
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			
 			if (this.validarCriterio(filtro,model)){
 				//Realiza la busqueda		
@@ -79,14 +78,14 @@ public class RezagoAction {
 				request.getSession().setAttribute("reporteFueraFecha", listaCobro);
 			}
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			listaCobro				= null;
 			respuestaReporteBean	= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -106,7 +105,7 @@ public class RezagoAction {
 			model.addAttribute("registros", listaRespuesta);
 			request.getSession().setAttribute("reporteFueraFecha", listacobro);
 			request.getSession().setAttribute("criterioFueraFecha", filtro);
-			logger.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
+			log.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
 		}else{
 			model.addAttribute("registros", respuestaReporteBean);
 			request.getSession().setAttribute("reporteFueraFecha", listacobro);
@@ -146,10 +145,10 @@ public class RezagoAction {
 			if (filtro.getFechaFin()==null || filtro.getFechaFin().equals("")){
 				filtro.setFechaFin(UtilSGT.getDateStringFormat(UtilSGT.addDays(new Date(), 1)));
 			}
-			logger.debug("[listarCobrosFueraFecha] Fec Inicio:"+filtro.getFechaInicio());
-			logger.debug("[listarCobrosFueraFecha] Fec Fin:"+filtro.getFechaFin());
+			log.debug("[listarCobrosFueraFecha] Fec Inicio:"+filtro.getFechaInicio());
+			log.debug("[listarCobrosFueraFecha] Fec Fin:"+filtro.getFechaFin());
 			entidades = ingresoEgresoDao.getReporteFueraFecha(filtro);
-			logger.debug("[listarIngresoEgreso] entidades:"+entidades.size());
+			log.debug("[listarIngresoEgreso] entidades:"+entidades.size());
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -166,7 +165,7 @@ public class RezagoAction {
 		
 		try{
 			path = "reporte/rezago/rez_listado";
-			logger.debug("[mostrarPdf] Inicio");
+			log.debug("[mostrarPdf] Inicio");
 			entidades = (List<IngresoEgresoBean>)request.getSession().getAttribute("reporteFueraFecha");
 
 			if (entidades != null && !entidades.isEmpty()){
@@ -180,9 +179,9 @@ public class RezagoAction {
 				this.fileDownload(fullPath, response, filename, ".pdf");
 			}
 			
-			logger.debug("[mostrarPdf] Fin");
+			log.debug("[mostrarPdf] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarPdf] Error:"+e.getMessage());
+			log.debug("[mostrarPdf] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		

@@ -10,8 +10,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,15 +35,16 @@ import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion del registro del monto de la luz por luz
  *
  * 			
  */
+@Slf4j
 @Controller
 public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
-	
-	private static final Logger logger = LogManager.getLogger(LuzxTiendaAction.class);
 	
 	@Autowired
 	private ILuzDAO luzDao;
@@ -93,7 +92,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		List<TblParametro> listaParametro		= null;
 		Integer intAnioInicio					= null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			//Buscando el año de inicio
 			listaParametro = parametroDao.buscarOneByNombre(Constantes.PAR_ANIO_INICIO);
 			if(listaParametro!=null && listaParametro.size()>0){
@@ -117,16 +116,16 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			filtro.setLuz(luz);
 			filtro.setSuministro(suministro);
 			filtro.setAnioFiltro(Calendar.getInstance().get(Calendar.YEAR));
-			logger.debug("[traerRegistros] Mes:"+ Calendar.getInstance().get(Calendar.MONTH) );
+			log.debug("[traerRegistros] Mes:"+ Calendar.getInstance().get(Calendar.MONTH) );
 			strFechaFin = UtilSGT.getLastDay( Calendar.getInstance().get(Calendar.MONTH) , Calendar.getInstance().get(Calendar.YEAR));
-			logger.debug("[traerRegistros] strFechaFin:"+strFechaFin);
+			log.debug("[traerRegistros] strFechaFin:"+strFechaFin);
 			filtro.setStrFechaFinFiltro(strFechaFin);
 			filtro.setMapListado(obtenerFechaVencimiento(Calendar.getInstance().get(Calendar.YEAR)));
 			model.addAttribute("mapFechaVencimiento", filtro.getMapListado());
 			listaSuministro = (Map<String, Integer>)request.getSession().getAttribute("SessionMapSuministro");
 			if (listaSuministro != null){
 				elemento = listaSuministro.entrySet().iterator().next();
-				logger.debug("[traerRegistros] Key:"+elemento.getKey() + " Value: "+elemento.getValue());
+				log.debug("[traerRegistros] Key:"+elemento.getKey() + " Value: "+elemento.getValue());
 				suministro.setCodigoSuministro(elemento.getValue());
 				luz.getTblSuministro().setCodigoSuministro(elemento.getValue());
 				luz = luzDao.findBySuministroFechaVencimiento(elemento.getValue(), UtilSGT.getDatetoString(filtro.getStrFechaFinFiltro()));
@@ -143,9 +142,9 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			model.addAttribute("registros", bean.getListaTiendaBean());
 			//model.addAttribute("beanRequest", bean);
 			filtro.setBeanRequest(bean);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			suministro = null;
@@ -177,7 +176,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			
 		}catch(Exception e){
 			e.printStackTrace();
-			logger.debug("[copyBean] Error:"+e.getMessage());
+			log.debug("[copyBean] Error:"+e.getMessage());
 		}
 		return listaTiendaBean;
 	}
@@ -197,8 +196,8 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		Integer anioInicio						= null;
 		String fechaFin							= null;
 		try{
-			logger.debug("[cargarTiendasxSuministro] Inicio");
-			//logger.debug("[cargarTiendasxSuministro] Codigo Suminitro:"+filtro.getSuministro().getCodigoSuministro());
+			log.debug("[cargarTiendasxSuministro] Inicio");
+			//log.debug("[cargarTiendasxSuministro] Codigo Suminitro:"+filtro.getSuministro().getCodigoSuministro());
 			if (filtro.getAnioInicio()==null){
 				anioInicio = Calendar.getInstance().get(Calendar.YEAR);
 			}else{
@@ -227,15 +226,15 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			
 			model.addAttribute("registros", filtro.getBeanRequest().getListaTiendaBean());
 			model.addAttribute("filtro", filtro);
-			logger.debug("[cargarTiendasxSuministro] Fin");
+			log.debug("[cargarTiendasxSuministro] Fin");
 		}catch(Exception e){
-			logger.debug("[cargarTiendasxSuministro] Error: "+e.getMessage());
+			log.debug("[cargarTiendasxSuministro] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			listaTienda = null;
 		}
-		logger.debug("[cargarTiendasxSuministro] Fin");
+		log.debug("[cargarTiendasxSuministro] Fin");
 		return path;
 	}
 	
@@ -252,11 +251,11 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		List<TblTienda> listaTienda				= null;
 		String strFechaFin 						= null;
 		try{
-			logger.debug("[cargarListaUltimoDia] Inicio");
-			logger.debug("[cargarListaUltimoDia] Codigo Suminitro:"+filtro.getSuministro().getCodigoSuministro());
+			log.debug("[cargarListaUltimoDia] Inicio");
+			log.debug("[cargarListaUltimoDia] Codigo Suminitro:"+filtro.getSuministro().getCodigoSuministro());
 			model.addAttribute("mapAnioFiltro", UtilSGT.getListaAnio(filtro.getAnioInicio(), Calendar.getInstance().get(Calendar.YEAR) + 1 ));
 			//Calculo de la nueva fecha de vencimiento
-			logger.debug("[cargarListaUltimoDia] Fecha Anterior:"+filtro.getStrFechaFinFiltro());
+			log.debug("[cargarListaUltimoDia] Fecha Anterior:"+filtro.getStrFechaFinFiltro());
 			strFechaFin = UtilSGT.getLastDay( UtilSGT.getMes(filtro.getStrFechaFinFiltro()),filtro.getAnioFiltro());
 			filtro.setStrFechaFinFiltro(strFechaFin);
 			//Busqueda de los datos de la luz
@@ -284,15 +283,15 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			
 			model.addAttribute("registros", filtro.getBeanRequest().getListaTiendaBean());
 			model.addAttribute("filtro", filtro);
-			logger.debug("[cargarListaUltimoDia] Fin");
+			log.debug("[cargarListaUltimoDia] Fin");
 		}catch(Exception e){
-			logger.debug("[cargarListaUltimoDia] Error: "+e.getMessage());
+			log.debug("[cargarListaUltimoDia] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			listaTienda = null;
 		}
-		logger.debug("[cargarListaUltimoDia] Fin");
+		log.debug("[cargarListaUltimoDia] Fin");
 		return path;
 	}
 	
@@ -308,11 +307,11 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		path									= "cliente/luzxtienda/lxt_listado";
 		List<TblTienda> listaTienda				= null;
 		try{
-			logger.debug("[cargarListaTienda] Inicio");
-			logger.debug("[cargarListaTienda] Codigo Suminitro:"+filtro.getSuministro().getCodigoSuministro());
+			log.debug("[cargarListaTienda] Inicio");
+			log.debug("[cargarListaTienda] Codigo Suminitro:"+filtro.getSuministro().getCodigoSuministro());
 			model.addAttribute("mapAnioFiltro", UtilSGT.getListaAnio(filtro.getAnioInicio(), Calendar.getInstance().get(Calendar.YEAR) + 1 ));
 			//Calculo de la nueva fecha de vencimiento
-			logger.debug("[cargarListaTienda] Fecha Anterior:"+filtro.getStrFechaFinFiltro());
+			log.debug("[cargarListaTienda] Fecha Anterior:"+filtro.getStrFechaFinFiltro());
 			//strFechaFin = this.getLastDay( UtilSGT.getMes(filtro.getStrFechaFinFiltro()),filtro.getAnioFiltro());
 			//filtro.setStrFechaFinFiltro(strFechaFin);
 			//Busqueda de los datos de la luz
@@ -331,15 +330,15 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			
 			model.addAttribute("registros", filtro.getBeanRequest().getListaTiendaBean());
 			model.addAttribute("filtro", filtro);
-			logger.debug("[cargarListaTienda] Fin");
+			log.debug("[cargarListaTienda] Fin");
 		}catch(Exception e){
-			logger.debug("[cargarListaTienda] Error: "+e.getMessage());
+			log.debug("[cargarListaTienda] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			listaTienda = null;
 		}
-		logger.debug("[cargarListaTienda] Fin");
+		log.debug("[cargarListaTienda] Fin");
 		return path;
 	}
 	/*** Listado de Luces ***/
@@ -359,7 +358,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			}
 			*//*
 			entidades = luzDao.findAll(criterio);
-			logger.debug("[listarLuces] entidades:"+entidades);
+			log.debug("[listarLuces] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -379,7 +378,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		String strAnio = null;
 		try{
-			logger.debug("[obtenerFechaVencimiento] inicio");
+			log.debug("[obtenerFechaVencimiento] inicio");
 			strAnio = intAnio.toString();
 			resultados.put("31/01/"+strAnio, "31/01/"+strAnio);
 			if(intAnio % 4 == 0){
@@ -398,7 +397,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			resultados.put("30/11/"+strAnio, "31/11/"+strAnio);
 			resultados.put("31/12/"+strAnio, "31/12/"+strAnio);
 			
-			logger.debug("[obtenerFechaVencimiento] Fin");
+			log.debug("[obtenerFechaVencimiento] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -429,16 +428,16 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		//Variables para tener todo en session
 		BeanRequest bean 						= new BeanRequest();
 		try{
-			logger.debug("[crearLuzxTienda] Inicio");
+			log.debug("[crearLuzxTienda] Inicio");
 			luzBean = new TblLuz();
 			luzBean.setTblSuministro(new TblSuministro());
 			strFechaFin = UtilSGT.getLastDay( Calendar.getInstance().get(Calendar.MONTH) , Calendar.getInstance().get(Calendar.YEAR));
-			logger.debug("[crearLuzxTienda] strFechaFin:"+strFechaFin);
+			log.debug("[crearLuzxTienda] strFechaFin:"+strFechaFin);
 			luzBean.setFechaFin(UtilSGT.getDatetoString(strFechaFin));
 			listaSuministro = (Map<String, Integer>)request.getSession().getAttribute("SessionMapSuministro");
 			if (listaSuministro != null){
 				elemento = listaSuministro.entrySet().iterator().next();
-				logger.debug("[crearLuzxTienda] Key:"+elemento.getKey() + " Value: "+elemento.getValue());
+				log.debug("[crearLuzxTienda] Key:"+elemento.getKey() + " Value: "+elemento.getValue());
 				suministro.setCodigoSuministro(elemento.getValue());
 				luzBean.getTblSuministro().setCodigoSuministro(elemento.getValue());
 				luzAuxBean = luzDao.findBySuministroFechaVencimiento(elemento.getValue(), luzBean.getFechaFin());
@@ -455,9 +454,9 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 			model.addAttribute("registros", bean.getListaTiendaBean());
 			bean.setLuz(luzBean);
 			request.getSession().setAttribute("beanRequest", bean);
-			logger.debug("[crearLuzxTienda] Fin");
+			log.debug("[crearLuzxTienda] Fin");
 		}catch(Exception e){
-			logger.debug("[crearLuzxTienda] Error:"+e.getMessage());
+			log.debug("[crearLuzxTienda] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			suministro = null;
@@ -474,7 +473,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		BeanRequest bean 		= null;
 		TblLuzxtienda luzxtienda=null;
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			luz.setFechaCreacion(new Date(System.currentTimeMillis()));
 			luz.setIpCreacion(request.getRemoteAddr());
 			luz.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
@@ -490,7 +489,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 				luzxtienda.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
 				bean.getListaLuzxTienda().add(luzxtienda);
 			}
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -570,13 +569,13 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		TblLuz luzAux				= null;
 		BeanRequest bean 			= null;
 		try{ 
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			bean = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			if (this.validarNegocio(model, luz, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(luz, request);
 				boolean exitoso = super.guardar(luz, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					luzAux = luzDao.findBySuministroFechaVencimiento(luz.getTblSuministro().getCodigoSuministro(), luz.getFechaFin());
 					//Registrando los datos de la luzxtienda
@@ -599,7 +598,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 				model.addAttribute("luz", luz);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -673,7 +672,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 		TblLuzxtienda luzxtiendaAux				= null;
 		Integer totalDesocupados				= null;
 		try{
-			logger.debug("[calcularLuzxTienda] Inicio" );
+			log.debug("[calcularLuzxTienda] Inicio" );
 			bean = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			if (this.validarDatosPrevioCalculo(model, luz, request)){
 				luzAux = luzDao.findBySuministroFechaVencimiento(luz.getTblSuministro().getCodigoSuministro(), UtilSGT.getDatePrevious(luz.getFechaFin()));
@@ -734,7 +733,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 				model.addAttribute("luz", luz);
 			}
 			
-			logger.debug("[guardarLuzxTienda] Fin" );
+			log.debug("[guardarLuzxTienda] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -957,11 +956,11 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 	@Override
 	public void preEditar(TblLuz entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -980,7 +979,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 				entidadEnBd.setMontoGenerado(entidad.getMontoGenerado());
 				this.preEditar(entidadEnBd, request);
 				boolean exitoso = super.guardar(entidadEnBd, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					List<TblLuzxtienda> entidades = luzxTiendaDao.listarLuzTiendaxLuz(entidad.getCodigoLuz());
 					model.addAttribute("registros", entidades);
@@ -1048,11 +1047,11 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 	
 	public void preEditarDetalle(TblLuzxtienda entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1069,7 +1068,7 @@ public class LuzxTiendaAction extends BasePresentacion<TblLuz> {
 				entidadEnBd.setMontoGenerado(entidad.getMontoGenerado());
 				this.preEditarDetalle(entidadEnBd, request);
 				luzxTiendaDao.save(entidadEnBd);
-				logger.debug("[editarEntidadDetalle] Guardado..." );
+				log.debug("[editarEntidadDetalle] Guardado..." );
 				List<TblLuzxtienda> entidades = luzxTiendaDao.listarLuzTiendaxLuz(entidad.getTblLuz().getCodigoLuz());
 				model.addAttribute("registros", entidades);
 				model.addAttribute("luz", luzDao.findOne(entidad.getTblLuz().getCodigoLuz()));

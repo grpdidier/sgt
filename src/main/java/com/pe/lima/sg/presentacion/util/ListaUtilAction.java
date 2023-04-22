@@ -14,8 +14,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
@@ -37,6 +35,8 @@ import com.pe.lima.sg.entity.mantenimiento.TblEdificio;
 import com.pe.lima.sg.entity.mantenimiento.TblSerie;
 import com.pe.lima.sg.entity.mantenimiento.TblSuministro;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la consruccion de las listas desplegables para
  * los combos de seleccion que se utilizan en las vistas
@@ -45,9 +45,9 @@ import com.pe.lima.sg.entity.mantenimiento.TblSuministro;
  * @version 20/09/2017
  *
  */
+@Slf4j
 @Service
 public class ListaUtilAction {
-	private static final Logger logger = LogManager.getLogger(ListaUtilAction.class);
 	@Autowired
 	private IEdificioDAO edificioDao;
 	
@@ -128,7 +128,7 @@ public class ListaUtilAction {
 			listaEdificio = edificioDao.listarAllActivos();
 			if (listaEdificio!=null){
 				for(TblEdificio edificio: listaEdificio){
-					logger.debug("[obtenerValoresEdificacio] Nombre:"+edificio.getNombre());
+					log.debug("[obtenerValoresEdificacio] Nombre:"+edificio.getNombre());
 					resultados.put(edificio.getNombre(), edificio.getCodigoEdificio());
 				}
 				
@@ -578,24 +578,24 @@ public class ListaUtilAction {
 	}
 	public void preEditar(TblCxcBitacora entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
 			//entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}	
 	public void preGuardar(TblCxcBitacora entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -710,12 +710,12 @@ public class ListaUtilAction {
 	 */
 	public void preGuardarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -728,7 +728,7 @@ public class ListaUtilAction {
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -749,7 +749,7 @@ public class ListaUtilAction {
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -770,7 +770,7 @@ public class ListaUtilAction {
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);

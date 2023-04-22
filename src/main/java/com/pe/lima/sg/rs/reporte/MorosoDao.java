@@ -8,18 +8,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.pe.lima.sg.bean.reporte.MorosoBean;
 import com.pe.lima.sg.presentacion.Filtro;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Component
 public class MorosoDao {
 	
-	private static final Logger logger = LogManager.getLogger(MorosoDao.class);
 	
 	@Value("${spring.datasource.url}")
 	private String urlTienda;
@@ -44,7 +43,7 @@ public class MorosoDao {
 		PreparedStatement pstmt 		= null;
 		ResultSet rs 					= null;
 		try{
-			logger.debug("[getReporteMoroso] Inicio");
+			log.debug("[getReporteMoroso] Inicio");
 			url = urlTienda + userUrl + nombreUsuario + userPass + credencialUsuario;
 			con = DriverManager.getConnection(url);
 			//Dependiendo el tipo de reporte se obtiene el pstmt
@@ -87,7 +86,7 @@ public class MorosoDao {
 				con = null;
 			}
 		}
-		logger.debug("[getReporteMoroso] Fin");
+		log.debug("[getReporteMoroso] Fin");
 		return listaMoroso;
 	}
 	
@@ -162,7 +161,7 @@ public class MorosoDao {
 	private PreparedStatement sqlConsulta(Filtro filtro, Connection con) throws SQLException{
 		String query = null;
 		PreparedStatement pstmt = null;
-		logger.debug("[sqlConsulta] Inicio Tipo:"+filtro.getTipoCobro()+" Edificio:"+filtro.getCodigoEdificacion()+" Fecha:"+filtro.getFechaFin());
+		log.debug("[sqlConsulta] Inicio Tipo:"+filtro.getTipoCobro()+" Edificio:"+filtro.getCodigoEdificacion()+" Fecha:"+filtro.getFechaFin());
 		//query = this.sqlMoroso();
 		query = this.getSQLMoroso(filtro);
 		pstmt = con.prepareStatement(query);
@@ -170,8 +169,8 @@ public class MorosoDao {
 		pstmt.setInt(2,  filtro.getCodigoEdificacion());
 		pstmt.setString(3,  filtro.getFechaFin());
 		
-		logger.debug("[sqlConsulta] query:"+query);
-		logger.debug("[sqlConsulta] Fin");
+		log.debug("[sqlConsulta] query:"+query);
+		log.debug("[sqlConsulta] Fin");
 		return pstmt;
 	}
 	

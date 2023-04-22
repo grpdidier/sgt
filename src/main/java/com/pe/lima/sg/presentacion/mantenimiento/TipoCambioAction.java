@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,15 +24,17 @@ import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los tipocambios
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
-	private static final Logger logger = LogManager.getLogger(TipoCambioAction.class);
 	@Autowired
 	private ITipoCambioDAO tipocambioDao;
 
@@ -57,16 +57,16 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 		Map<String, Object> campos = null;
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "mantenimiento/tipocambio/tca_listado";
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
 			this.listarTipoCambios(model, filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			campos		= null;
@@ -88,20 +88,20 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 		Map<String, Object> campos = null;
 		path = "mantenimiento/tipocambio/tca_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarTipoCambios(model, filtro);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de TipoCambios ***/
@@ -109,10 +109,10 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 		List<TblTipoCambio> entidades = new ArrayList<TblTipoCambio>();
 		try{
 			this.setFechaCriterio(filtro);
-			logger.debug("[listarTipoCambioes] Fec Inicio:"+filtro.getFechaInicio());
-			logger.debug("[listarTipoCambioes] Fec Fin:"+filtro.getFechaFin());
+			log.debug("[listarTipoCambioes] Fec Inicio:"+filtro.getFechaInicio());
+			log.debug("[listarTipoCambioes] Fec Fin:"+filtro.getFechaFin());
 			entidades = tipocambioDao.listarCriterios(filtro.getFechaInicio(), filtro.getFechaFin());
-			logger.debug("[listarTipoCambioes] entidades:"+entidades);
+			log.debug("[listarTipoCambioes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -155,9 +155,9 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 		TblTipoCambio tipoCambio = new TblTipoCambio();
 		try{
 			tipoCambio.setFecha(new Date());
-			logger.debug("[crearTipoCambio] Inicio");
+			log.debug("[crearTipoCambio] Inicio");
 			model.addAttribute("entidad", tipoCambio);
-			logger.debug("[crearTipoCambio] Fin");
+			log.debug("[crearTipoCambio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -167,12 +167,12 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 	@Override
 	public void preGuardar(TblTipoCambio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -211,12 +211,12 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 		path = "mantenimiento/tipocambio/tca_listado";
 		Filtro filtro 				= new Filtro();
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					List<TblTipoCambio> entidades = tipocambioDao.buscarOneByFecha(entidad.getFecha());
 					model.addAttribute("registros", entidades);
@@ -234,7 +234,7 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -247,11 +247,11 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 	@Override
 	public void preEditar(TblTipoCambio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -269,7 +269,7 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 			entidadEnBd.setObservacion(entidad.getObservacion());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				
 				List<TblTipoCambio> entidades = tipocambioDao.buscarOneByFecha(entidadEnBd.getFecha());
@@ -311,7 +311,7 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 		Map<String, Object> campos 	= null;
 		Filtro filtro 				= new Filtro();
 		try{
-			logger.debug("[eliminarTipoCambio] Inicio");
+			log.debug("[eliminarTipoCambio] Inicio");
 			entidad = tipocambioDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
@@ -320,14 +320,14 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 			this.setFechaCriterio(filtro);
 			this.listarTipoCambios(model, filtro);
 			/*List<TblTipoCambio> entidades = tipocambioDao.listarAllActivos();
-			logger.debug("[eliminarTipoCambio] entidades:"+entidades);
+			log.debug("[eliminarTipoCambio] entidades:"+entidades);
 			model.addAttribute("registros", entidades);*/
 			path = "mantenimiento/tipocambio/tca_listado";
 			
 			model.addAttribute("filtro", filtro);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
-			logger.debug("[eliminarTipoCambio] Fin");
+			log.debug("[eliminarTipoCambio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

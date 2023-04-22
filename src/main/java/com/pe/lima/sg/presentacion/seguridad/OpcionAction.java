@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,11 +19,12 @@ import com.pe.lima.sg.presentacion.BasePresentacion;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class OpcionAction extends BasePresentacion<TblOpcion> {
-	private static final Logger logger = LogManager.getLogger(OpcionAction.class);
 	@Autowired
 	private IOpcionDAO opcionDao;
 
@@ -48,16 +47,16 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 		String strCadena = "";
 		List<TblOpcion> listaOpciones 	= null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "seguridad/opcion/opc_listado";
 			listaOpciones = opcionDao.listarAllActivos();
 			
 			strCadena = this.generarArbol(listaOpciones);
 			
 			model.addAttribute("cadena", strCadena);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			listaOpciones		= null;
@@ -70,7 +69,7 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 	 */
 	private String generarArbol(List<TblOpcion> listaOpciones){
 		String strResultado	= null;
-		logger.debug("[generarArbol] Inicio ");
+		log.debug("[generarArbol] Inicio ");
 		try{
 			strResultado = Constantes.MENU_CABECERA_INI;
 			strResultado = strResultado + this.getOpcionesRecursivo(1000, listaOpciones);
@@ -78,13 +77,13 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 		}catch(Exception e){
 			
 		}
-		logger.debug("[generarArbol] Fin - strResultado: "+strResultado);
+		log.debug("[generarArbol] Fin - strResultado: "+strResultado);
 		return strResultado;
 	}
 	
 	private String getOpcionesRecursivo(Integer intModulo, List<TblOpcion> listaOpciones){
 		String strResultado = "";
-		logger.debug("[getOpcionesRecursivo] Inicio - Modulo: "+intModulo);
+		log.debug("[getOpcionesRecursivo] Inicio - Modulo: "+intModulo);
 		for(TblOpcion opcion: listaOpciones){
 			if (opcion.getModulo().compareTo(intModulo)==0){
 				//Se valida si es nodo u hoja
@@ -107,7 +106,7 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 				}
 			}
 		}
-		logger.debug("[getOpcionesRecursivo] Fin - resultado: "+strResultado);
+		log.debug("[getOpcionesRecursivo] Fin - resultado: "+strResultado);
 		return strResultado;
 	}
 	
@@ -124,8 +123,8 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 		List<TblOpcion> listaOpciones 	= null;
 		TblOpcion opcion 				= null;
 		try{
-			logger.debug("[listarOpciones] Inicio");
-			logger.debug("[listarOpciones] id:"+id);
+			log.debug("[listarOpciones] Inicio");
+			log.debug("[listarOpciones] id:"+id);
 			listaOpciones = opcionDao.listarAllSubModulos(id);
 			model.addAttribute("registros", listaOpciones);
 			opcion = opcionDao.findOne(id);
@@ -134,9 +133,9 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 			}
 			model.addAttribute("opcion", opcion);
 
-			logger.debug("[listarOpciones] Fin");
+			log.debug("[listarOpciones] Fin");
 		}catch(Exception e){
-			logger.debug("[listarOpciones] Error:"+e.getMessage());
+			log.debug("[listarOpciones] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			listaOpciones		= null;
@@ -197,12 +196,12 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 	@Override
 	public void preGuardar(TblOpcion entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -240,12 +239,12 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 		TblOpcion opcion 			= null;
 		path = "seguridad/opcion/opc_opciones";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					List<TblOpcion> entidades = opcionDao.listarAllSubModulos(entidad.getModulo());
 					model.addAttribute("registros", entidades);
@@ -264,7 +263,7 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 				model.addAttribute("entidad", entidad);
 			}
 
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -297,11 +296,11 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 	@Override
 	public void preEditar(TblOpcion entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -320,7 +319,7 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 			entidadEnBd.setRuta(entidad.getRuta());
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 
 				List<TblOpcion> entidades = opcionDao.listarAllSubModulos(entidadEnBd.getModulo());
@@ -357,14 +356,14 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 		String path 				= null;
 		TblOpcion opcion 			= null;
 		try{
-			logger.debug("[eliminarOpcion] Inicio");
+			log.debug("[eliminarOpcion] Inicio");
 			entidad = opcionDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
 			opcionDao.save(entidad);
 			model.addAttribute("respuesta", "Eliminación exitosa");
 			List<TblOpcion> entidades = opcionDao.listarAllSubModulos(entidad.getModulo());
-			logger.debug("[eliminarOpcion] entidades:"+entidades);
+			log.debug("[eliminarOpcion] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 			path = "seguridad/opcion/opc_opciones";
 			opcion = opcionDao.findOne(entidad.getModulo());
@@ -372,7 +371,7 @@ public class OpcionAction extends BasePresentacion<TblOpcion> {
 				opcion = this.getOpcionRaiz();
 			}
 			model.addAttribute("opcion", opcion);
-			logger.debug("[eliminarOpcion] Fin");
+			log.debug("[eliminarOpcion] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

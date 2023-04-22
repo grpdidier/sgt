@@ -10,8 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,10 +55,11 @@ import com.pe.lima.sg.facturador.entity.TblDetalleComprobante;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-	private static final Logger logger = LogManager.getLogger(WebSecurityConfig.class);
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -87,13 +87,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
-    	logger.debug("[BCryptPasswordEncoder] Inicio");
+    	log.debug("[BCryptPasswordEncoder] Inicio");
         return new BCryptPasswordEncoder();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-    	logger.debug("[configure] Inicio");
+    	log.debug("[configure] Inicio");
         /*http
                 .authorizeRequests()
                     .antMatchers("/resources/**", "/registration").permitAll()
@@ -132,7 +132,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
 	public AuthenticationSuccessHandler authenticationSuccessHandler() {
-    	logger.debug("[authenticationSuccessHandler] return");
+    	log.debug("[authenticationSuccessHandler] return");
 		return new AuthenticationSuccessHandler() {
 			
 			RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
@@ -147,7 +147,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			@Override
 			public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 					Authentication authentication) throws IOException, ServletException {
-				logger.debug("[onAuthenticationSuccess] Inicio");
+				log.debug("[onAuthenticationSuccess] Inicio");
 				FiltroPdf filtro = null;
 				IOperacionFacturador operacionFacturador		= null;
 				Map<String, TblParametro> mapParametro			= null;
@@ -156,7 +156,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				if (authentication.isAuthenticated()) {
 					String login = authentication.getName();
 					TblUsuario u = usuR.findOneByLogin(login);
-					logger.debug("[onAuthenticationSuccess] usuario:"+u);
+					log.debug("[onAuthenticationSuccess] usuario:"+u);
 					if (u == null || u.getEstadoUsuario().equals(Constantes.ESTADO_INACTIVO)) {
 						redirectStrategy.sendRedirect(request, response, "/login");
 						
@@ -170,7 +170,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						GlobalPermisoBean globalPermisoBean = this.validarPermisoGlobal(u);
 						request.getSession().setAttribute("SessionPermiso", globalPermisoBean);
 						request.getSession().setAttribute("id_usuario", u.getCodigoUsuario());
-						logger.debug("[onAuthenticationSuccess] id_usuario:"+u.getCodigoUsuario());
+						log.debug("[onAuthenticationSuccess] id_usuario:"+u.getCodigoUsuario());
 						/*Cargamos las variables de session*/
 						request.getSession().setAttribute("SessionMapEstadoUsuario", ListaUtilAction.obtenerValoresEstadoUsuario2());
 						request.getSession().setAttribute("SessionIngresoSalida", ListaUtilAction.obtenerValoresIngresoSalida());
@@ -178,7 +178,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						request.getSession().setAttribute("SessionMapAnio", ListaUtilAction.obtenerAnios());
 						request.getSession().setAttribute("SessionMapMeses", ListaUtilAction.obtenerValoresMesesSession());
 						request.getSession().setAttribute("SessionMapTipoMoneda", ListaUtilAction.obtenerValoresTipoMoneda());
-						logger.debug("[onAuthenticationSuccess] SessionMapEstadoUsuario");
+						log.debug("[onAuthenticationSuccess] SessionMapEstadoUsuario");
 						/*Lista de Edificaciones: Inmuebles*/
 						request.getSession().setAttribute("SessionMapEdificacion", obtenerValoresEdificacio());
 						/*Lista de Concepto x Tipo: Ingreso y Gasto*/
@@ -240,7 +240,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						request.getSession().setAttribute("SessionMenu", strCadena);
 					}
 				}
-				logger.debug("[onAuthenticationSuccess] Fin");
+				log.debug("[onAuthenticationSuccess] Fin");
 				
 				redirectStrategy.sendRedirect(request, response, "/");
 			}
@@ -274,7 +274,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			 */
 			private String generarArbol(List<TblOpcion> listaOpciones, AccesoDirectoBean accesoDirectoBean){
 				String strResultado	= null;
-				logger.debug("[generarArbol] Inicio ");
+				log.debug("[generarArbol] Inicio ");
 				try{
 					strResultado = Constantes.MENU_CABECERA_INI_PRINCIPAL;
 					strResultado = strResultado + this.getOpcionesRecursivo(1000, listaOpciones, accesoDirectoBean);
@@ -282,7 +282,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				}catch(Exception e){
 					
 				}
-				logger.debug("[generarArbol] Fin - strResultado: "+strResultado);
+				log.debug("[generarArbol] Fin - strResultado: "+strResultado);
 				return strResultado;
 			}
 			public void asignarParametros(FiltroPdf entidad, Map<String, TblParametro> mapParametro){
@@ -314,7 +314,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			
 			private String getOpcionesRecursivo(Integer intModulo, List<TblOpcion> listaOpciones, AccesoDirectoBean accesoDirectoBean){
 				String strResultado = "";
-				logger.debug("[getOpcionesRecursivo] Inicio - Modulo: "+intModulo);
+				log.debug("[getOpcionesRecursivo] Inicio - Modulo: "+intModulo);
 				for(TblOpcion opcion: listaOpciones){
 					if (opcion.getModulo().compareTo(intModulo)==0){
 						//Se valida si es nodo u hoja
@@ -332,13 +332,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						}else{
 							//Si es hoja
 							strResultado = strResultado + "<li id=\"child_node_"+opcion.getCodigoOpcion()+"\"> <a href=\"#\" onclick=\"jsOpcionMenu('"+opcion.getRuta()+"');\">"+opcion.getNombre()+"</a> </li>";
-							logger.debug("[getOpcionesRecursivo] opcion.getNombre(): "+opcion.getNombre());
+							log.debug("[getOpcionesRecursivo] opcion.getNombre(): "+opcion.getNombre());
 							//strResultado = strResultado + "<li>"+ opcion.getNombre() + " <img src=\"/images/iconos/hoja.png\" alt=\"Hoja\" width=\"20px\"/> </li>";
 							this.validaAccesoDirecto(accesoDirectoBean, opcion.getNombre());
 						}
 					}
 				}
-				logger.debug("[getOpcionesRecursivo] Fin - resultado: "+strResultado);
+				log.debug("[getOpcionesRecursivo] Fin - resultado: "+strResultado);
 				return strResultado;
 			}
 			/*Verificamos si tiene configurado el acceso directo*/
@@ -378,7 +378,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    	logger.debug("[configureGlobal] Inicio");
+    	log.debug("[configureGlobal] Inicio");
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
     }
     /**
@@ -389,16 +389,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		List<TblEdificio> listaEdificio = null;
 		try{
-			logger.debug("[obtenerValoresEdificacio] inicio");
+			log.debug("[obtenerValoresEdificacio] inicio");
 			listaEdificio = edificioDao.listarAllActivos();
 			if (listaEdificio!=null){
 				for(TblEdificio edificio: listaEdificio){
-					logger.debug("[obtenerValoresEdificacio] edificio:"+edificio.getNombre());
+					log.debug("[obtenerValoresEdificacio] edificio:"+edificio.getNombre());
 					resultados.put(edificio.getNombre(), edificio.getCodigoEdificio());
 				}
 				
 			}
-			logger.debug("[obtenerValoresEdificacio] Fin");
+			log.debug("[obtenerValoresEdificacio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -415,16 +415,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		List<TblTipoServicio> listaTipoServicio = null;
 		try{
-			logger.debug("[obtenerValoresServicio] inicio");
+			log.debug("[obtenerValoresServicio] inicio");
 			listaTipoServicio = tipoServicioDao.listarAllActivosxRubro(Constantes.TIPO_RUBRO_SERVICIO);
 			if (listaTipoServicio!=null){
 				for(TblTipoServicio entidad: listaTipoServicio){
-					logger.debug("[obtenerValoresEdificacio] edificio:"+entidad.getNombre());
+					log.debug("[obtenerValoresEdificacio] edificio:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoTipoServicio());
 				}
 				
 			}
-			logger.debug("[obtenerValoresServicio] Fin");
+			log.debug("[obtenerValoresServicio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -441,16 +441,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		List<TblTipoServicio> listaTipoServicio = null;
 		try{
-			logger.debug("[obtenerValoresServicio] inicio");
+			log.debug("[obtenerValoresServicio] inicio");
 			listaTipoServicio = tipoServicioDao.listarAllActivos();
 			if (listaTipoServicio!=null){
 				for(TblTipoServicio entidad: listaTipoServicio){
-					logger.debug("[obtenerValoresEdificacio] edificio:"+entidad.getNombre());
+					log.debug("[obtenerValoresEdificacio] edificio:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoTipoServicio());
 				}
 				
 			}
-			logger.debug("[obtenerValoresServicio] Fin");
+			log.debug("[obtenerValoresServicio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -467,16 +467,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		List<TblSuministro> listaSuministro = null;
 		try{
-			logger.debug("[obtenerValoresSuministro] inicio");
+			log.debug("[obtenerValoresSuministro] inicio");
 			listaSuministro = suministroDao.listarAllActivos();
 			if (listaSuministro!=null){
 				for(TblSuministro entidad: listaSuministro){
-					//logger.debug("[obtenerValoresSuministro] edificio:"+entidad.getNumero());
+					//log.debug("[obtenerValoresSuministro] edificio:"+entidad.getNumero());
 					resultados.put(entidad.getNumero(), entidad.getCodigoSuministro());
 				}
 				
 			}
-			logger.debug("[obtenerValoresSuministro] Fin");
+			log.debug("[obtenerValoresSuministro] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -494,16 +494,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		List<TblConcepto> listaConcepto = null;
 		try{
-			logger.debug("[obtenerValoresConcepto] inicio");
+			log.debug("[obtenerValoresConcepto] inicio");
 			listaConcepto = conceptoDao.buscarxTipo(strTipoConcepto);
 			if (listaConcepto!=null){
 				for(TblConcepto entidad: listaConcepto){
-					logger.debug("[obtenerValoresConcepto] nombre:"+entidad.getNombre());
+					log.debug("[obtenerValoresConcepto] nombre:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoConcepto());
 				}
 				
 			}
-			logger.debug("[obtenerValoresEdificacio] Fin");
+			log.debug("[obtenerValoresEdificacio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -517,16 +517,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		List<TblConcepto> listaConcepto = null;
 		try{
-			logger.debug("[obtenerValoresConcepto] inicio");
+			log.debug("[obtenerValoresConcepto] inicio");
 			listaConcepto = conceptoDao.listarAllActivos();
 			if (listaConcepto!=null){
 				for(TblConcepto entidad: listaConcepto){
-					logger.debug("[obtenerValoresConcepto] nombre:"+entidad.getNombre());
+					log.debug("[obtenerValoresConcepto] nombre:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoConcepto());
 				}
 				
 			}
-			logger.debug("[obtenerValoresEdificacio] Fin");
+			log.debug("[obtenerValoresEdificacio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -539,16 +539,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		Map<Integer, String> resultados = new LinkedHashMap<Integer, String>();
 		List<TblConcepto> listaConcepto = null;
 		try{
-			logger.debug("[obtenerValoresAllConceptoMap] inicio");
+			log.debug("[obtenerValoresAllConceptoMap] inicio");
 			listaConcepto = conceptoDao.listarAllActivos();
 			if (listaConcepto!=null){
 				for(TblConcepto entidad: listaConcepto){
-					logger.debug("[obtenerValoresAllConceptoMap] nombre:"+entidad.getNombre());
+					log.debug("[obtenerValoresAllConceptoMap] nombre:"+entidad.getNombre());
 					resultados.put(entidad.getCodigoConcepto(), entidad.getNombre());
 				}
 				
 			}
-			logger.debug("[obtenerValoresAllConceptoMap] Fin");
+			log.debug("[obtenerValoresAllConceptoMap] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -562,16 +562,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		Map<Integer, String> resultados = new LinkedHashMap<Integer, String>();
 		List<TblUsuario> listaUsuario = null;
 		try{
-			logger.debug("[obtenerAllUsuarioMap] inicio");
+			log.debug("[obtenerAllUsuarioMap] inicio");
 			listaUsuario = usuarioDao.findAll();
 			if (listaUsuario!=null){
 				for(TblUsuario entidad: listaUsuario){
-					logger.debug("[obtenerAllUsuarioMap] nombre:"+entidad.getNombre());
+					log.debug("[obtenerAllUsuarioMap] nombre:"+entidad.getNombre());
 					resultados.put(entidad.getCodigoUsuario(), entidad.getNombre().toUpperCase());
 				}
 				
 			}
-			logger.debug("[obtenerAllUsuarioMap] Fin");
+			log.debug("[obtenerAllUsuarioMap] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

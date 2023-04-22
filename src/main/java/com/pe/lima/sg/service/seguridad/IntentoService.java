@@ -2,8 +2,6 @@ package com.pe.lima.sg.service.seguridad;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -20,9 +18,11 @@ import org.springframework.stereotype.Service;
 
 import com.pe.lima.sg.dao.seguridad.IIntentoDAO;
 import com.pe.lima.sg.entity.seguridad.TblIntento;
+
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 public class IntentoService  {
-	private static final Logger logger = LogManager.getLogger(IntentoService.class);
 	@Autowired
 	private IIntentoDAO intentoDao;
 	
@@ -31,14 +31,14 @@ public class IntentoService  {
 	  * getAllIntentos : Lista todos los intentos
 	  * */
 	public List<TblIntento> getAllIntentos() {
-		logger.debug("[getAllIntentos] Inicio");
+		log.debug("[getAllIntentos] Inicio");
 		List<TblIntento> listaIntento = null;
 		try{
 			listaIntento = intentoDao.findAll();
 		}catch(Exception e){
 			listaIntento = null;
 		}
-		logger.debug("[getAllIntentos] Fin");
+		log.debug("[getAllIntentos] Fin");
 		return listaIntento;
 	}
 
@@ -46,7 +46,7 @@ public class IntentoService  {
 	  * getIntentoById : Obtiene un intento
 	  * */
 	public TblIntento getIntentoById(Integer id) {
-		logger.debug("[getIntentoById] Inicio");
+		log.debug("[getIntentoById] Inicio");
 		TblIntento intento = null;
 		try{
 			intento = intentoDao.findOne(id);
@@ -54,7 +54,7 @@ public class IntentoService  {
 			e.printStackTrace();
 			intento = null;
 		}
-		logger.debug("[getIntentoById] Fin");
+		log.debug("[getIntentoById] Fin");
 		return intento;
 	}
 
@@ -62,7 +62,7 @@ public class IntentoService  {
 	  * addIntento : Registra un intento
 	  * */
 	public boolean addIntento(TblIntento intento) {
-		logger.debug("[addIntento] Inicio");
+		log.debug("[addIntento] Inicio");
 		boolean resultado = false;
 		try{
 			intentoDao.save(intento);
@@ -70,7 +70,7 @@ public class IntentoService  {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		logger.debug("[addIntento] Fin");
+		log.debug("[addIntento] Fin");
 		return resultado;
 	}
 
@@ -78,7 +78,7 @@ public class IntentoService  {
 	  * addIntento : Actualiza un intento
 	  * */
 	public boolean updateIntento(TblIntento intento) {
-		logger.debug("[updateIntento] Inicio");
+		log.debug("[updateIntento] Inicio");
 		boolean resultado = false;
 		try{
 			intentoDao.save(intento);
@@ -87,7 +87,7 @@ public class IntentoService  {
 			e.printStackTrace();
 			resultado = false;
 		}
-		logger.debug("[updateIntento] Fin:"+resultado);
+		log.debug("[updateIntento] Fin:"+resultado);
 		return resultado;
 	}
 
@@ -95,7 +95,7 @@ public class IntentoService  {
 	  * deleteIntento : Elimina un intento
 	  * */
 	public boolean deleteIntento(TblIntento intento) {
-		logger.debug("[deleteIntento] Inicio");
+		log.debug("[deleteIntento] Inicio");
 		boolean resultado = false;
 		try{
 			intentoDao.delete(intento);
@@ -104,7 +104,7 @@ public class IntentoService  {
 			e.printStackTrace();
 			resultado = false;
 		}
-		logger.debug("[deleteIntento] Fin:"+resultado);
+		log.debug("[deleteIntento] Fin:"+resultado);
 		return resultado;
 				
 	}

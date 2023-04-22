@@ -23,8 +23,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -72,15 +70,16 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los contratos
  *
  * 			
  */
+@Slf4j
 @Controller
 public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
-
-	private static final Logger logger = LogManager.getLogger(FinalizacionAction.class);
 	@Autowired
 	private IContratoDAO contratoDao;
 
@@ -140,7 +139,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 	public String traerRegistros(Model model, String path, HttpServletRequest request) {
 		TblContrato filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "cliente/finalizacion/fin_listado";
 			filtro = new TblContrato();
 			filtro.setTblPersona(new TblPersona());
@@ -155,9 +154,9 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 			
 			
 			//this.listarContratos(model, filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -178,18 +177,18 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		//Map<String, Object> campos = null;
 		path = "cliente/finalizacion/fin_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarContratos(model, filtro, pageable, this.urlPaginado, request);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 
@@ -227,7 +226,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 			request.getSession().setAttribute("sessionListaContratoFinalizacion", page.getContent());
 			request.getSession().setAttribute("PageContratoFinalizacion", page);
 
-			logger.debug("[listarContratos] Fin");
+			log.debug("[listarContratos] Fin");
 			//model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -528,11 +527,11 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 
 	public void preEditarTienda(TblTienda entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarTienda] Inicio" );
+			log.debug("[preEditarTienda] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarTienda] Fin" );
+			log.debug("[preEditarTienda] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -572,10 +571,10 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		//Map<String, Object> mapServicio	 		= null;
 		//TblContratoServicio servicioTipo		= new TblContratoServicio();
 		try{
-			logger.debug("[actualizarEntidad] Inicio" );
+			log.debug("[actualizarEntidad] Inicio" );
 			//servicioTipo.setTblTipoServicio(new TblTipoServicio());
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
-			logger.debug("[actualizarEntidad] Pre Guardar..." );
+			log.debug("[actualizarEntidad] Pre Guardar..." );
 			contrato = contratoDao.findOne(entidad.getCodigoContrato());
 			//registro de las observaciones
 			if (beanRequest.getListaObservacion()!=null && beanRequest.getListaObservacion().size()>0){
@@ -671,7 +670,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 				request.getSession().setAttribute("sessionFiltroCriterioFinalizacion", filtro);
 			}	
 			
-			logger.debug("[actualizarEntidad] Fin" );
+			log.debug("[actualizarEntidad] Fin" );
 		}catch(Exception e){
 			model.addAttribute("resultadoContrato", e.getMessage());
 			e.printStackTrace();
@@ -829,12 +828,12 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 
 	public void preGuardarCobro(TblCobro entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -842,11 +841,11 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 	}
 	public void preEditarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -857,7 +856,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		//List<TblContratoPrimerCobro> listaPC	= null;
 		List<TblObservacion> listaObs	= null;
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
@@ -880,7 +879,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 				pc.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
 			}
 
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -945,7 +944,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 	public String adicionarObservacionEdicion(Model model, TblObservacion observacionBean, TblContrato contrato, String path, HttpServletRequest request) {
 		BeanRequest beanRequest				= null;
 		try{
-			logger.debug("[adicionarObservacionEdicion] Inicio:");
+			log.debug("[adicionarObservacionEdicion] Inicio:");
 			path = "cliente/finalizacion/fin_edicion";
 
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
@@ -1014,9 +1013,9 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);*/
-			logger.debug("[adicionarObservacionEdicion] Fin");
+			log.debug("[adicionarObservacionEdicion] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarObservacionEdicion] Error:"+e.getMessage());
+			log.debug("[adicionarObservacionEdicion] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -1037,7 +1036,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroAlquilerAux			= new TblCobro();
 		try{
-			logger.debug("[adicionarCobroAlquiler] Inicio");
+			log.debug("[adicionarCobroAlquiler] Inicio");
 			path = "cliente/finalizacion/fin_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			if (this.validarCobroAlquiler(model, cobroAlquiler, request)){
@@ -1064,9 +1063,9 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroAlquiler] Fin");
+			log.debug("[adicionarCobroAlquiler] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroAlquiler] Error:"+e.getMessage());
+			log.debug("[adicionarCobroAlquiler] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -1110,7 +1109,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroServiciorAux			= new TblCobro();
 		try{
-			logger.debug("[adicionarCobroServicio] Inicio");
+			log.debug("[adicionarCobroServicio] Inicio");
 			path = "cliente/finalizacion/fin_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			if (this.validarCobroServicio(model, cobroServicio, request)){
@@ -1137,9 +1136,9 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroServicio] Fin");
+			log.debug("[adicionarCobroServicio] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroServicio] Error:"+e.getMessage());
+			log.debug("[adicionarCobroServicio] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -1183,7 +1182,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroLuzAux			= new TblCobro();
 		try{
-			logger.debug("[adicionarCobroLuz] Inicio");
+			log.debug("[adicionarCobroLuz] Inicio");
 			path = "cliente/finalizacion/fin_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			if (this.validarCobroLuz(model, cobroLuz, request)){
@@ -1210,9 +1209,9 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroLuz] Fin");
+			log.debug("[adicionarCobroLuz] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroLuz] Error:"+e.getMessage());
+			log.debug("[adicionarCobroLuz] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -1255,7 +1254,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		BeanRequest beanRequest				= null;
 		path = "cliente/finalizacion/fin_edicion";
 		try{
-			logger.debug("[regresarContrato] Inicio");
+			log.debug("[regresarContrato] Inicio");
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 
 			//contrato = beanRequest.getContrato();
@@ -1263,9 +1262,9 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			logger.debug("[regresarContrato] Fin");
+			log.debug("[regresarContrato] Fin");
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -1349,12 +1348,12 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 	}
 	public void preGuardarObservacion(TblObservacion entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarObservacion] Inicio" );
+			log.debug("[preGuardarObservacion] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardarObservacion] Fin" );
+			log.debug("[preGuardarObservacion] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1362,11 +1361,11 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 
 	public void preEditarContrato(TblContrato entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarTienda] Inicio" );
+			log.debug("[preEditarTienda] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarTienda] Fin" );
+			log.debug("[preEditarTienda] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1379,7 +1378,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		List<TblContrato> lista = null;
 		PageWrapper<TblContrato> page = null;
 		try{
-			logger.debug("[regresar] Inicio");
+			log.debug("[regresar] Inicio");
 			
 			if (request.getSession().getAttribute("origenLLamada") !=null && request.getSession().getAttribute("origenLLamada").equals("MODULO_CONTRATO")){
 				
@@ -1403,9 +1402,9 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 				model.addAttribute("page", page);
 			}
 
-			logger.debug("[regresar] Fin");
+			log.debug("[regresar] Fin");
 		}catch(Exception e){
-			logger.debug("[regresar] Error:"+e.getMessage());
+			log.debug("[regresar] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -1421,7 +1420,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 		TblContrato filtro = null;
 		String path = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "cliente/finalizacion/fin_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -1443,7 +1442,7 @@ public class FinalizacionAction extends BaseOperacionPresentacion<TblContrato> {
 			this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
 
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

@@ -8,8 +8,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -21,15 +19,18 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.pe.lima.sg.dao.seguridad.IUsuarioDAO;
 import com.pe.lima.sg.entity.seguridad.TblUsuario;
+import com.pe.lima.sg.service.seguridad.AccesoService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author Guido Cafiel
  * 
  */
+@Slf4j
 @Controller
 public class LoginAction {
-	private static final Logger logger = LogManager.getLogger(LoginAction.class);
 	@Autowired
 	IUsuarioDAO usuarioDao;
 	
@@ -43,14 +44,14 @@ public class LoginAction {
 	
 	@RequestMapping(value = "/inicio", method = RequestMethod.GET)
 	public String inicio(Model model, String path) {
-		logger.debug("[inicio] Panel de Control");
+		log.debug("[inicio] Panel de Control");
 		return path;
 	}
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ModelAndView login(@RequestParam Optional<String> error) {
-		logger.debug("[login] Inicio");
-		logger.debug("[login] Fin");
+		log.debug("[login] Inicio");
+		log.debug("[login] Fin");
 		return new ModelAndView("login", "error", error);
 	}
 	

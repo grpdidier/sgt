@@ -13,8 +13,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,10 +29,11 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.rs.reporte.MorosoDao;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 public class MorosoAction {
 	
-	private static final Logger logger = LogManager.getLogger(MorosoAction.class);
 	
 	@Autowired
 	private MorosoPdf morosoPdf;
@@ -47,7 +46,7 @@ public class MorosoAction {
 	public String mostrarFormulario(Model model, String path) {
 		Filtro filtro = null;
 		try{
-			logger.debug("[mostrarFormulario] Inicio");
+			log.debug("[mostrarFormulario] Inicio");
 			path = "reporte/moroso_v2/mor_listado";
 			filtro = new Filtro();
 			filtro.setFechaInicio(UtilSGT.getFecha("dd/MM/yyyy"));
@@ -56,9 +55,9 @@ public class MorosoAction {
 			filtro.setAnio(new Integer(UtilSGT.getFecha("yyyy")));
 			filtro.setCodigoEdificacion(1);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[mostrarFormulario] Fin");
+			log.debug("[mostrarFormulario] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -72,7 +71,7 @@ public class MorosoAction {
 		path = "reporte/moroso_v2/mor_listado";
 		RespuestaReporteBean respuestaReporteBean	= null;
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			if (this.validarCriterio(filtro,model)){
 				//Realiza la busqueda de morosos				
 				this.buscarMoroso(model, filtro, path, request);
@@ -83,13 +82,13 @@ public class MorosoAction {
 				request.getSession().setAttribute("reporteMoroso", null);
 			}
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			respuestaReporteBean	= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -101,7 +100,7 @@ public class MorosoAction {
 		List<MorosoTotalBean> listaDataReporte 	= null;
 		try{
 			path = "reporte/moroso_v2/mor_listado";
-			logger.debug("[mostrarPdf] Inicio");
+			log.debug("[mostrarPdf] Inicio");
 			entidades = (List<MorosoBean>)request.getSession().getAttribute("reporteMoroso");
 			if (entidades != null && !entidades.isEmpty()){
 				//Preparando la data para ser mostrada (ingresos y gastos)
@@ -116,9 +115,9 @@ public class MorosoAction {
 				this.fileDownload(fullPath, response, filename, ".pdf");
 			}
 			
-			logger.debug("[mostrarPdf] Fin");
+			log.debug("[mostrarPdf] Fin");
 		}catch(Exception e){
-			logger.debug("[mostrarPdf] Error:"+e.getMessage());
+			log.debug("[mostrarPdf] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -127,7 +126,7 @@ public class MorosoAction {
 	public boolean validarCriterio(Filtro filtro,Model model){
 		boolean resultado = true;
 		try{
-			logger.debug("[validarCriterio] Inicio");
+			log.debug("[validarCriterio] Inicio");
 			//Edificación
 			if (filtro.getCodigoEdificacion().compareTo(-1)==0){
 				resultado = false;
@@ -149,9 +148,9 @@ public class MorosoAction {
 				resultado = false;
 				model.addAttribute("respuesta", "Debe ingresar la fecha del reporte");
 			}
-			logger.debug("[validarCriterio] Fin");
+			log.debug("[validarCriterio] Fin");
 		}catch(Exception e){
-			logger.debug("[validarCriterio] Error:"+e.getMessage());
+			log.debug("[validarCriterio] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -159,23 +158,23 @@ public class MorosoAction {
 	}
 	/*Generamos la fecha fin segun el mes seleccionado*/
 	private void obtenerFechaFin(Filtro filtro){
-		logger.debug("[obtenerFechaFin] Inicio");
-		logger.debug("[obtenerFechaFin] Mes:"+filtro.getMesFin());
+		log.debug("[obtenerFechaFin] Inicio");
+		log.debug("[obtenerFechaFin] Mes:"+filtro.getMesFin());
 		if (filtro.getMesFin().equals("-1")){
 			filtro.setFechaFin(null);
 		}else{
 			if (filtro.getMesFin().equals(Constantes.MES_12_MOROSO)){
 				String strAnio = filtro.getAnio().toString();
-				logger.debug("[obtenerFechaFin] strAnio:"+strAnio);
+				log.debug("[obtenerFechaFin] strAnio:"+strAnio);
 				Integer intAnio = new Integer(strAnio) +1;
 				filtro.setFechaFin(filtro.getMesFin() + intAnio.toString());
-				logger.debug("[obtenerFechaFin] fechafin:"+filtro.getFechaFin());
+				log.debug("[obtenerFechaFin] fechafin:"+filtro.getFechaFin());
 				filtro.setNombreMes(Constantes.DESC_MES_12);
 			}else{
 				String strAnio = filtro.getAnio().toString();
-				logger.debug("[obtenerFechaFin] strAnio:"+strAnio);
+				log.debug("[obtenerFechaFin] strAnio:"+strAnio);
 				filtro.setFechaFin(filtro.getMesFin() + strAnio);
-				logger.debug("[obtenerFechaFin] fechafin:"+filtro.getFechaFin());
+				log.debug("[obtenerFechaFin] fechafin:"+filtro.getFechaFin());
 				if (filtro.getMesFin().equals(Constantes.MES_11_MOROSO)){
 					filtro.setNombreMes(Constantes.DESC_MES_11);
 				}else if (filtro.getMesFin().equals(Constantes.MES_10_MOROSO)){
@@ -201,15 +200,15 @@ public class MorosoAction {
 				}
 			}
 		}
-		logger.debug("[obtenerFechaFin] Nombre Mes:"+filtro.getNombreMes());
-		logger.debug("[obtenerFechaFin] Fin");
+		log.debug("[obtenerFechaFin] Nombre Mes:"+filtro.getNombreMes());
+		log.debug("[obtenerFechaFin] Fin");
 	}
 	/*Reporte Moroso*/
 	private void buscarMoroso(Model model, Filtro filtro, String path, HttpServletRequest request){
 		List<MorosoBean> listaMoroso 				= null;
 		List<RespuestaReporteBean> listaRespuesta	= null;
 		RespuestaReporteBean respuestaReporteBean	= null;
-		logger.debug("[buscarMoroso] Inicio");
+		log.debug("[buscarMoroso] Inicio");
 		listaMoroso = this.listarMoroso(filtro);
 		if (listaMoroso != null && listaMoroso.size()>0){
 			listaRespuesta = new ArrayList<RespuestaReporteBean>();
@@ -220,32 +219,32 @@ public class MorosoAction {
 			model.addAttribute("registros", listaRespuesta);
 			request.getSession().setAttribute("reporteMoroso", listaMoroso);
 			request.getSession().setAttribute("criterioMoroso", filtro);
-			logger.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
+			log.debug("[traerRegistrosFiltrados] listaRespuesta:"+listaRespuesta.size());
 		}else{
 			model.addAttribute("registros", respuestaReporteBean);
 			request.getSession().setAttribute("reporteMoroso", listaMoroso);
-			logger.debug("[buscarMoroso] No se encontro registros");
+			log.debug("[buscarMoroso] No se encontro registros");
 		}
 		model.addAttribute("filtro", filtro);
-		logger.debug("[buscarMoroso] Fin");
+		log.debug("[buscarMoroso] Fin");
 	}
 	
 	/*Listado de los morosos*/
 	private List<MorosoBean> listarMoroso(Filtro filtro){
 		List<MorosoBean> entidades = new ArrayList<MorosoBean>();
 		try{
-			logger.debug("[listarMoroso] Inicio");
+			log.debug("[listarMoroso] Inicio");
 			/*if (filtro.getFechaInicio()== null || filtro.getFechaInicio().equals("")){
 				filtro.setFechaInicio(UtilSGT.getDateStringFormat(UtilSGT.addDays(new Date(), -1)));
 			}
 			if (filtro.getFechaFin()==null || filtro.getFechaFin().equals("")){
 				filtro.setFechaFin(UtilSGT.getDateStringFormat(UtilSGT.addDays(new Date(), 1)));
 			}*/
-			logger.debug("[listarMoroso] Fec Inicio:"+filtro.getFechaInicio());
-			logger.debug("[listarMoroso] Fec Fin:"+filtro.getFechaFin());
+			log.debug("[listarMoroso] Fec Inicio:"+filtro.getFechaInicio());
+			log.debug("[listarMoroso] Fec Fin:"+filtro.getFechaFin());
 			entidades = morosoDao.getReporteMoroso(filtro);
-			logger.debug("[listarIngresoEgreso] entidades:"+entidades.size());
-			logger.debug("[listarMoroso] Fin");
+			log.debug("[listarIngresoEgreso] entidades:"+entidades.size());
+			log.debug("[listarMoroso] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -286,7 +285,7 @@ public class MorosoAction {
 		List<MorosoTotalBean> listaDataReporte 	= null;
 		MorosoTotalBean morosoTotalBean = new MorosoTotalBean();
 		Map<String, MorosoSubTotalBean> mapMoroso	= new HashMap<String, MorosoSubTotalBean>();
-		logger.debug("[preparaDataMoroso] Inicio");
+		log.debug("[preparaDataMoroso] Inicio");
 		//Agrupamos por ListaDeuda y SubTotal
 		for(MorosoBean moroso: entidades){
 			MorosoSubTotalBean morosoSubTotalBean = mapMoroso.get(moroso.getNumeroTienda());
@@ -306,7 +305,7 @@ public class MorosoAction {
 		}
 		listaDataReporte = new ArrayList<MorosoTotalBean>();
 		listaDataReporte.add(morosoTotalBean);
-		logger.debug("[preparaDataMoroso] Fin");
+		log.debug("[preparaDataMoroso] Fin");
 		return listaDataReporte;
 	}
 	/*Adiciona un elemento*/

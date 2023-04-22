@@ -13,8 +13,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -41,17 +39,19 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * Clase Bean que se encarga de la administracion de la caja chica
  *
  * 			
  */
+@Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
 public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 	
-	private static final Logger logger = LogManager.getLogger(GastoAction.class);
 	
 	@Autowired
 	private IGastoDAO gastoDao;
@@ -80,7 +80,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 		Filtro filtro = null;
 		
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "caja/gasto/gas_listado";
 			
 			filtro = new Filtro();
@@ -94,9 +94,9 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 			request.getSession().setAttribute("ListadoGasto",null);
 			request.getSession().setAttribute("PageGasto",null);
 			
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -121,7 +121,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 			model.addAttribute("registros", lista);
 			model.addAttribute("page", page);
 			
-			logger.debug("[listarGasto] entidades:"+entidades);
+			log.debug("[listarGasto] entidades:"+entidades);
 			request.getSession().setAttribute("CriterioFiltroGasto", entidad);
 			request.getSession().setAttribute("ListadoGasto", lista);
 			request.getSession().setAttribute("PageGasto", page);
@@ -144,7 +144,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 			model.addAttribute("registros", this.procesarListaGasto(page.getContent(), request));
 			model.addAttribute("page", page);
 			
-			logger.debug("[listarGastoxCodigoInterno] entidades:"+entidades);
+			log.debug("[listarGastoxCodigoInterno] entidades:"+entidades);
 			
 		}catch(Exception e){
 			e.printStackTrace();
@@ -208,22 +208,22 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 	public String traerRegistrosFiltrados(Model model, Filtro filtro, String path ,  PageableSG pageable,HttpServletRequest request) {
 		path = "caja/gasto/gas_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			if (filtro.getNumero().isEmpty()){
 				filtro.setNumero("1");
 			}
 			filtro.setFechaGasto(UtilSGT.addMonths(new Date(), new Integer(filtro.getNumero())*(-1)));
 			this.listarGasto(model, filtro, pageable, this.urlPaginado, request);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	
@@ -262,7 +262,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 	public String crearGasto(Model model) {
 		TblEdificio edificio = new TblEdificio();
 		try{
-			logger.debug("[crearGasto] Inicio");
+			log.debug("[crearGasto] Inicio");
 			edificio.setCodigoEdificio(Constantes.CODIGO_INMUEBLE_LA_REYNA);
 			TblGasto gasto = new TblGasto();
 			gasto.setTblEdificio(edificio);
@@ -270,7 +270,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 			gasto.setCodigoTipoGasto(Constantes.CODIGO_TIPO_GASTO_DIVERSO);
 			gasto.setTipoMoneda(Constantes.MONEDA_SOL);
 			model.addAttribute("entidad", gasto);
-			logger.debug("[crearGasto] Fin");
+			log.debug("[crearGasto] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -280,12 +280,12 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 	@Override
 	public void preGuardar(TblGasto entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -331,14 +331,14 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 	public String guardarEntidad(Model model, TblGasto entidad, HttpServletRequest request, String path , PageableSG pageable) {
 		path = "caja/gasto/gas_listado";
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				entidad.setCodigoInterno(UUID.randomUUID().toString());
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					this.listarGastoxCodigoInterno(model, entidad.getCodigoInterno(), pageable, this.urlPaginado, request);
 					model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroGasto"));
@@ -352,7 +352,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -363,11 +363,11 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 	@Override
 	public void preEditar(TblGasto entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -388,7 +388,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 				entidadEnBd.setObservacion(entidad.getObservacion());
 				this.preEditar(entidadEnBd, request);
 				boolean exitoso = super.guardar(entidadEnBd, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					
 					this.listarGastoxCodigoInterno(model, entidadEnBd.getCodigoInterno(), pageable, this.urlPaginado, request);
@@ -426,7 +426,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 		String path 				= null;
 		Filtro filtro				= null;
 		try{
-			logger.debug("[eliminarGasto] Inicio");
+			log.debug("[eliminarGasto] Inicio");
 			path = "caja/gasto/gas_listado";
 			
 			entidad = gastoDao.findOne(id);
@@ -437,7 +437,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 			model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroGasto"));
 			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroGasto");
 			this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
-			logger.debug("[eliminarGasto] Fin");
+			log.debug("[eliminarGasto] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -460,7 +460,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 		Filtro filtro = null;
 		String path = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "caja/gasto/gas_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -481,7 +481,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 			
 			
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -495,7 +495,7 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 		List<GastoBean> lista = null;
 		PageWrapper<TblGasto> page = null;
 		try{
-			logger.debug("[regresar] Inicio");
+			log.debug("[regresar] Inicio");
 			path = "caja/gasto/gas_listado";
 			
 			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroGasto");
@@ -506,9 +506,9 @@ public class GastoAction extends BaseOperacionPresentacion<TblGasto> {
 			model.addAttribute("page", page);
 			
 			
-			logger.debug("[regresar] Fin");
+			log.debug("[regresar] Fin");
 		}catch(Exception e){
-			logger.debug("[regresar] Error:"+e.getMessage());
+			log.debug("[regresar] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

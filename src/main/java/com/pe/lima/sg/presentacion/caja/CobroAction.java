@@ -30,8 +30,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -112,15 +110,17 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los contratos
  *
  * 			
  */
+@Slf4j
 @Controller
 public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
-	private static final Logger logger = LogManager.getLogger(CobroAction.class);
 	
 	private final String PAGO_EXCESO 		= "PAGO EXCESO";
 	private final String PAGO_EXACTO		= "PAGO EXACTO";
@@ -214,7 +214,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	public String traerRegistros(Model model, String path,  PageableSG pageable) {
 		TblContrato filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "caja/cobro/cob_listado";
 			filtro = new TblContrato();
 			filtro.setTblPersona(new TblPersona());
@@ -225,9 +225,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			model.addAttribute("registros", new ArrayList<TblContrato>());
 			model.addAttribute("page", null);
 			
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -248,19 +248,19 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		//Map<String, Object> campos = null;
 		path = "caja/cobro/cob_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroCriterioCobro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 
@@ -297,7 +297,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			request.getSession().setAttribute("PageCobro", page);
 			request.getSession().setAttribute("PageableSGCobro", pageable);
 			
-			logger.debug("[listarContratos] entidades:"+entidades);
+			log.debug("[listarContratos] entidades:"+entidades);
 			//model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -809,63 +809,63 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 	public void preEditarTienda(TblTienda entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarTienda] Inicio" );
+			log.debug("[preEditarTienda] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarTienda] Fin" );
+			log.debug("[preEditarTienda] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	public void preGuardarObservacion(TblObservacion entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarObservacion] Inicio" );
+			log.debug("[preGuardarObservacion] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardarObservacion] Fin" );
+			log.debug("[preGuardarObservacion] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	public void preGuardarAdelanto(TblAdelanto entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarAdelanto] Inicio" );
+			log.debug("[preGuardarAdelanto] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardarAdelanto] Fin" );
+			log.debug("[preGuardarAdelanto] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	public void preGuardarDesembolso(TblDesembolso entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarDesembolso] Inicio" );
+			log.debug("[preGuardarDesembolso] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
 			entidad.setEstadoOperacion(Constantes.ESTADO_DESEMBOLSO_ACTIVO);
-			logger.debug("[preGuardarDesembolso] Usuario:"+entidad.getUsuarioCreacion() );
-			logger.debug("[preGuardarDesembolso] Fin" );
+			log.debug("[preGuardarDesembolso] Usuario:"+entidad.getUsuarioCreacion() );
+			log.debug("[preGuardarDesembolso] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	public void preGuardarDesembolsoArbitrio(TblDesembolsoArbitrio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardarDesembolsoArbitrio] Inicio" );
+			log.debug("[preGuardarDesembolsoArbitrio] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
 			entidad.setEstadoOperacion(Constantes.ESTADO_DESEMBOLSO_ACTIVO);
-			logger.debug("[preGuardarDesembolsoArbitrio] Usuario:"+entidad.getUsuarioCreacion() );
-			logger.debug("[preGuardarDesembolsoArbitrio] Fin" );
+			log.debug("[preGuardarDesembolsoArbitrio] Usuario:"+entidad.getUsuarioCreacion() );
+			log.debug("[preGuardarDesembolsoArbitrio] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1432,9 +1432,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	
 	private boolean validarDiferencia(BigDecimal monto, BigDecimal saldo, BigDecimal margen){
 		boolean resultado = false;
-		logger.debug("[validarDiferencia] monto:"+monto+" saldo:"+saldo+" marge:"+margen);
-		logger.debug("[validarDiferencia] absoluto:"+monto.subtract(saldo).abs());
-		logger.debug("[validarDiferencia] comparacion:"+monto.subtract(saldo).abs().compareTo(margen));
+		log.debug("[validarDiferencia] monto:"+monto+" saldo:"+saldo+" marge:"+margen);
+		log.debug("[validarDiferencia] absoluto:"+monto.subtract(saldo).abs());
+		log.debug("[validarDiferencia] comparacion:"+monto.subtract(saldo).abs().compareTo(margen));
 		if (monto.subtract(saldo).compareTo(margen)>0) {
 			resultado = true; //pago en exceso
 		}else if(monto.subtract(saldo).abs().compareTo(margen)<=0) {
@@ -1448,9 +1448,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	}
 	private String getDiferencia(BigDecimal monto, BigDecimal saldo, BigDecimal margen){
 		String resultado = KEY_ESTADO_PAGO;
-		logger.debug("[getDiferencia] monto:"+monto+" saldo:"+saldo+" marge:"+margen);
-		logger.debug("[getDiferencia] absoluto:"+monto.subtract(saldo).abs());
-		logger.debug("[getDiferencia] comparacion:"+monto.subtract(saldo).abs().compareTo(margen));
+		log.debug("[getDiferencia] monto:"+monto+" saldo:"+saldo+" marge:"+margen);
+		log.debug("[getDiferencia] absoluto:"+monto.subtract(saldo).abs());
+		log.debug("[getDiferencia] comparacion:"+monto.subtract(saldo).abs().compareTo(margen));
 		if (monto.subtract(saldo).compareTo(margen)>0) {
 			resultado = PAGO_EXCESO; //pago en exceso
 		}else if(monto.subtract(saldo).abs().compareTo(margen)<=0) {
@@ -1736,12 +1736,12 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	
 	public void preGuardarCobro(TblCobro entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1749,12 +1749,12 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	}
 	public void preGuardarCobroArbitrio(TblCobroArbitrio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1762,22 +1762,22 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	}
 	public void preEditarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	public void preEditarArbitrio(TblArbitrio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarArbitrio] Inicio" );
+			log.debug("[preEditarArbitrio] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarArbitrio] Fin" );
+			log.debug("[preEditarArbitrio] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1788,7 +1788,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		//List<TblContratoPrimerCobro> listaPC	= null;
 		List<TblObservacion> listaObs	= null;
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
@@ -1811,7 +1811,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 				pc.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
 			}
 			
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1885,7 +1885,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	public String adicionarObservacionEdicion(Model model, TblObservacion observacionBean, TblContrato contrato, String path, HttpServletRequest request) {
 		BeanRequest beanRequest				= null;
 		try{
-			logger.debug("[adicionarObservacionEdicion] Inicio:");
+			log.debug("[adicionarObservacionEdicion] Inicio:");
 			path = "caja/cobro/cob_edicion";
 			if (observacionBean.getAsunto()== null || observacionBean.getAsunto().equals("")){
 				model.addAttribute("resultadoObservacion", "Debe ingresar el asunto de la Observacion");
@@ -1915,9 +1915,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			logger.debug("[adicionarObservacionEdicion] Fin");
+			log.debug("[adicionarObservacionEdicion] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarObservacionEdicion] Error:"+e.getMessage());
+			log.debug("[adicionarObservacionEdicion] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -1938,7 +1938,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroAlquilerAux			= new TblCobro();
 		try{
-			logger.debug("[adicionarCobroAlquiler] Inicio");
+			log.debug("[adicionarCobroAlquiler] Inicio");
 			path = "caja/cobro/cob_edicion";
 			
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
@@ -1960,9 +1960,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroAlquiler] Fin");
+			log.debug("[adicionarCobroAlquiler] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroAlquiler] Error:"+e.getMessage());
+			log.debug("[adicionarCobroAlquiler] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -2041,7 +2041,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroServiciorAux			= new TblCobro();
 		try{
-			logger.debug("[adicionarCobroServicio] Inicio");
+			log.debug("[adicionarCobroServicio] Inicio");
 			path = "caja/cobro/cob_edicion";
 			
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
@@ -2062,9 +2062,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroServicio] Fin");
+			log.debug("[adicionarCobroServicio] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroServicio] Error:"+e.getMessage());
+			log.debug("[adicionarCobroServicio] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -2109,7 +2109,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroLuzAux			= new TblCobro();
 		try{
-			logger.debug("[adicionarCobroLuz] Inicio");
+			log.debug("[adicionarCobroLuz] Inicio");
 			path = "caja/cobro/cob_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			
@@ -2131,9 +2131,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroLuz] Fin");
+			log.debug("[adicionarCobroLuz] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroLuz] Error:"+e.getMessage());
+			log.debug("[adicionarCobroLuz] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -2195,7 +2195,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		path = "caja/cobro/cob_edicion";
 		try{
-			logger.debug("[regresarContrato] Inicio");
+			log.debug("[regresarContrato] Inicio");
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			
 			//contrato = beanRequest.getContrato();
@@ -2203,9 +2203,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			logger.debug("[regresarContrato] Fin");
+			log.debug("[regresarContrato] Fin");
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -2225,11 +2225,11 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		//BeanRequest beanRequest				= null;
 		path = "caja/cobro/cob_edicion";
 		try{
-			logger.debug("[regresarCobrodeAdelanto] Inicio");
+			log.debug("[regresarCobrodeAdelanto] Inicio");
 			this.mEditarContrato(filtro.getCodigoContrato(), model, request);
-			logger.debug("[regresarCobrodeAdelanto] Fin");
+			log.debug("[regresarCobrodeAdelanto] Fin");
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -2450,7 +2450,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroAlquilerAux			= null;
 		try{
-			logger.debug("[adicionarCobroAlquiler] Inicio");
+			log.debug("[adicionarCobroAlquiler] Inicio");
 			path = "caja/cobro/cob_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			if (this.validarCobroPrimerCobro(model, cobroPrimerCobro, request)){
@@ -2469,9 +2469,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroAlquiler] Fin");
+			log.debug("[adicionarCobroAlquiler] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroAlquiler] Error:"+e.getMessage());
+			log.debug("[adicionarCobroAlquiler] Error:"+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se genero un error inesperado:"+e.getMessage());
 		}finally{
@@ -2492,7 +2492,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroAlquilerAux			= null;
 		try{
-			logger.debug("[adicionarCobroGarantia] Inicio");
+			log.debug("[adicionarCobroGarantia] Inicio");
 			path = "caja/cobro/cob_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			if (this.validarCobroGarantia(model, cobroGarantia, request)){
@@ -2511,9 +2511,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroGarantia] Fin");
+			log.debug("[adicionarCobroGarantia] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroGarantia] Error:"+e.getMessage());
+			log.debug("[adicionarCobroGarantia] Error:"+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se genero un error inesperado:"+e.getMessage());
 		}finally{
@@ -2743,7 +2743,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			listaDesembolsoBean = this.mAsignarDesembolso(listaDesembolso);
 			model.addAttribute("registros", listaDesembolsoBean);
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			listaDesembolso 	= null;
@@ -2763,7 +2763,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		TblCobro cobroArbitrioAux			= new TblCobro();
 		try{
-			logger.debug("[adicionarCobroArbitrio] Inicio");
+			log.debug("[adicionarCobroArbitrio] Inicio");
 			path = "caja/cobro/cob_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			
@@ -2785,9 +2785,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[adicionarCobroArbitrio] Fin");
+			log.debug("[adicionarCobroArbitrio] Fin");
 		}catch(Exception e){
-			logger.debug("[adicionarCobroArbitrio] Error:"+e.getMessage());
+			log.debug("[adicionarCobroArbitrio] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			beanRequest = null;
@@ -2826,7 +2826,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			entidad = beanRequest.getCobroGeneralBean();
 			this.mListadoDesembolso(model, entidad, request);
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			/*listaDesembolso 	= null;
@@ -2847,7 +2847,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest						= null;
 		CobroGeneralBean entidad					= null;
 		try{
-			logger.debug("[registrarSolicitudReversionCobroArbitrio] Inicio" );
+			log.debug("[registrarSolicitudReversionCobroArbitrio] Inicio" );
 			path = "caja/cobro/cob_historial_alquiler";
 			//Actualiza a pendiente por reversion el desembolos
 			desembolso = desembolsoArbitrioDao.findOne(id);
@@ -2859,9 +2859,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			entidad = beanRequest.getCobroGeneralBean();
 			this.mListadoDesembolso(model, entidad, request);
-			logger.debug("[registrarSolicitudReversionCobroArbitrio] Fin" );
+			log.debug("[registrarSolicitudReversionCobroArbitrio] Fin" );
 		}catch(Exception e){
-			logger.debug("[registrarSolicitudReversionCobroArbitrio] Error:"+e.getMessage());
+			log.debug("[registrarSolicitudReversionCobroArbitrio] Error:"+e.getMessage());
 			e.printStackTrace();
 		}
 		return path;
@@ -2871,11 +2871,11 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarDesembolso(TblDesembolso entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarDesembolso] Inicio" );
+			log.debug("[preEditarDesembolso] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarDesembolso] Fin" );
+			log.debug("[preEditarDesembolso] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -2885,11 +2885,11 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarDesembolsoArbitrio(TblDesembolsoArbitrio entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarDesembolsoArbitrio] Inicio" );
+			log.debug("[preEditarDesembolsoArbitrio] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarDesembolsoArbitrio] Fin" );
+			log.debug("[preEditarDesembolsoArbitrio] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -2899,11 +2899,11 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarAdelanto(TblAdelanto entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditarAdelanto] Inicio" );
+			log.debug("[preEditarAdelanto] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditarAdelanto] Fin" );
+			log.debug("[preEditarAdelanto] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -3296,7 +3296,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		
 		
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			listaCobroBean	 	= null;
@@ -3335,7 +3335,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		
 		
 		}catch(Exception e){
-			logger.debug("[regresarContrato] Error:"+e.getMessage());
+			log.debug("[regresarContrato] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			listaCobroBean	 	= null;
@@ -3693,7 +3693,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		boolean adelanto					= false;
 		TblContrato contrato				= null;
 		try{
-			logger.debug("[individualCobroPrimerCobro] Inicio");
+			log.debug("[individualCobroPrimerCobro] Inicio");
 			path = "caja/cobro/cob_edicion";
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			if (this.validarCobroPrimerCobro(model, cobroPrimerCobro, request)){
@@ -3739,9 +3739,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 
-			logger.debug("[individualCobroPrimerCobro] Fin");
+			log.debug("[individualCobroPrimerCobro] Fin");
 		}catch(Exception e){
-			logger.debug("[individualCobroPrimerCobro] Error:"+e.getMessage());
+			log.debug("[individualCobroPrimerCobro] Error:"+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se genero un error inesperado:"+e.getMessage());
 		}finally{
@@ -3759,7 +3759,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		TblContrato filtro = null;
 		String path = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "caja/cobro/cob_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -3779,7 +3779,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
 			
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -3805,16 +3805,16 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		
 		try{
-			logger.debug("[vistaPreviaRegresar] Inicio");
+			log.debug("[vistaPreviaRegresar] Inicio");
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			model.addAttribute("cobroGeneralBean", beanRequest.getCobroGeneralBean());
 			this.cargarListasRequestBeanContrato(model, beanRequest);
 			this.cargarListaOperacionContrato(model);
 			path = "caja/cobro/cob_edicion";
 			
-			logger.debug("[vistaPreviaRegresar] Fin");
+			log.debug("[vistaPreviaRegresar] Fin");
 		}catch(Exception e){
-			logger.debug("[vistaPreviaRegresar] Error:"+e.getMessage());
+			log.debug("[vistaPreviaRegresar] Error:"+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se genero un error inesperado:"+e.getMessage());
 		}finally{
@@ -3893,7 +3893,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest				= null;
 		
 		try{
-			logger.debug("[vistaPreviaCobro] Inicio");
+			log.debug("[vistaPreviaCobro] Inicio");
 			path = "caja/cobro/cob_edicion_previo";
 			//Validacion del tipo de cambio por producto y moneda
 			if (this.validarProductoMoneda(model, cobroGeneralBean, path, request)){
@@ -3926,9 +3926,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			
 			
 			
-			logger.debug("[vistaPreviaCobro] Fin");
+			log.debug("[vistaPreviaCobro] Fin");
 		}catch(Exception e){
-			logger.debug("[vistaPreviaCobro] Error:"+e.getMessage());
+			log.debug("[vistaPreviaCobro] Error:"+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se genero un error inesperado:"+e.getMessage());
 		}finally{
@@ -4241,7 +4241,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	
 	private void getNewMontoAlquilerDolar(TblCobro cobro,TblCxcDocumento documento,BigDecimal margeSaldo,CobroBean cobroBean) {
 		String estadoComparacion = getDiferencia(cobro.getMontoDolares(), documento.getSaldo(), margeSaldo);
-		logger.info("[getNewMontoAlquilerDolar] estadoComparacion:"+estadoComparacion);
+		log.info("[getNewMontoAlquilerDolar] estadoComparacion:"+estadoComparacion);
 		if ( estadoComparacion.equals(PAGO_EXCESO) ){
 			cobro.setMontoDolares(cobro.getMontoDolares().subtract(documento.getSaldo()));
 		}else if ( estadoComparacion.equals(PAGO_EXACTO) ) {
@@ -4253,7 +4253,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	}
 	private void getNewMontoAlquilerSol(TblCobro cobro,TblCxcDocumento documento,BigDecimal margeSaldo,CobroBean cobroBean) {
 		String estadoComparacion = getDiferencia(cobro.getMontoSoles(), documento.getSaldo(), margeSaldo);
-		logger.info("[getNewMontoAlquilerSol] estadoComparacion:"+estadoComparacion);
+		log.info("[getNewMontoAlquilerSol] estadoComparacion:"+estadoComparacion);
 		if ( estadoComparacion.equals(PAGO_EXCESO) ){
 			cobro.setMontoSoles(cobro.getMontoSoles().subtract(documento.getSaldo()));
 		}else if ( estadoComparacion.equals(PAGO_EXACTO) ) {
@@ -4328,7 +4328,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 
 	private CobroBean setDesembolsoDolaresAlquiler( TblCobro cobro, TblCxcDocumento documento, BigDecimal margeSaldo, CobroBean cobroBean) {
 		String estadoComparacion = getDiferencia(cobro.getMontoDolares(), documento.getSaldo(), margeSaldo);
-		logger.info("[setDesembolsoDolaresAlquiler] estadoComparacion:"+estadoComparacion);
+		log.info("[setDesembolsoDolaresAlquiler] estadoComparacion:"+estadoComparacion);
 		if ( estadoComparacion.equals(PAGO_EXCESO) ){
 			return this.getDesembolsoDolares(documento.getSaldo(), cobroBean);
 		}else if ( estadoComparacion.equals(PAGO_EXACTO) ) {
@@ -4339,7 +4339,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	}
 	private CobroBean setDesembolsoSolesAlquiler( TblCobro cobro, TblCxcDocumento documento, BigDecimal margeSaldo,CobroBean cobroBean) {
 		String estadoComparacion = getDiferencia(cobro.getMontoSoles(), documento.getSaldo(), margeSaldo);
-		logger.info("[setDesembolsoSolesAlquiler] estadoComparacion:"+estadoComparacion);
+		log.info("[setDesembolsoSolesAlquiler] estadoComparacion:"+estadoComparacion);
 		if ( estadoComparacion.equals(PAGO_EXCESO) ){
 			return this.getDesembolsoSoles(documento.getSaldo(), cobroBean);
 		}else if ( estadoComparacion.equals(PAGO_EXACTO) ) {
@@ -4535,12 +4535,12 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		List<CobroLuzBean> listaCobroLuz				= null;
 		List<CobroArbitrioBean> listaCobroArbitrio		= null;
 		try{
-			logger.debug("[actualizarEntidad] Inicio" );
+			log.debug("[actualizarEntidad] Inicio" );
 			//servicioTipo.setTblTipoServicio(new TblTipoServicio());
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
 			cobroGeneralBean = beanRequest.getCobroGeneralBean();
 			entidad = beanRequest.getContrato();
-			logger.debug("[actualizarEntidad] Pre Guardar..." );
+			log.debug("[actualizarEntidad] Pre Guardar..." );
 			contrato = contratoDao.findOne(entidad.getCodigoContrato());
 			//Alquiler
 			if (cobroGeneralBean.getCobroAlquiler().getMonto().doubleValue() > 0){
@@ -4655,7 +4655,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			this.mEditarContrato(entidad.getCodigoContrato(), model, request);
 			
 			model.addAttribute("resultadoOperacion", "Se registró exitosamente la operación");
-			logger.debug("[actualizarEntidad] Fin" );
+			log.debug("[actualizarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 			model.addAttribute("resultadoOperacion", "Se generó un error inesperado: "+e.getMessage());
@@ -4738,7 +4738,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		List<TblContrato> lista = null;
 		PageWrapper<TblContrato> page = null;
 		try{
-			logger.debug("[regresar] Inicio");
+			log.debug("[regresar] Inicio");
 			path = "caja/cobro/cob_listado";
 			
 			filtro = (TblContrato)request.getSession().getAttribute("sessionFiltroCriterioCobro");
@@ -4749,9 +4749,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			model.addAttribute("page", page);
 			
 			
-			logger.debug("[regresar] Fin");
+			log.debug("[regresar] Fin");
 		}catch(Exception e){
-			logger.debug("[regresar] Error:"+e.getMessage());
+			log.debug("[regresar] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

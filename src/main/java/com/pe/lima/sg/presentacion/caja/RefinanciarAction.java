@@ -24,8 +24,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -79,15 +77,17 @@ import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion de los contratos
  *
  * 			
  */
+@Slf4j
 @Controller
 public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 
-	private static final Logger logger = LogManager.getLogger(RefinanciarAction.class);
 	
 	@Autowired
 	private IContratoDAO contratoDao;
@@ -141,7 +141,7 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 	public String traerRegistros(Model model, String path, PageableSG pageable, HttpServletRequest request) {
 		TblContrato filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "caja/refinanciar/ref_listado";
 			filtro = new TblContrato();
 			filtro.setTblPersona(new TblPersona());
@@ -154,9 +154,9 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 			request.getSession().setAttribute("sessionFiltroCriterioRefinanciar", filtro);
 			request.getSession().setAttribute("sessionListaContratoRefinanciar", null);
 			request.getSession().setAttribute("PageContratoRefinanciar", null);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -177,18 +177,18 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 		//Map<String, Object> campos = null;
 		path = "caja/refinanciar/ref_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 
@@ -220,7 +220,7 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 			request.getSession().setAttribute("sessionFiltroCriterioRefinanciar", tblContrato);
 			request.getSession().setAttribute("sessionListaContratoRefinanciar", page.getContent());
 			request.getSession().setAttribute("PageContratoRefinanciar", page);
-			logger.debug("[listarContratos] entidades:"+entidades);
+			log.debug("[listarContratos] entidades:"+entidades);
 			//model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -309,12 +309,12 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 	 */
 	public void preEditarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[alquiler] Inicio" );
+			log.debug("[alquiler] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-			logger.debug("[alquiler] Fin" );
+			log.debug("[alquiler] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -326,7 +326,7 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest					= null;
 		List<TblCxcDocumento> listaCxcAlquiler	= null;
 		try{
-			logger.debug("[refinanciarmontoAlquilerContrato] Inicio");
+			log.debug("[refinanciarmontoAlquilerContrato] Inicio");
 			alquiler = cxcDocumentoDao.findOne(cobroGeneralBean.getCobroAlquiler().getCodigoCxCDocumento());
 			alquiler.setMontoContrato(cobroGeneralBean.getCobroAlquiler().getNuevoMonto());
 			alquiler.setSaldo(cobroGeneralBean.getCobroAlquiler().getNuevoSaldo());
@@ -346,15 +346,15 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 			
 			request.getSession().setAttribute("beanRequest", beanRequest);
 			//limpiar
-			logger.debug("[refinanciarmontoAlquilerContrato] Fin");
+			log.debug("[refinanciarmontoAlquilerContrato] Fin");
 		}catch(Exception e){
-			logger.debug("[refinanciarmontoAlquilerContrato] Error: "+e.getMessage());
+			log.debug("[refinanciarmontoAlquilerContrato] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[refinanciarmontoAlquilerContrato] Fin");
+		log.debug("[refinanciarmontoAlquilerContrato] Fin");
 		return path;
 	}
 	
@@ -748,7 +748,7 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest					= null;
 		List<TblCxcDocumento> listaCxcServicio	= null;
 		try{
-			logger.debug("[refinanciarmontoServicioContrato] Inicio");
+			log.debug("[refinanciarmontoServicioContrato] Inicio");
 			servicio = cxcDocumentoDao.findOne(cobroGeneralBean.getCobroServicio().getCodigoCxCDocumento());
 			servicio.setMontoContrato(cobroGeneralBean.getCobroServicio().getNuevoMonto());
 			servicio.setSaldo(cobroGeneralBean.getCobroServicio().getNuevoSaldo());
@@ -769,15 +769,15 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 			
 			request.getSession().setAttribute("beanRequest", beanRequest);
 			//limpiar
-			logger.debug("[refinanciarmontoServicioContrato] Fin");
+			log.debug("[refinanciarmontoServicioContrato] Fin");
 		}catch(Exception e){
-			logger.debug("[refinanciarmontoServicioContrato] Error: "+e.getMessage());
+			log.debug("[refinanciarmontoServicioContrato] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[refinanciarmontoServicioContrato] Fin");
+		log.debug("[refinanciarmontoServicioContrato] Fin");
 		return path;
 	}
 	
@@ -837,7 +837,7 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 		BeanRequest beanRequest					= null;
 		List<TblCxcDocumento> listaCxcLuz		= null;
 		try{
-			logger.debug("[refinanciarmontoLuzContrato] Inicio");
+			log.debug("[refinanciarmontoLuzContrato] Inicio");
 			luz = cxcDocumentoDao.findOne(cobroGeneralBean.getCobroLuz().getCodigoCxCDocumento());
 			luz.setMontoContrato(cobroGeneralBean.getCobroLuz().getNuevoMonto());
 			luz.setSaldo(cobroGeneralBean.getCobroLuz().getNuevoSaldo());
@@ -858,15 +858,15 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 			
 			request.getSession().setAttribute("beanRequest", beanRequest);
 			//limpiar
-			logger.debug("[refinanciarmontoLuzContrato] Fin");
+			log.debug("[refinanciarmontoLuzContrato] Fin");
 		}catch(Exception e){
-			logger.debug("[refinanciarmontoLuzContrato] Error: "+e.getMessage());
+			log.debug("[refinanciarmontoLuzContrato] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			//campos		= null;
 		}
-		logger.debug("[refinanciarmontoLuzContrato] Fin");
+		log.debug("[refinanciarmontoLuzContrato] Fin");
 		return path;
 	}
 	/*
@@ -877,7 +877,7 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 		TblContrato filtro = null;
 		String path = null;
 		try{
-			//LOGGER.debug("[traerRegistros] Inicio");
+			//log.debug("[traerRegistros] Inicio");
 			path = "caja/refinanciar/ref_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
@@ -897,7 +897,7 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 			this.listarContratos(model, filtro, pageable, this.urlPaginado, request);
 			
 		}catch(Exception e){
-			//LOGGER.debug("[traerRegistros] Error:"+e.getMessage());
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -911,7 +911,7 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 		List<TblContrato> lista = null;
 		PageWrapper<TblContrato> page = null;
 		try{
-			logger.debug("[regresar] Inicio");
+			log.debug("[regresar] Inicio");
 			path = "caja/refinanciar/ref_listado";
 			
 			filtro = (TblContrato)request.getSession().getAttribute("sessionFiltroCriterioRefinanciar");
@@ -922,9 +922,9 @@ public class RefinanciarAction extends BaseOperacionPresentacion<TblCobro> {
 			model.addAttribute("page", page);
 			
 			
-			logger.debug("[regresar] Fin");
+			log.debug("[regresar] Fin");
 		}catch(Exception e){
-			logger.debug("[regresar] Error:"+e.getMessage());
+			log.debug("[regresar] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

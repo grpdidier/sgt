@@ -13,8 +13,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
@@ -34,15 +32,16 @@ import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase Bean que se encarga de la administracion del registro del monto de la luz por luz
  *
  * 			
  */
+@Slf4j
 @Controller
 public class LuzAction extends BasePresentacion<TblLuz> {
-	
-	private static final Logger logger = LogManager.getLogger(LuzAction.class);
 	
 	@Autowired
 	private ILuzDAO luzDao;
@@ -69,7 +68,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 	public String traerRegistros(Model model, String path) {
 		Filtro filtro = null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "cliente/luz/luz_listado";
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
@@ -77,9 +76,9 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 			filtro.setAnioFiltro(Calendar.getInstance().get(Calendar.YEAR));
 			model.addAttribute("mapFechaVencimiento", obtenerFechaVencimiento(filtro.getAnioFiltro()));
 			this.listarLuces(model, filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -99,19 +98,19 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 	public String traerRegistrosFiltrados(Model model, Filtro filtro, String path,HttpServletRequest request) {
 		path = "cliente/luz/luz_listado";
 		try{
-			logger.debug("[traerRegistrosFiltrados] Inicio");
+			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarLuces(model, filtro);
 			model.addAttribute("filtro", filtro);
 			model.addAttribute("mapFechaVencimiento", obtenerFechaVencimiento(filtro.getAnioFiltro()));
-			logger.debug("[traerRegistrosFiltrados] Fin");
+			log.debug("[traerRegistrosFiltrados] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
+			log.debug("[traerRegistrosFiltrados] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			
 		}
-		logger.debug("[traerRegistrosFiltrados] Fin");
+		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
 	/*** Listado de Luces ***/
@@ -131,7 +130,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 			}
 			
 			entidades = luzDao.findAll(criterio);
-			logger.debug("[listarLuces] entidades:"+entidades);
+			log.debug("[listarLuces] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -173,9 +172,9 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 	@RequestMapping(value = "cliente/luz/nuevo", method = RequestMethod.GET)
 	public String crearLuz(Model model) {
 		try{
-			logger.debug("[crearLuz] Inicio");
+			log.debug("[crearLuz] Inicio");
 			model.addAttribute("entidad", new TblLuz());
-			logger.debug("[crearLuz] Fin");
+			log.debug("[crearLuz] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -185,7 +184,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 	@Override
 	public void preGuardar(TblLuz entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preGuardar] Inicio" );
+			log.debug("[preGuardar] Inicio" );
 			entidad.setFechaCreacion(new Date(System.currentTimeMillis()));
 			entidad.setIpCreacion(request.getRemoteAddr());
 			entidad.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
@@ -194,7 +193,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 			entidad.setAnio(UtilSGT.getAnioDate(entidad.getFechaFin()));
 			//Estado del cobro
 			entidad.setEstadoLuz(Constantes.ESTADO_ACTIVO);
-			logger.debug("[preGuardar] Fin" );
+			log.debug("[preGuardar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -241,13 +240,13 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 		path = "cliente/luz/luz_listado";
 		Filtro filtro = null;
 		try{
-			logger.debug("[guardarEntidad] Inicio" );
+			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
-				logger.debug("[guardarEntidad] Pre Guardar..." );
+				log.debug("[guardarEntidad] Pre Guardar..." );
 				entidad.setTblSuministro(suministroDao.findOne(entidad.getTblSuministro().getCodigoSuministro()));
 				this.preGuardar(entidad, request);
 				boolean exitoso = super.guardar(entidad, model);
-				logger.debug("[guardarEntidad] Guardado..." );
+				log.debug("[guardarEntidad] Guardado..." );
 				if (exitoso){
 					filtro = new Filtro();
 					model.addAttribute("filtro", filtro);
@@ -267,7 +266,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 				model.addAttribute("entidad", entidad);
 			}
 			
-			logger.debug("[guardarEntidad] Fin" );
+			log.debug("[guardarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -280,7 +279,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 	@Override
 	public void preEditar(TblLuz entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
@@ -288,7 +287,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 			entidad.setAnio(UtilSGT.getAnioDate(entidad.getFechaFin()));
 			//Estado del cobro
 			entidad.setEstadoLuz(Constantes.ESTADO_ACTIVO);
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -311,7 +310,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 			
 			this.preEditar(entidadEnBd, request);
 			boolean exitoso = super.guardar(entidadEnBd, model);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			if (exitoso){
 				filtro = new Filtro();
 				model.addAttribute("filtro", filtro);
@@ -346,7 +345,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 		//Map<String, Object> campos 	= null;
 		Filtro filtro				= null;
 		try{
-			logger.debug("[eliminarLuz] Inicio");
+			log.debug("[eliminarLuz] Inicio");
 			entidad = luzDao.findOne(id);
 			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 			this.preEditar(entidad, request);
@@ -360,7 +359,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 			model.addAttribute("mapFechaVencimiento", obtenerFechaVencimiento(filtro.getAnioFiltro()));
 			this.listarLuces(model, filtro);
 			
-			logger.debug("[eliminarLuz] Fin");
+			log.debug("[eliminarLuz] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -380,7 +379,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		String strAnio = null;
 		try{
-			logger.debug("[obtenerFechaVencimiento] inicio");
+			log.debug("[obtenerFechaVencimiento] inicio");
 			strAnio = intAnio.toString();
 			resultados.put("31/01/"+strAnio, "31/01/"+strAnio);
 			if(intAnio % 4 == 0){
@@ -399,7 +398,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 			resultados.put("30/11/"+strAnio, "31/11/"+strAnio);
 			resultados.put("31/12/"+strAnio, "31/12/"+strAnio);
 			
-			logger.debug("[obtenerFechaVencimiento] Fin");
+			log.debug("[obtenerFechaVencimiento] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -421,11 +420,11 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 		String operacion	= null;
 		String anio			= null;
 		try{
-			logger.debug("[anioAnteriorPosterior] Inicio" );
+			log.debug("[anioAnteriorPosterior] Inicio" );
 			operacion = cadena.substring(0, 1);
 			anio = cadena.substring(1);
-			logger.debug("[anioAnteriorPosterior] operacion:"+operacion );
-			logger.debug("[anioAnteriorPosterior] anio: "+anio );
+			log.debug("[anioAnteriorPosterior] operacion:"+operacion );
+			log.debug("[anioAnteriorPosterior] anio: "+anio );
 			filtro = new Filtro();
 			model.addAttribute("filtro", filtro);
 			filtro.setCodigoEdificacionFiltro(-1);
@@ -445,7 +444,7 @@ public class LuzAction extends BasePresentacion<TblLuz> {
 			model.addAttribute("mapFechaVencimiento", obtenerFechaVencimiento(filtro.getAnioFiltro()));
 			
 			this.listarLuces(model, filtro);
-			logger.debug("[anioAnteriorPosterior] Fin" );
+			log.debug("[anioAnteriorPosterior] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

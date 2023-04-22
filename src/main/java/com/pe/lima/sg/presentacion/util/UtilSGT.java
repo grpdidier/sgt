@@ -20,8 +20,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.pe.lima.sg.bean.caja.CobroArbitrioBean;
 import com.pe.lima.sg.bean.caja.CobroBean;
@@ -41,8 +39,10 @@ import com.pe.lima.sg.facturador.entity.TblDetalleComprobante;
 import com.pe.lima.sg.facturador.entity.TblTributoGeneral;
 import com.pe.lima.sg.facturador.entity.TblTributoGeneralNota;
 
+
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 public class UtilSGT {
-	private static final Logger logger = LogManager.getLogger(UtilSGT.class);
 	/**
 	 * Adiciona a una fecha Date un numero de dias
 	 */
@@ -228,10 +228,10 @@ public class UtilSGT {
 	public static String completarCeros(String cadena, Integer tamano){
 
 		int intTotal = 0;
-		logger.debug("cadena :"+cadena + ", tamano :"+tamano);
+		log.debug("cadena :"+cadena + ", tamano :"+tamano);
 		try{
 			intTotal = tamano - cadena.length();
-			logger.debug("intTotal :"+intTotal);
+			log.debug("intTotal :"+intTotal);
 			if (intTotal >0){
 				for(int i=0; i< intTotal; i++){
 					cadena = Constantes.CADENA_CERO + cadena;
@@ -276,7 +276,7 @@ public class UtilSGT {
 		}else{
 			mes = Calendar.getInstance().get(Calendar.MONTH) ;
 		}
-		logger.debug("[getMes] mes:"+mes);
+		log.debug("[getMes] mes:"+mes);
 		return mes;
 	}
 	/**
@@ -290,7 +290,7 @@ public class UtilSGT {
 		}else{
 			anio = Calendar.getInstance().get(Calendar.YEAR) ;
 		}
-		logger.debug("[getAnio] anio:"+anio);
+		log.debug("[getAnio] anio:"+anio);
 		return anio;
 	}
 	public static Integer getMesYYYYMMDD(String strFecha){
@@ -300,7 +300,7 @@ public class UtilSGT {
 		}else{
 			mes = Calendar.getInstance().get(Calendar.MONTH) ;
 		}
-		logger.debug("[getMes] mes:"+mes);
+		log.debug("[getMes] mes:"+mes);
 		return mes;
 	}
 	/**
@@ -310,12 +310,12 @@ public class UtilSGT {
 	public static Map<String, Object> getListaAnio(Integer intAnioInicio, Integer intAnioFin) {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		try{
-			logger.debug("[getListaAnio] inicio");
+			log.debug("[getListaAnio] inicio");
 			for(Integer intAnio=intAnioInicio; intAnio <= intAnioFin ; intAnio++){
 				resultados.put(intAnio.toString(), intAnio.toString());
 			}
 			
-			logger.debug("[getListaAnio] Fin");
+			log.debug("[getListaAnio] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -385,7 +385,7 @@ public class UtilSGT {
 		Integer intMes = null;
 		Integer intAnio	= null;
 		String resultado = null;
-		logger.debug("[getLastDate] Inicio - strFecha:"+strFecha);
+		log.debug("[getLastDate] Inicio - strFecha:"+strFecha);
 		if (strFecha!=null && !strFecha.equals("") && strFecha.length()==10){
 			
 			intMes = new Integer(strFecha.substring(5, 7))-1;
@@ -395,7 +395,7 @@ public class UtilSGT {
 				intAnio= intAnio -1;
 			}
 			
-			logger.debug("[getLastDate] intMes:"+intMes+" - intAnio:"+intAnio);
+			log.debug("[getLastDate] intMes:"+intMes+" - intAnio:"+intAnio);
 			if (intMes.compareTo(0)==0){
 				resultado = "31/01/"+intAnio.toString();
 			}else if (intMes.compareTo(1)==0){
@@ -430,7 +430,7 @@ public class UtilSGT {
 			
 		}
 		
-		logger.debug("[getLastDate] Fin - resultado:"+resultado);
+		log.debug("[getLastDate] Fin - resultado:"+resultado);
 		return resultado;
 	}
 	/*
@@ -616,9 +616,9 @@ public class UtilSGT {
 			strAnio = strFecha.substring(0,4);
 			strMes = strFecha.substring(5, 7);
 			strDia = strFecha.substring(8);
-			logger.debug("[validarFinMes] Mes:"+strMes+ " Dia:"+strDia);
+			log.debug("[validarFinMes] Mes:"+strMes+ " Dia:"+strDia);
 			strDiaAux = getOnlyLastDay(new Integer(strMes), new Integer(strAnio));
-			logger.debug("[validarFinMes] Last Day:"+strDiaAux);
+			log.debug("[validarFinMes] Last Day:"+strDiaAux);
 			if (strDiaAux.equals(strDia)){
 				resultado = true;
 			}
@@ -756,13 +756,13 @@ public class UtilSGT {
 		Integer intMes			= null;
 		Integer intAnio			= null;
 		try{
-			logger.debug("[obtenerFactorPrimerCobro] Inicio");
+			log.debug("[obtenerFactorPrimerCobro] Inicio");
 			
 			strFecha = getDateStringFormat(Fecha);
 			strDia = strFecha.substring(8, 10);
 			strMes = strFecha.substring(5, 7);
 			strAnio = strFecha.substring(0, 4);
-			logger.debug("[obtenerFactorPrimerCobro] strFecha:"+strFecha+" strDia:"+strDia+" strMes:"+strMes+" strAnio:"+strAnio);
+			log.debug("[obtenerFactorPrimerCobro] strFecha:"+strFecha+" strDia:"+strDia+" strMes:"+strMes+" strAnio:"+strAnio);
 			intMes = new Integer(strMes)-1;
 			intAnio = new Integer(strAnio); 
 			if (intMes.compareTo(-1)==0){
@@ -771,11 +771,11 @@ public class UtilSGT {
 				
 			}
 			strDiaFin = getOnlyLastDay(intMes, intAnio);
-			logger.debug("[obtenerFactorPrimerCobro] intMes:"+intMes+" intAnio:"+intAnio);
-			logger.debug("[obtenerFactorPrimerCobro] strDiaFin:"+strDiaFin);
+			log.debug("[obtenerFactorPrimerCobro] intMes:"+intMes+" intAnio:"+intAnio);
+			log.debug("[obtenerFactorPrimerCobro] strDiaFin:"+strDiaFin);
 			dblFactor = (new Double(strDiaFin) - new Double(strDia) + 1 ) / new Double(strDiaFin);
 			
-			logger.debug("[obtenerFactorPrimerCobro] Fin - intTotalDias:"+dblFactor);
+			log.debug("[obtenerFactorPrimerCobro] Fin - intTotalDias:"+dblFactor);
 		}catch(Exception e){
 			e.printStackTrace();
 			
@@ -805,7 +805,7 @@ public class UtilSGT {
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -830,7 +830,7 @@ public class UtilSGT {
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);
@@ -851,7 +851,7 @@ public class UtilSGT {
 			if (entidad.getNumeroComprobante().compareTo(new Integer("999999999"))>=0){
 				entidad.setNumeroComprobante(1);
 				if (entidad.getSecuencialSerie().compareTo(new Integer("999"))>=0){
-					logger.debug("Se excedió el rango de la Serie... ");
+					log.debug("Se excedió el rango de la Serie... ");
 					System.exit(0);
 				}else{
 					entidad.setSecuencialSerie(entidad.getSecuencialSerie()+1);

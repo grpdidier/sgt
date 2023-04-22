@@ -11,8 +11,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,21 +38,20 @@ import com.pe.lima.sg.entity.mantenimiento.TblParametro;
 import com.pe.lima.sg.entity.mantenimiento.TblTienda;
 import com.pe.lima.sg.presentacion.BasePresentacion;
 import com.pe.lima.sg.presentacion.Filtro;
-import com.pe.lima.sg.presentacion.reporte.MorosoAction;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
-import com.pe.lima.sg.util.SysOutPrintln;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Clase Bean que se encarga de la administracion de los suministros x tienda
  *
  * 			
  */
+@Slf4j
 @Controller
 public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
-	
-	private static final Logger logger = LogManager.getLogger(SuministroxInmuebleAction.class);
 	
 	@Autowired
 	private IConceptoDAO conceptoDao;
@@ -104,7 +101,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		Map<String, Object> mapSuministro 	= null;
 		Integer intAnioInicio				= null;
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "cliente/suministroxinmueble/sxi_listado";
 			filtro = (Filtro)request.getSession().getAttribute("sessionFiltroSuministroLuz");
 			if (filtro ==null){
@@ -146,9 +143,9 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			//model.addAttribute("mapSuministroxTienda", mapSuministro);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroSuministroLuz", filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;
@@ -207,7 +204,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		List<TblTienda> listaTienda			= null;
 		Map<String, Object> mapSuministro 	= null;
 		try{
-			logger.debug("[cargarSuministro] Inicio");
+			log.debug("[cargarSuministro] Inicio");
 			//Asignacion del suministro
 			listaTienda = tiendaDao.listarAllActivos(filtro.getCodigoEdificacionFiltro());
 			mapSuministro = this.obtenerSuministros(listaTienda);
@@ -215,15 +212,15 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			//model.addAttribute("mapSuministroxTienda", mapSuministro);
 			this.cargarListaOperacionLuz(model, filtro);
 			model.addAttribute("filtro", filtro);
-			logger.debug("[cargarSuministro] Fin");
+			log.debug("[cargarSuministro] Fin");
 		}catch(Exception e){
-			logger.debug("[cargarSuministro] Error: "+e.getMessage());
+			log.debug("[cargarSuministro] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 
 		}
-		logger.debug("[cargarSuministro] Fin");
+		log.debug("[cargarSuministro] Fin");
 		return path;
 	}
 	/*
@@ -262,7 +259,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		Date datFecha							= null;
 		Integer intCodigoLuz					= null;
 		try{
-			logger.debug("[buscarSuministroxLocal] Inicio");
+			log.debug("[buscarSuministroxLocal] Inicio");
 			//Listado de Suministro
 			request.getSession().setAttribute("SessionMapSuministroxTienda", request.getSession().getAttribute("SessionMapSuministroxTienda"));
 			this.cargarListaOperacionLuz(model, filtro);
@@ -334,9 +331,9 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroSuministroLuz", filtro);
 			request.getSession().setAttribute("sessionListaEliminarSuministroLuz", listaTiendaSuministro);
-			logger.debug("[buscarSuministroxLocal] Fin");
+			log.debug("[buscarSuministroxLocal] Fin");
 		}catch(Exception e){
-			logger.debug("[buscarSuministroxLocal] Error: "+e.getMessage());
+			log.debug("[buscarSuministroxLocal] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
@@ -349,7 +346,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			strFecha				= null;
 			datFecha				= null;
 		}
-		logger.debug("[buscarSuministroxLocal] Fin");
+		log.debug("[buscarSuministroxLocal] Fin");
 		return path;
 	}
 	
@@ -368,7 +365,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		Filtro filtroTemporal					= null;
 		BitacoraBean entidad					= null;
 		try{
-			logger.debug("[EliminarCobro] Inicio");
+			log.debug("[EliminarCobro] Inicio");
 			this.cargarListaOperacionLuz(model, filtroTemporal);
 			//Critreios de busqueda
 			filtroTemporal = (Filtro)request.getSession().getAttribute("sessionFiltroSuministroLuz");
@@ -383,7 +380,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 					preEditar(luzxTienda, request);
 					luzxTiendaDao.save(luzxTienda);
 					intCodigoLuz = luzxTienda.getTblLuz().getCodigoLuz();
-					logger.debug("[EliminarCobro] CodigoLuzxTienda:"+tiendaSuministroBean.getCodigoLuzxtienda() +" CodigoLuz:"+intCodigoLuz);
+					log.debug("[EliminarCobro] CodigoLuzxTienda:"+tiendaSuministroBean.getCodigoLuzxtienda() +" CodigoLuz:"+intCodigoLuz);
 				}else{
 					String strFecha2 = getFechaMesAnio(tiendaSuministroBean.getMes(), tiendaSuministroBean.getAnio());
 					Date datFecha2 = UtilSGT.getDatetoString(strFecha2);
@@ -393,9 +390,9 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 						preEditar(luzxTienda2, request);
 						luzxTiendaDao.save(luzxTienda2);
 						intCodigoLuz = luzxTienda2.getTblLuz().getCodigoLuz();
-						logger.debug("[EliminarCobro] CodigoLuzxTienda:"+tiendaSuministroBean.getCodigoLuzxtienda() +" CodigoLuz:"+intCodigoLuz);
+						log.debug("[EliminarCobro] CodigoLuzxTienda:"+tiendaSuministroBean.getCodigoLuzxtienda() +" CodigoLuz:"+intCodigoLuz);
 					}else{
-						logger.debug("[EliminarCobro] No existe registro para eliminar CodigoLuz:"+intCodigoLuz);
+						log.debug("[EliminarCobro] No existe registro para eliminar CodigoLuz:"+intCodigoLuz);
 					}
 					
 				}
@@ -406,16 +403,16 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 				tblLuz.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 				preEditarLuz(tblLuz, request);
 				luzDao.save(tblLuz);
-				logger.debug("[EliminarCobro] Eliminado Luz:"+intCodigoLuz);
+				log.debug("[EliminarCobro] Eliminado Luz:"+intCodigoLuz);
 			}
 			model.addAttribute("respuesta", "Se eliminó los cobros de Luz Exitosamente");
 
 			model.addAttribute("registros", null);
 			model.addAttribute("filtro", filtroTemporal);
 			request.getSession().setAttribute("sessionFiltroSuministroLuz", filtroTemporal);
-			logger.debug("[EliminarCobro] Fin");
+			log.debug("[EliminarCobro] Fin");
 		}catch(Exception e){
-			logger.debug("[EliminarCobro] Error: "+e.getMessage());
+			log.debug("[EliminarCobro] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
@@ -428,7 +425,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			strFecha				= null;
 			datFecha				= null;
 		}
-		logger.debug("[EliminarCobro] Fin");
+		log.debug("[EliminarCobro] Fin");
 		return path;
 	}
 	
@@ -448,7 +445,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		Filtro filtroTemporal					= null;
 		BitacoraBean entidad					= null;
 		try{
-			logger.debug("[generarCobro] Inicio");
+			log.debug("[generarCobro] Inicio");
 			//Listado de Suministro
 			filtroTemporal = (Filtro)request.getSession().getAttribute("sessionFiltroSuministroLuz");
 			this.cargarListaOperacionLuz(model, filtroTemporal);
@@ -524,9 +521,9 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			model.addAttribute("registros", listaTiendaSuministro);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroSuministroLuz", filtroTemporal);
-			logger.debug("[generarCobro] Fin");
+			log.debug("[generarCobro] Fin");
 		}catch(Exception e){
-			logger.debug("[generarCobro] Error: "+e.getMessage());
+			log.debug("[generarCobro] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
@@ -539,7 +536,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			strFecha				= null;
 			datFecha				= null;
 		}
-		logger.debug("[generarCobro] Fin");
+		log.debug("[generarCobro] Fin");
 		return path;
 	}
 	/*
@@ -603,7 +600,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		
 		Filtro filtro						= null;
 		try{
-			logger.debug("[crearSuministroxLocal] Inicio");
+			log.debug("[crearSuministroxLocal] Inicio");
 			filtro = (Filtro)request.getSession().getAttribute("sessionFiltroSuministroLuz");
 			
 			if (filtro.getCodigoEdificacionFiltro() > 0){
@@ -620,7 +617,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			model.addAttribute("entidad", luzBean);
 			//Listado de meses
 			listaUtil.cargarDatosModel(model, Constantes.MAP_MESES);
-			logger.debug("[crearSuministroxLocal] Fin");
+			log.debug("[crearSuministroxLocal] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -670,22 +667,22 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		List<TblTienda> listaTienda			= null;
 		Map<String, Object> mapSuministro 	= null;
 		try{
-			logger.debug("[cargarSuministro] Inicio");
+			log.debug("[cargarSuministro] Inicio");
 			//Asignacion del suministro
 			listaTienda = tiendaDao.listarAllActivos(luzBean.getCodigoInmueble());
 			mapSuministro = this.obtenerSuministros(listaTienda);
 			model.addAttribute("mapSuministro", mapSuministro);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_MESES);
 			model.addAttribute("entidad", luzBean);
-			logger.debug("[cargarSuministro] Fin");
+			log.debug("[cargarSuministro] Fin");
 		}catch(Exception e){
-			logger.debug("[cargarSuministro] Error: "+e.getMessage());
+			log.debug("[cargarSuministro] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 
 		}
-		logger.debug("[cargarSuministro] Fin");
+		log.debug("[cargarSuministro] Fin");
 		return path;
 	}
 	/*
@@ -1002,7 +999,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		Integer intAnioInicio					= null;
 		//BitacoraBean entidad					= null;
 		try{
-			logger.debug("[generarSuministroxLocal] Inicio");
+			log.debug("[generarSuministroxLocal] Inicio");
 			
 			if (this.validarCamposNuevo(model, luzBean)){
 				//Obtiene lista de Locales
@@ -1054,17 +1051,17 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 								luzxtienda.setMontoGenerado(luzBean.getMontoGenerado().subtract(acumulado));
 								luzxtienda.setMontoContrato(luzBean.getMontoGenerado().subtract(acumulado));
 								luzxtienda.setSaldo(luzBean.getMontoGenerado().subtract(acumulado));
-								logger.debug("[generarSuministroxLocal] asignado:"+luzBean.getMontoGenerado().subtract(acumulado));
+								log.debug("[generarSuministroxLocal] asignado:"+luzBean.getMontoGenerado().subtract(acumulado));
 								acumulado = acumulado.add(luzBean.getMontoGenerado().subtract(acumulado));
-								logger.debug("[generarSuministroxLocal] acumulado:"+acumulado.toString());
+								log.debug("[generarSuministroxLocal] acumulado:"+acumulado.toString());
 							}else{
 								
 								luzxtienda.setMontoGenerado(montoUnitario);
 								luzxtienda.setMontoContrato(montoUnitario);
 								luzxtienda.setSaldo(montoUnitario);
 								acumulado = acumulado.add(montoUnitario);
-								logger.debug("[generarSuministroxLocal] montoUnitario:"+montoUnitario);
-								logger.debug("[generarSuministroxLocal] acumulado:"+acumulado.toString());
+								log.debug("[generarSuministroxLocal] montoUnitario:"+montoUnitario);
+								log.debug("[generarSuministroxLocal] acumulado:"+acumulado.toString());
 							}
 							
 							listaLuzxTienda.add(luzxtienda);
@@ -1155,15 +1152,15 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 				path= "cliente/suministroxinmueble/sxi_nuevo";
 				
 			}
-			logger.debug("[generarSuministroxLocal] Fin");
+			log.debug("[generarSuministroxLocal] Fin");
 		}catch(Exception e){
-			logger.debug("[generarSuministroxLocal] Error: "+e.getMessage());
+			log.debug("[generarSuministroxLocal] Error: "+e.getMessage());
 			e.printStackTrace();
 			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
 		}finally{
 			
 		}
-		logger.debug("[generarSuministroxLocal] Fin");
+		log.debug("[generarSuministroxLocal] Fin");
 		return path;
 	}
 	
@@ -1221,7 +1218,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			//this.traerRegistros(model, path, request);
 			Filtro filtro = (Filtro)request.getSession().getAttribute("sessionFiltroSuministroLuz");
 			this.buscarSuministroxLocal(model, filtro, path, request);
-			logger.debug("[guardarEntidad] Guardado..." );
+			log.debug("[guardarEntidad] Guardado..." );
 			
 		}catch(Exception e){
 			e.printStackTrace();
@@ -1235,11 +1232,11 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 	@Override
 	public void preEditar(TblLuzxtienda entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1247,11 +1244,11 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 	
 	public void preEditarLuz(TblLuz entidad, HttpServletRequest request) {
 		try{
-			logger.debug("[preEditar] Inicio" );
+			log.debug("[preEditar] Inicio" );
 			entidad.setFechaModificacion(new Date(System.currentTimeMillis()));
 			entidad.setIpModificacion(request.getRemoteAddr());
 			entidad.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-			logger.debug("[preEditar] Fin" );
+			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -1273,7 +1270,7 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 		Date datFecha							= null;
 		
 		try{
-			logger.debug("[traerRegistros] Inicio");
+			log.debug("[traerRegistros] Inicio");
 			path = "cliente/suministroxinmueble/sxi_listado";
 			filtro = (Filtro)request.getSession().getAttribute("sessionFiltroSuministroLuz");
 			if (filtro ==null){
@@ -1366,9 +1363,9 @@ public class SuministroxInmuebleAction extends BasePresentacion<TblLuzxtienda> {
 			//model.addAttribute("mapSuministroxTienda", mapSuministro);
 			model.addAttribute("filtro", filtro);
 			request.getSession().setAttribute("sessionFiltroSuministroLuz", filtro);
-			logger.debug("[traerRegistros] Fin");
+			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
-			logger.debug("[traerRegistros] Error:"+e.getMessage());
+			log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
 		}finally{
 			filtro = null;

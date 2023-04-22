@@ -2,8 +2,6 @@ package com.pe.lima.sg.service.mantenimiento;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -20,9 +18,12 @@ import org.springframework.stereotype.Service;
 
 import com.pe.lima.sg.dao.mantenimiento.ISuministroDAO;
 import com.pe.lima.sg.entity.mantenimiento.TblSuministro;
+import com.pe.lima.sg.service.seguridad.AccesoService;
+
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 public class SuministroService  {
-	private static final Logger logger = LogManager.getLogger(SuministroService.class);
 	@Autowired
 	private ISuministroDAO suministroDao;
 	
@@ -30,14 +31,14 @@ public class SuministroService  {
 	  * getAllSuministro : Lista todos los suministros
 	  * */
 	public List<TblSuministro> getAllSuministro() {
-		logger.debug("[getAllSuministro] Inicio");
+		log.debug("[getAllSuministro] Inicio");
 		List<TblSuministro> listaSuministro = null;
 		try{
 			listaSuministro = suministroDao.findAll();
 		}catch(Exception e){
 			listaSuministro = null;
 		}
-		logger.debug("[getAllSuministro] Fin");
+		log.debug("[getAllSuministro] Fin");
 		return listaSuministro;
 	}
 
@@ -45,7 +46,7 @@ public class SuministroService  {
 	  * getSuministroById : Obtiene un Suministro
 	  * */
 	public TblSuministro getSuministroById(Integer id) {
-		logger.debug("[getSuministroById] Inicio");
+		log.debug("[getSuministroById] Inicio");
 		TblSuministro suministro = null;
 		try{
 			suministro = suministroDao.findOne(id);
@@ -53,7 +54,7 @@ public class SuministroService  {
 			e.printStackTrace();
 			suministro = null;
 		}
-		logger.debug("[getSuministroById] Fin");
+		log.debug("[getSuministroById] Fin");
 		return suministro;
 	}
 
@@ -61,13 +62,13 @@ public class SuministroService  {
 	  * addSuministro : Registra un Suministro
 	  * */
 	public boolean addSuministro(TblSuministro suministro) {
-		logger.debug("[addSuministro] Inicio");
+		log.debug("[addSuministro] Inicio");
 		List<TblSuministro>  lista = null;
 		boolean resultado = false;
 		try{
 			lista = suministroDao.findByNumeroEstado(suministro.getNumero(), suministro.getEstado());
 			 if (lista != null && lista.size() > 0) {
-				 logger.debug("[addSuministro] Existe el elemento:"+lista.size());
+				 log.debug("[addSuministro] Existe el elemento:"+lista.size());
 				 resultado = false;
 	         } else {
 	        	 suministroDao.save(suministro);
@@ -75,9 +76,9 @@ public class SuministroService  {
 	         }
 		}catch(Exception e){
 			e.printStackTrace();
-			logger.debug("[addSuministro] Error:"+e.getMessage());
+			log.debug("[addSuministro] Error:"+e.getMessage());
 		}
-		logger.debug("[addSuministro] Fin");
+		log.debug("[addSuministro] Fin");
 		return resultado;
 	}
 
@@ -85,17 +86,17 @@ public class SuministroService  {
 	  * updateSuministro : Actualiza un Suministro
 	  * */
 	public boolean updateSuministro(TblSuministro suministro) {
-		logger.debug("[updateSuministro] Inicio");
+		log.debug("[updateSuministro] Inicio");
 		boolean resultado = false;
 		try{
 			suministroDao.save(suministro);
 			resultado = true;
 		}catch(Exception e){
 			e.printStackTrace();
-			logger.debug("[updateSuministro] Error:"+e.getMessage());
+			log.debug("[updateSuministro] Error:"+e.getMessage());
 			resultado = false;
 		}
-		logger.debug("[updateSuministro] Fin:"+resultado);
+		log.debug("[updateSuministro] Fin:"+resultado);
 		return resultado;
 	}
 
@@ -103,17 +104,17 @@ public class SuministroService  {
 	  * deleteSuministro : Elimina un suministro
 	  * */
 	public boolean deleteSuministro(TblSuministro suministro) {
-		logger.debug("[updateSuministro] Inicio");
+		log.debug("[updateSuministro] Inicio");
 		boolean resultado = false;
 		try{
 			suministroDao.delete(suministro);
 			resultado = true;
 		}catch(Exception e){
 			e.printStackTrace();
-			logger.debug("[updateSuministro] Error:"+e.getMessage());
+			log.debug("[updateSuministro] Error:"+e.getMessage());
 			resultado = false;
 		}
-		logger.debug("[updateSuministro] Fin:"+resultado);
+		log.debug("[updateSuministro] Fin:"+resultado);
 		return resultado;
 				
 	}
