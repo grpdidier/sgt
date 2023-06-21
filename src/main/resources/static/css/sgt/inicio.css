@@ -26,6 +26,15 @@
 .fondoAmarillo{
 	background-color:#FEEF8B;
 }
+.fondoFactura{
+	background-color:#BEC5FD;/*#FFFFFF; /*#FEEF8B;*/
+}
+.fondoBlanco{
+	background-color:#BEC5FD;
+}
+fondoCajaDeshabilitado{
+	background-color:#f9d482;
+}
 /****************************************************************************************************************
 Estilos para la tabla
 /*****************************************************************************************************************/

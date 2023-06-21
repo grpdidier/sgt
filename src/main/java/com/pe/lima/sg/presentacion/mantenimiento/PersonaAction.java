@@ -10,6 +10,7 @@ import static com.pe.lima.sg.dao.mantenimiento.PersonaSpecifications.conRuc;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.pe.lima.sg.dao.BaseDAO;
 import com.pe.lima.sg.dao.mantenimiento.IPersonaDAO;
 import com.pe.lima.sg.entity.mantenimiento.TblPersona;
+import com.pe.lima.sg.entity.mantenimiento.TblUbigeo;
 import com.pe.lima.sg.presentacion.BasePresentacion;
 import com.pe.lima.sg.presentacion.Campo;
 import com.pe.lima.sg.presentacion.Filtro;
@@ -192,11 +194,13 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 	 * @return
 	 */
 	@RequestMapping(value = "persona/editar/{id}", method = RequestMethod.GET)
-	public String editarPersona(@PathVariable Integer id, Model model) {
+	public String editarPersona(@PathVariable Integer id, Model model,HttpServletRequest request) {
 		TblPersona entidad 			= null;
 		try{
 			entidad = personaDao.findOne(id);
 			model.addAttribute("entidad", entidad);
+			asignarMapCargaDepartamento(request, entidad);
+			asignarMapCargarDistrito(request, entidad);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
@@ -216,10 +220,14 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 	 * @return
 	 */
 	@RequestMapping(value = "persona/nuevo", method = RequestMethod.GET)
-	public String crearPersona(Model model) {
+	public String crearPersona(Model model,HttpServletRequest request) {
 		try{
 			log.debug("[crearPersona] Inicio");
 			model.addAttribute("entidad", new TblPersona());
+			
+			request.getSession().setAttribute("SessionPersonaMapDistritoInei",null);
+			request.getSession().setAttribute("SessionPersonaMapProvinciaInei",null);
+			
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
@@ -261,6 +269,14 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 				exitoso = false;
 				model.addAttribute("respuesta", "El Persona existe, debe modificarlo para continuar...");
 			}
+			if (entidad.getTipoCliente().equals("-1")) {
+				exitoso = false;
+				model.addAttribute("respuesta", "Debe seleccionar si es Cliente");
+			}
+			if (entidad.getTipoProveedor().equals("-1")) {
+				exitoso = false;
+				model.addAttribute("respuesta", "Debe seleccionar si es Proveedor");
+			}
 			
 		}catch(Exception e){
 			exitoso = false;
@@ -268,6 +284,67 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			total = null;
 		}
 		return exitoso;
+	}
+	
+	@RequestMapping(value = "persona/provincia", method = RequestMethod.POST)
+	public String cargarDepartamento(Model model, TblPersona entidad, HttpServletRequest request) {
+		asignarMapCargaDepartamento(request, entidad);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
+		model.addAttribute("entidad", entidad);
+		if (entidad.getCodigoPersona()<=0) {
+			return "mantenimiento/persona/per_nuevo";
+		}else {
+			return "mantenimiento/persona/per_edicion";
+		}
+	}
+	@SuppressWarnings("unchecked")
+	private void asignarMapCargaDepartamento(HttpServletRequest request, TblPersona entidad) {
+		Map<String,List<TblUbigeo>> provinciaMap = (Map<String,List<TblUbigeo>>)request.getSession().getAttribute("SessionMapProvinciaInei");
+		if (entidad.getDepartamento() != null) {
+			List<TblUbigeo> lista = provinciaMap.get(entidad.getDepartamento());
+			request.getSession().setAttribute("SessionPersonaMapProvinciaInei", obtenerDatosUbigeo(lista));
+			request.getSession().setAttribute("SessionPersonaMapDistritoInei", null);
+		}else {
+			request.getSession().setAttribute("SessionPersonaMapProvinciaInei", null);
+			request.getSession().setAttribute("SessionPersonaMapDistritoInei", null);
+		}
+	}
+
+	@RequestMapping(value = "persona/distrito", method = RequestMethod.POST)
+	public String cargarDistrito(Model model, TblPersona entidad, HttpServletRequest request) {
+		asignarMapCargarDistrito(request,entidad);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
+		model.addAttribute("entidad", entidad);
+		if (entidad.getCodigoPersona()<=0) {
+			return "mantenimiento/persona/per_nuevo";
+		}else {
+			return "mantenimiento/persona/per_edicion";
+		}
+	}
+	@SuppressWarnings("unchecked")
+	private void asignarMapCargarDistrito(HttpServletRequest request, TblPersona entidad) {
+		Map<String,List<TblUbigeo>> distritoMap = (Map<String,List<TblUbigeo>>)request.getSession().getAttribute("SessionMapDistritoInei");
+		if (entidad.getProvincia() != null) {
+			List<TblUbigeo> lista = distritoMap.get(entidad.getProvincia());
+			request.getSession().setAttribute("SessionPersonaMapDistritoInei", obtenerDatosUbigeo(lista));
+		}else {
+			request.getSession().setAttribute("SessionPersonaMapDistritoInei", null);
+		}
+		
+	}
+
+	private Map<String, String> obtenerDatosUbigeo(List<TblUbigeo> lista) {
+		Map<String, String> resultados = new LinkedHashMap<String, String>();
+		if (lista != null && !lista.isEmpty()) {
+			for(TblUbigeo ubigeo: lista) {
+				resultados.put(ubigeo.getNombre(), ubigeo.getCodigoInei());
+			}
+		}
+		return resultados;
 	}
 	/**
 	 * Se encarga de guardar la informacion del Persona
@@ -355,63 +432,85 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		TblPersona entidadEnBd 		= null;
 		Filtro filtro				= new Filtro();
 		try{
-			// Se actualizan solo los campos del formulario
-			entidadEnBd = personaDao.findOne(entidad.getCodigoPersona());
-			entidadEnBd.setNombre(entidad.getNombre());
-			entidadEnBd.setPaterno(entidad.getPaterno());
-			entidadEnBd.setMaterno(entidad.getMaterno());
-			entidadEnBd.setNumeroDni(entidad.getNumeroDni());
-			entidadEnBd.setNumeroRuc(entidad.getNumeroRuc());
-			entidadEnBd.setEstadoCivil(entidad.getEstadoCivil());
-			entidadEnBd.setRazonSocial(entidad.getRazonSocial());
-			entidadEnBd.setTipoCliente(entidad.getTipoCliente());
-			entidadEnBd.setTipoProveedor(entidad.getTipoProveedor());
-			entidadEnBd.setTelefono1(entidad.getTelefono1());
-			entidadEnBd.setTelefono2(entidad.getTelefono2());
-			entidadEnBd.setCelular1(entidad.getCelular1());
-			entidadEnBd.setCelular2(entidad.getCelular2());
-			entidadEnBd.setCorreoElectronico(entidad.getCorreoElectronico());
-			entidadEnBd.setDireccionEmpresa(entidad.getDireccionEmpresa());
-			entidadEnBd.setDireccionCasa(entidad.getDireccionCasa());
-			entidadEnBd.setObservacion(entidad.getObservacion());
-			entidadEnBd.setTipoPersona(entidad.getTipoPersona());
-			this.preEditar(entidadEnBd, request);
-			boolean exitoso = super.guardar(entidadEnBd, model);
-			log.debug("[guardarEntidad] Guardado..." );
-			if (exitoso){
-				
-				//List<TblPersona> entidades = personaDao.buscarOneByDniRuc(entidadEnBd.getNumeroDni(), entidadEnBd.getNumeroRuc());
-				
-				//model.addAttribute("registros", entidades);
-				filtro.setNombre(entidad.getNombre());
-				filtro.setPaterno(entidad.getPaterno());
-				filtro.setMaterno(entidad.getMaterno());
-				filtro.setRazonSocial(entidad.getRazonSocial());
-				filtro.setDni(entidad.getNumeroDni());
-				filtro.setRuc(entidad.getNumeroRuc());
-				this.listarPersonaRegistrada(model, filtro, new PageableSG(), this.urlPaginado);
-				listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
-				listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
-				listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
-				listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
-				campos = configurarCamposConsulta();
-				model.addAttribute("contenido", campos);
-				model.addAttribute("filtro", new Filtro());
-			}else{
+			if (validarCamposOK(entidad, model)) {
+				// Se actualizan solo los campos del formulario
+				entidadEnBd = personaDao.findOne(entidad.getCodigoPersona());
+				entidadEnBd.setNombre(entidad.getNombre());
+				entidadEnBd.setPaterno(entidad.getPaterno());
+				entidadEnBd.setMaterno(entidad.getMaterno());
+				entidadEnBd.setNumeroDni(entidad.getNumeroDni());
+				entidadEnBd.setNumeroRuc(entidad.getNumeroRuc());
+				entidadEnBd.setEstadoCivil(entidad.getEstadoCivil());
+				entidadEnBd.setRazonSocial(entidad.getRazonSocial());
+				entidadEnBd.setTipoCliente(entidad.getTipoCliente());
+				entidadEnBd.setTipoProveedor(entidad.getTipoProveedor());
+				entidadEnBd.setTelefono1(entidad.getTelefono1());
+				entidadEnBd.setTelefono2(entidad.getTelefono2());
+				entidadEnBd.setCelular1(entidad.getCelular1());
+				entidadEnBd.setCelular2(entidad.getCelular2());
+				entidadEnBd.setCorreoElectronico(entidad.getCorreoElectronico());
+				entidadEnBd.setDireccionEmpresa(entidad.getDireccionEmpresa());
+				entidadEnBd.setDireccionCasa(entidad.getDireccionCasa());
+				entidadEnBd.setObservacion(entidad.getObservacion());
+				entidadEnBd.setTipoPersona(entidad.getTipoPersona());
+				entidadEnBd.setDepartamento(entidad.getDepartamento());
+				entidadEnBd.setProvincia(entidad.getProvincia());
+				entidadEnBd.setDistrito(entidad.getDistrito());
+				this.preEditar(entidadEnBd, request);
+				boolean exitoso = super.guardar(entidadEnBd, model);
+				log.debug("[guardarEntidad] Guardado..." );
+				if (exitoso){
+
+					//List<TblPersona> entidades = personaDao.buscarOneByDniRuc(entidadEnBd.getNumeroDni(), entidadEnBd.getNumeroRuc());
+
+					//model.addAttribute("registros", entidades);
+					filtro.setNombre(entidad.getNombre());
+					filtro.setPaterno(entidad.getPaterno());
+					filtro.setMaterno(entidad.getMaterno());
+					filtro.setRazonSocial(entidad.getRazonSocial());
+					filtro.setDni(entidad.getNumeroDni());
+					filtro.setRuc(entidad.getNumeroRuc());
+					this.listarPersonaRegistrada(model, filtro, new PageableSG(), this.urlPaginado);
+					listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
+					listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
+					listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
+					listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
+					campos = configurarCamposConsulta();
+					model.addAttribute("contenido", campos);
+					model.addAttribute("filtro", new Filtro());
+				}else{
+					path = "mantenimiento/persona/per_edicion";
+					listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
+					listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
+					listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
+					model.addAttribute("entidad", entidad);
+				}
+			}else {
 				path = "mantenimiento/persona/per_edicion";
 				listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
 				listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
 				listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
 				model.addAttribute("entidad", entidad);
 			}
-			
+
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return path;
-		
+
 	}
 	
+	private boolean validarCamposOK(TblPersona entidad, Model model) {
+		if (entidad.getDistrito().equals("-1")) {
+			model.addAttribute("respuesta", "Debe seleccionar el Distrito");
+			return false;
+			
+		}else {
+			return true;
+		}
+		
+	}
+
 	/**
 	 * Se encarga de la eliminacion logica del Persona
 	 * 

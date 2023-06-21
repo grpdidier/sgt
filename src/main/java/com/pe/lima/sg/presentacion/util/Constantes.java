@@ -338,7 +338,11 @@ public class Constantes {
 	public static Integer SUNAT_IGV											= 18;
 	
 	public static String SUNAT_RUC_EMISOR									= "20386431427";
-	
+	public static String SUNAT_RAZON_SOCIAL_EMISOR							= "GRUPO LA REYNA S.A.C.";
+	public static String SUNAT_NOMBRE_COMERCIAL_EMISOR						= "CENT. COM. LA REYNA DE GAMARRA";
+	public static String SUNAT_UBIGEO_EMISOR								= "150140";//inei --> "140130";
+	public static String SUNAT_DIRECCION_EMISOR								= "AV. CIRCUNVALACIÓN DEL CLUB GOLF LOS INCAS NRO 202 INTERIOR 402";
+	public static String SUNAT_URBANIZACION_EMISOR							= "URB. CLUB GOLF LOS INCAS";
 	public static String SUNAT_ARCHIVO_EXTENSION_CABECERA					= "CAB";
 	public static String SUNAT_ARCHIVO_EXTENSION_DETALLE					= "DET";
 	
@@ -349,6 +353,7 @@ public class Constantes {
 	public static String SUNAT_AFECTACION_IGV_GRAVADO_OPE_ONEROSO			= "10";
 	
 	public static String SUNAT_PIPE											= "|";
+	public static String SUNAT_COMA											= ",";
 	
 	public static Integer SUNAT_LONGITUD_SERIE								= 3;
 	public static Integer SUNAT_LONGITUD_NUMERO								= 8;
@@ -364,6 +369,16 @@ public class Constantes {
 	public static String CODIGO_EGRESO										= "E";
 	public static String DESCRIPCION_INGRESO								= "INGRESO";
 	public static String DESCRIPCION_EGRESO									= "EGRESO";
+	
+	public static String TIPO_PAGO_ALQUILER_CODIGO							= "ALQ";
+	public static String TIPO_PAGO_SERVICIO_CODIGO							= "SER";
+	public static String TIPO_PAGO_ALQUILER_DESCRIPCION						= "ALQUILER";
+	public static String TIPO_PAGO_SERVICIO_DESCRIPCION						= "SERVICIO";	
+	
+	public static String TIPO_OPERACION_VENTA_INTERNA_CODIGO				= "0101";
+	public static String TIPO_OPERACION_DETRACCION_CODIGO					= "1001";
+	public static String TIPO_OPERACION_VENTA_INTERNA_DESCRIPCION			= "VENTA INTERNA";
+	public static String TIPO_OPERACION_DETRACCIONDESCRIPCION				= "OPERACION SUJETA A DETRACCION";	
 	
 	public static String RESPUESTA_BUSQUEDA_EXITOSA							= "Se encontró registros con los criterios ingresados";
 	
@@ -484,5 +499,63 @@ public class Constantes {
 	public static String ESTADO_LIBRE 									= "LIBRE";
 	public static String ESTADO_ALQUILADO 								= "ALQUILADO";
 	public static String ESTADO_VENDIDO 								= "VENDIDO";
-		
+	
+	//Parametros para el modulo OSE
+	public static String PARAMETRO_DOMICILIO_FISCAL						= "LA_REYNA_DIRECCION_FISCAL";
+	public static String PARAMETRO_PORCENTAJE_DETRACCION_ALQUILER		= "DETRACCION_PORCENTAJE_ALQUILER";
+	public static String PARAMETRO_PORCENTAJE_DETRACCION_SERVICIO		= "DETRACCION_PORCENTAJE_SERVICIO";
+	public static String PARAMETRO_MONTO_DETRACCION_ALQUILER			= "DETRACCION_MONTO_ALQUILER";
+	public static String PARAMETRO_MONTO_DETRACCION_SERVICIO			= "DETRACCION_MONTO_SERVICIO";
+
+	public static String FORMA_PAGO_CONTADO								= "CONTADO";
+	public static String FORMA_PAGO_CREDITO								= "CREDITO";
+	public static Integer CODIGO_LA_REYNA								= 1;
+	//Variables para el estado de la tienda
+	public static String ESTADO_OPERACION_REGISTRADO					= "REGISTRADO";
+	public static String ESTADO_OPERACION_ENVIADO						= "ENVIADO";
+	public static String ESTADO_OPERACION_PROCESADO						= "PROCESADO";
+	
+	public static String NUMERO_CTA_DETRACCION_LA_REYNA					 = "00000710245";
+	//Catálogo No. 54: Códigos de bienes y servicios sujetos a detracción
+	public static String CATALOGO_54_CODIGO_ARRENDAMIENTO_BIENES_Y_SERVICIO = "019";
+	
+	//Porcentaje de detraccion
+	public static String PORCENTAJE_DE_TASA_DE_DETRACCION 				= "10.00";
+	//Códigos de tipos de tributos
+	public static String CODIGO_IMPUESTO_GENERAL_A_LAS_VENTAS			= "1000";
+	//Precio unitario (incluye el IGV)
+	public static String CODIGO_PRECIO_UNITARIO_INCLUYE_IGV				= "01";			
+	//Codigo de establecimiento
+	public static String CODIGO_ESTABLECIMIENTO							= "0000";
+	//Datos para la coneccion con el API OSE
+	public static String ENCODE_UTF_8									= "UTF-8";
+	public static String GRANT_TYPE_NAME								= "grant_type";
+	public static String USER_NAME										= "username";
+	public static String PASSWORD										= "password";
+	public static String ACCESS_TOKEN									= "access_token";
+	public static String BODY_FILE										= "file";
+	public static String BODY_FILE_EXTENSION							= "text/csv";
+	public static String HEADER_AUTORIZATION							= "Authorization";
+	public static String HEADER_BEARER									= "Bearer ";
+	public static String HEADER_BASIC									= "Basic ";
+	//URL DE EFACT
+	public static String RUTA_FILE_OSE									= "RUTA_FILE_OSE";
+	public static String URL_EFACT_TOKEN								= "URL_EFACT_TOKEN";
+	public static String URL_EFACT_DOCUMENTO							= "URL_EFACT_DOCUMENTO";
+	public static String URL_EFACT_CDR									= "URL_EFACT_CDR";
+	public static String URL_EFACT_XML									= "URL_EFACT_XML";
+	public static String URL_EFACT_PDF									= "URL_EFACT_PDF";
+	
+	public static String EFACT_CLIENT_SECRET							= "CLIENT_SECRET";
+	public static String EFACT_GRANT_TYPE								= "GRANT_TYPE";
+	public static String EFACT_USER_NAME								= "USER_NAME";
+	public static String EFACT_PASSWORD									= "PASSWORD";
+	
+	public static String TIPO_OPERACION_NOTA_CREDITO_CODIGO					= "07";
+	public static String TIPO_OPERACION_NOTA_DEBITO_CODIGO					= "08";
+	public static String TIPO_OPERACION_NOTA_CREDITO_DESCRIPCION			= "07: NOTA CREDITO";
+	public static String TIPO_OPERACION_NOTA_DEBITO_DESCRIPCION				= "08: NOTA DEBITO";	
+	
+	public static String SUNAT_TIPO_NOTA_01_ANULACION_CODIGO					= "01";
+	
 }

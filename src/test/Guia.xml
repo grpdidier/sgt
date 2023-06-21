@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DespatchAdvice
+	xmlns="urn:oasis:names:specification:ubl:schema:xsd:DespatchAdvice-2"
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+	xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+	xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+	xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+	<ext:UBLExtensions>
+		<ext:UBLExtension>
+			<ext:ExtensionContent>
+				<ds:Signature
+					xmlns="http://www.w3.org/2000/09/xmldsig#">
+					<ds:SignedInfo>
+						<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></ds:CanonicalizationMethod>
+						<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></ds:SignatureMethod>
+						<ds:Reference URI="">
+							<ds:Transforms>
+								<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></ds:Transform>
+							</ds:Transforms>
+							<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>
+							<ds:DigestValue>cjO3rhjw3yjvphkKjc/B2kHdKYA=</ds:DigestValue>
+						</ds:Reference>
+					</ds:SignedInfo>
+					<ds:SignatureValue>
+g+/K7E3RUGjmhr5x2Uk4eSR/2XJCUWCdKB1qG6HIohcE/d66ov33FmlBltqOasnZCsX73W8VnVzG
+3bCf4bhSMivxmpVm4xg75Bc9dS9DykmvVuGLPX/fVDMJgZfxGqUcWbyf+IoSP6Q1UAUdOioAiD8R
+5yea4JIMX6uD2MmhgsbC1CiAnCeZc3SsJHh8CFbeBYPROfJuwm6nzSUNQDy3aayempOW9y9oEXxn
+HfwVzr4V/IKCPrq6aeUUdFnicVCZf9200Ro2scgNDtelreGlFcPpIQXWVR5sCb0ItEduwTfamzes
+foZB2yr4zL/qcDlFqrk+FsepOrkNtpfmzeBaug==
+</ds:SignatureValue>
+					<ds:KeyInfo>
+						<ds:X509Data>
+							<ds:X509Certificate>
+MIIFCDCCA/CgAwIBAgIJAJzOtS/tgK4XMA0GCSqGSIb3DQEBCwUAMIIBDTEbMBkGCgmSJomT8ixk
+ARkWC0xMQU1BLlBFIFNBMQswCQYDVQQGEwJQRTENMAsGA1UECAwETElNQTENMAsGA1UEBwwETElN
+QTEYMBYGA1UECgwPVFUgRU1QUkVTQSBTLkEuMUUwQwYDVQQLDDxETkkgOTk5OTk5OSBSVUMgMjA2
+MDI2MjAzMzcgLSBDRVJUSUZJQ0FETyBQQVJBIERFTU9TVFJBQ0nDk04xRDBCBgNVBAMMO05PTUJS
+RSBSRVBSRVNFTlRBTlRFIExFR0FMIC0gQ0VSVElGSUNBRE8gUEFSQSBERU1PU1RSQUNJw5NOMRww
+GgYJKoZIhvcNAQkBFg1kZW1vQGxsYW1hLnBlMB4XDTIzMDUwNjE3MTQxOFoXDTI1MDUwNTE3MTQx
+OFowggENMRswGQYKCZImiZPyLGQBGRYLTExBTUEuUEUgU0ExCzAJBgNVBAYTAlBFMQ0wCwYDVQQI
+DARMSU1BMQ0wCwYDVQQHDARMSU1BMRgwFgYDVQQKDA9UVSBFTVBSRVNBIFMuQS4xRTBDBgNVBAsM
+PEROSSA5OTk5OTk5IFJVQyAyMDYwMjYyMDMzNyAtIENFUlRJRklDQURPIFBBUkEgREVNT1NUUkFD
+ScOTTjFEMEIGA1UEAww7Tk9NQlJFIFJFUFJFU0VOVEFOVEUgTEVHQUwgLSBDRVJUSUZJQ0FETyBQ
+QVJBIERFTU9TVFJBQ0nDk04xHDAaBgkqhkiG9w0BCQEWDWRlbW9AbGxhbWEucGUwggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQC8q9tjZmtdeNea7HE5bE61aK4SMZ8ruE4r0oGCcBB3qC2X
+obx8IP6KivFEia8qWXn1zkTGSU7P0Rgr62WzAM1T1gKld0MrQwIl8jbwvlXe1/z/Bvnmtt8Oarmo
+zFvFPXkKtvRUcW2bKynLeKmAAo8/1cNbpedpicG25eXrbR2XM+A39y0yY23pbUDdpp/WLNu5UGnQ
+cKVaH0bUMVBDHoppGNVMuaO4ac8Em9krEDTq6gT5Prviz0plRhPNfbxurSzAzXiwwOXyfbWodRgw
+iotM7onpcW2zLqoT8OyjnrxDONOrPi87EbNH3XM5kxcPCRKv9bdSbZboD/COGXZ1oyDlAgMBAAGj
+ZzBlMB0GA1UdDgQWBBQ+HjcpSwQ9IaxImQa3ab9LRhYiijAfBgNVHSMEGDAWgBQ+HjcpSwQ9IaxI
+mQa3ab9LRhYiijATBgNVHSUEDDAKBggrBgEFBQcDATAOBgNVHQ8BAf8EBAMCB4AwDQYJKoZIhvcN
+AQELBQADggEBAKZOjLSSI9LUPkMf4Y0RbFhMOUz1KCB72+2zXpQnxg2vXKi4RFSaFti/y5YaKdPx
+Z95LvYtNe4eSSIjEvwxo9H1MX0WUHHDHsZNxUyXnXwBFT4rxaxo1cuYUUBgEPjkbYm/SgWRvpoyB
+NTGqFWyXq45SYPwyWKAgfXG0qWd8tRRVWpNoptak3eKSlxHKJKe8/90e610LNKIUkw9dKcd/qFGX
+WJ2C/OEjju+b2iZcr+U4gKbe1hgVTMG1CuxL3DDOXxWrG7jHmlasVKStHHbDUuVU67++3dAkmJjF
+cCeho/DiUGJ6dzB8imi2S7mhnKvYzqKDufJLlRfLCWMbMK0IrI0=
+</ds:X509Certificate>
+						</ds:X509Data>
+						<ds:KeyValue>
+							<ds:RSAKeyValue>
+								<ds:Modulus>
+vKvbY2ZrXXjXmuxxOWxOtWiuEjGfK7hOK9KBgnAQd6gtl6G8fCD+iorxRImvKll59c5ExklOz9EY
+K+tlswDNU9YCpXdDK0MCJfI28L5V3tf8/wb55rbfDmq5qMxbxT15Crb0VHFtmyspy3ipgAKPP9XD
+W6XnaYnBtuXl620dlzPgN/ctMmNt6W1A3aaf1izbuVBp0HClWh9G1DFQQx6KaRjVTLmjuGnPBJvZ
+KxA06uoE+T674s9KZUYTzX28bq0swM14sMDl8n21qHUYMIqLTO6J6XFtsy6qE/Dso568QzjTqz4v
+OxGzR91zOZMXDwkSr/W3Um2W6A/wjhl2daMg5Q==
+</ds:Modulus>
+								<ds:Exponent>AQAB</ds:Exponent>
+							</ds:RSAKeyValue>
+						</ds:KeyValue>
+					</ds:KeyInfo>
+				</ds:Signature>
+			</ext:ExtensionContent>
+		</ext:UBLExtension>
+	</ext:UBLExtensions>
+	<cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+	<cbc:CustomizationID>2.0</cbc:CustomizationID>
+	<cbc:ID>TTT1-2</cbc:ID>
+	<cbc:IssueDate>2023-05-27</cbc:IssueDate>
+	<cbc:IssueTime>16:37:42.769</cbc:IssueTime>
+	<cbc:DespatchAdviceTypeCode>09</cbc:DespatchAdviceTypeCode>
+	<cbc:Note>Obs: observaciones</cbc:Note>
+	<cac:DespatchSupplierParty>
+		<cbc:CustomerAssignedAccountID schemeID="6">20602620337</cbc:CustomerAssignedAccountID>
+		<cac:Party>
+			<cac:PartyIdentification>
+				<cbc:ID schemeAgencyName="PE:SUNAT" schemeID="6" schemeName="Documento de Identidad" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">20602620337</cbc:ID>
+			</cac:PartyIdentification>
+			<cac:PartyLegalEntity>
+				<cbc:RegistrationName>Dysalim S.A.</cbc:RegistrationName>
+			</cac:PartyLegalEntity>
+		</cac:Party>
+	</cac:DespatchSupplierParty>
+	<cac:DeliveryCustomerParty>
+		<cbc:CustomerAssignedAccountID schemeID="6">20155945860</cbc:CustomerAssignedAccountID>
+		<cac:Party>
+			<cac:PartyIdentification>
+				<cbc:ID schemeAgencyName="PE:SUNAT" schemeID="6" schemeName="Documento de Identidad" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">20155945860</cbc:ID>
+			</cac:PartyIdentification>
+			<cac:PartyLegalEntity>
+				<cbc:RegistrationName>PONTIFICIA UNIVERSIDAD CATOLICA DEL PERU</cbc:RegistrationName>
+			</cac:PartyLegalEntity>
+		</cac:Party>
+	</cac:DeliveryCustomerParty>
+	<cac:Shipment>
+		<cbc:ID>SUNAT_Envio</cbc:ID>
+		<cbc:HandlingCode listAgencyName="PE:SUNAT" listName="Motivo de traslado" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo20">01</cbc:HandlingCode>
+		<cbc:Information>VENTA</cbc:Information>
+		<cbc:GrossWeightMeasure unitCode="KGM">1.0</cbc:GrossWeightMeasure>
+		<cac:ShipmentStage>
+			<cbc:TransportModeCode listAgencyName="PE:SUNAT" listName="Modalidad de traslado" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo18">01</cbc:TransportModeCode>
+			<cac:TransitPeriod>
+				<cbc:StartDate>2023-05-27</cbc:StartDate>
+			</cac:TransitPeriod>
+			<cac:CarrierParty>
+				<cac:PartyIdentification>
+					<cbc:ID schemeID="6">20000000001</cbc:ID>
+				</cac:PartyIdentification>
+				<cac:PartyLegalEntity>
+					<cbc:RegistrationName>EMPRESA DE TRANSPORTE PRUEBA SA</cbc:RegistrationName>
+				</cac:PartyLegalEntity>
+			</cac:CarrierParty>
+		</cac:ShipmentStage>
+		<cac:Delivery>
+			<cac:DeliveryAddress>
+				<cbc:ID schemeAgencyName="PE:INEI" schemeName="Ubigeos">211101</cbc:ID>
+				<cac:AddressLine>
+					<cbc:Line>DIRECCION LLEGADA</cbc:Line>
+				</cac:AddressLine>
+			</cac:DeliveryAddress>
+			<cac:Despatch>
+				<cac:DespatchAddress>
+					<cbc:ID schemeAgencyName="PE:INEI" schemeName="Ubigeos">151021</cbc:ID>
+					<cac:AddressLine>
+						<cbc:Line>DIRECCION PARTIDA</cbc:Line>
+					</cac:AddressLine>
+				</cac:DespatchAddress>
+			</cac:Despatch>
+		</cac:Delivery>
+	</cac:Shipment>
+	<cac:DespatchLine>
+		<cbc:ID>1</cbc:ID>
+		<cbc:DeliveredQuantity unitCode="NIU" unitCodeListAgencyName="United Nations Economic Commission for Europe" unitCodeListID="UN/ECE rec 20">1.0</cbc:DeliveredQuantity>
+		<cac:OrderLineReference>
+			<cbc:LineID>1</cbc:LineID>
+		</cac:OrderLineReference>
+		<cac:Item>
+			<cbc:Description>DETALLE DEL PRODUCTO 1</cbc:Description>
+			<cac:SellersItemIdentification>
+				<cbc:ID>001</cbc:ID>
+			</cac:SellersItemIdentification>
+		</cac:Item>
+	</cac:DespatchLine>
+
+</DespatchAdvice>

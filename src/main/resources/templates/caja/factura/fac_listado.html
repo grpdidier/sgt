@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body onload="jsSetFocusCobro();">
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-3 mb-3">
+								<a href="#" th:href="@{/facturas/nuevo}"><img th:src="@{/images/iconos/nuevo.png}" alt="Nuevo" /></a> 
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Factura Alquiler y Servicios - Listados</div>
+							<div class="col-md-3 mb-3"></div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/facturas/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border" style="background-color:#FEEF8B;">
+										<br></br>
+			
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<select th:field="${filtro.tipo}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapTipoPagoFactura}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<input type="text" class="form-control_v2 is-valid" placeholder="Serie" th:field="${filtro.serie}"/>
+											</div>
+											<div class="col-md-3 mb-3">
+												<input type="text" class="form-control_v2 is-valid" placeholder="Numero" th:field="${filtro.numero}"/>
+											</div>
+											<div class="col-md-1 mb-3"><button class="btn btn-success" type="submit">Buscar</button> </div>
+											<div class="col-md-2 mb-3" align="center">
+												<input type="button" class="btn btn-primary" onclick="jsLimpiarCriterios();" value="Limpiar"></input>
+												
+												
+											</div>
+											
+											
+										</div>
+										
+			
+											
+								</fieldset>
+								
+								<div class="container_v4" align="center">
+									
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+						  		
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">		
+									<!--Pagination -->
+									<nav class="my-1">
+									    <ul class="pagination pagination-circle pg-blue mb-0">
+											 <!--First-->
+									        <li th:class="${page.firstPage}? 'page-item disabled' : 'page-item'">
+									        	<span aria-hidden="true" class="page-link" th:if='${page.firstPage}'>First</span>
+									        	<a th:if='${not page.firstPage}' th:href="${ page.url + '0' + '/' +  page.size + '/F'  }">
+									        		 <span class="page-link" th:if='${not page.firstPage}'>First</span>
+									        	</a>
+									        </li>
+									
+									        <!--Arrow left-->
+									        <li  th:class="${page.hasPreviousPage}? 'page-item disabled' : 'page-link'">
+									        	<span aria-hidden="true"  class="page-link" th:if='${page.hasPreviousPage}'>&laquo;</span>
+									            <a  th:if='${not page.hasPreviousPage}' th:href="${page.url + (page.pageActual-2) + '/' +  page.size + '/P'}" title='Go to previous page' aria-label="Previous" >
+									               <span  aria-hidden="true">&laquo;Previous</span>
+									            </a>
+									        </li>
+									
+									        <!--Numbers-->
+									        <li th:each='item : ${page.items}' th:class="${item.current}? 'page-item active' : 'page-item'">
+									        	 <span th:if='${item.current}' th:text='${item.number}' class="page-link">1</span>
+									        	 <a class="page-link" th:if='${not item.current}' th:href="${page.url + (item.number-1)  + '/' +  page.size + '/C'}"><span th:text='${item.number}'>1</span></a>
+									        </li>
+									        <!--Arrow right-->
+									        <li th:class="${page.hasNextPage}? 'page-item disable' : 'page-link'">
+									        	<span aria-hidden="true"  class="page-link" th:if='${page.hasNextPage}'>&raquo;</span>
+									        	<a aria-label="Next" th:if='${not page.hasNextPage}' th:href="${page.url + (page.pageActual)  + '/' +  page.size + '/N'}" title='Go to next page'>
+									            	<span aria-hidden="true">Next&raquo;</span>
+									            </a>
+									        </li>
+									
+									        <!--First-->
+									        <li th:class="${page.lastPage}? 'page-item disabled' : 'page-link'">
+									        	<span aria-hidden="true" class="page-link" th:if='${page.lastPage}'>Last</span>
+									        	<a  aria-label="Last" th:if='${not page.lastPage}' th:href="${page.url + (page.totalPages - 1)  + '/' +  page.size + '/L'}">
+									        		<span aria-hidden="true" >Last: </span><font th:text="${page.total}"> </font> Elements
+									        	</a>
+									        </li>
+									        
+									        
+									
+									    </ul>
+									</nav>
+									
+									
+									<!--/Pagination -->	
+									<div class="tableFixHead">		
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<thead>
+											<tr>
+												<th>Concepto</th>
+												<th>Serie</th>
+												<th>N&uacute;mero</th>
+												<th>Fecha Emisi&oacute;n</th>
+												<th>Moneda</th>
+												<th>Total Gravado</th>
+												<th>Igv</th>
+												<th>Importe Total</th>
+												<th>Estado</th>
+												<th>Ticket</th>
+												<th>CDR</th>
+												<th>XML</th>
+												<th>PDF</th>
+												<th>Ver</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="comprobante, iterStat : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'" style="cursor: pointer" >
+												<td th:text="${comprobante.tipoPago}">Tipo de Pago</td>
+												<td th:text="${comprobante.serie}">serie</td>
+												<td th:text="${comprobante.numero}">numero</td>
+												<td th:text="${comprobante.fechaEmision}">fechaEmision</td>
+												<td th:text="${comprobante.moneda}">moneda</td>
+												<td th:text="${comprobante.totalGravados}">totalGravados</td>
+												<td th:text="${comprobante.totalIgv}">totalIgv</td>
+												<td th:text="${comprobante.total}">total</td>
+												<td th:text="${comprobante.estadoOperacion}">estadoOperacion</td>
+												<td align="center">
+													<div th:if="${comprobante.numeroTicket} == null">
+														<a th:href="${'/facturas/ticket/' + iterStat.index}">
+														<img th:src="@{/images/iconos/descargar.png}" alt="Ticket"
+														 	 onclick="if(!confirm('Desea Obtener el Ticket')){ return false;}" /></a>
+													</div>
+													<div th:if="${comprobante.numeroTicket} != null">
+														OK
+													</div>
+												</td>
+												<td align="center">
+													<div th:if="${comprobante.numeroTicket} != null">
+														<div th:if="${comprobante.nombreCdr} == null">
+															<a th:href="${'/facturas/cdr/' + iterStat.index}">
+															<img th:src="@{/images/iconos/descargar.png}" alt="CDR"
+															 	 onclick="if(!confirm('Desea Obtener el CDR')){ return false;}" /></a>
+														</div>
+														<div th:if="${comprobante.nombreCdr} != null">
+															<a th:href="${'/facturas/cdr/descargar/' + iterStat.index}">
+															<img th:src="@{/images/iconos/cdr.jpg}" alt="CDR" width="30px"
+															 	 onclick="if(!confirm('Desea Descargar el CDR')){ return false;}" /></a>
+														</div>
+													</div>
+												</td>
+												<td align="center">
+													<div th:if="${comprobante.numeroTicket} != null">
+														<div th:if="${comprobante.nombreXml} == null">
+															<a th:href="${'/facturas/xml/' + iterStat.index}">
+															<img th:src="@{/images/iconos/descargar.png}" alt="XML"
+															 	 onclick="if(!confirm('Desea Obtener el XML')){ return false;}" /></a>
+														</div>
+														<div th:if="${comprobante.nombreXml} != null">
+															<a th:href="${'/facturas/xml/descargar/' + iterStat.index}">
+															<img th:src="@{/images/iconos/xml.jpg}" alt="XML" width="30px"
+															 	 onclick="if(!confirm('Desea Descargar el XML')){ return false;}" /></a>
+														</div>
+													</div>
+												</td>
+												<td align="center">
+													<div th:if="${comprobante.numeroTicket} != null">
+														<div th:if="${comprobante.nombrePdf == null || comprobante.nombrePdf == ''} ">
+															<a th:href="${'/facturas/pdf/' + iterStat.index}">
+															<img th:src="@{/images/iconos/descargar.png}" alt="PDF"
+															 	 onclick="if(!confirm('Desea Obtener el PDF')){ return false;}" /></a>
+														</div>
+														<div th:if="${(comprobante.nombrePdf != null)} ">
+															<div th:if="${(comprobante.nombrePdf != '')} ">
+																<a th:href="${'/facturas/pdf/descargar/' + iterStat.index}">
+																<img th:src="@{/images/iconos/pdf.jpg}" alt="PDF" width="30px"
+																 	 onclick="if(!confirm('Desea Descargar el PDF')){ return false;}" /></a>
+															</div>
+														</div>
+													</div>
+												</td>
+												<td align="center">
+
+														<a th:href="${'/facturas/ver/' + iterStat.index}">
+														<img th:src="@{/images/iconos/ver.png}" alt="Eliminar"/></a>
+
+												</td>
+												
+											</tr>
+										</tbody>
+									</table>
+									</div>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Concepto</th>
+											<th>Serie</th>
+											<th>N&uacute;mero</th>
+											<th>Fecha Emisi&oacute;n</th>
+											<th>Moneda</th>
+											<th>Total Gravado</th>
+											<th>Igv</th>
+											<th>Importe Total</th>
+											<th>Estado</th>
+											<th>Ticket</th>
+											<th>CDR</th>
+											<th>XML</th>
+											<th>PDF</th>
+											<th>Ver</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="14" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

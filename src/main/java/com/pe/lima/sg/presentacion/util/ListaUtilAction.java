@@ -8,6 +8,7 @@ import static com.pe.lima.sg.dao.caja.CxCBitacoraSpecifications.conTipoOperacion
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -488,7 +489,52 @@ public class ListaUtilAction {
 		resultados.put(Constantes.DESCRIPCION_EGRESO, Constantes.CODIGO_EGRESO);
 		return resultados;
 	}
-	
+	public static Map<String, Object> obtenerTipoPagoFactura(){
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		resultados.put(Constantes.TIPO_PAGO_ALQUILER_DESCRIPCION, Constantes.TIPO_PAGO_ALQUILER_CODIGO);
+		resultados.put(Constantes.TIPO_PAGO_SERVICIO_DESCRIPCION, Constantes.TIPO_PAGO_SERVICIO_CODIGO);
+		return resultados;
+	}
+	public static Map<String, Object> obtenerTipoOperacionFactura(){
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		resultados.put(Constantes.TIPO_OPERACION_VENTA_INTERNA_DESCRIPCION, Constantes.TIPO_OPERACION_VENTA_INTERNA_CODIGO);
+		resultados.put(Constantes.TIPO_OPERACION_DETRACCIONDESCRIPCION, Constantes.TIPO_OPERACION_DETRACCION_CODIGO);
+		return resultados;
+	}
+	public static Map<String, Object> obtenerTipoComprobanteNota(){
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		resultados.put(Constantes.TIPO_OPERACION_NOTA_CREDITO_DESCRIPCION, Constantes.TIPO_OPERACION_NOTA_CREDITO_CODIGO);
+		resultados.put(Constantes.TIPO_OPERACION_NOTA_DEBITO_DESCRIPCION, Constantes.TIPO_OPERACION_NOTA_DEBITO_CODIGO);
+		return resultados;
+	}
+	public static Map<String, Object> obtenerTipoNotaCredito(){
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		resultados.put("01: Anulación de Operación", "01");
+		resultados.put("02: Anulación por error en RUC", "02");
+		resultados.put("03: Corrección por error en la descripción", "03");
+		resultados.put("04: Descuento global", "04");
+		resultados.put("05: Descuento por ítem", "05");
+		resultados.put("06: Devolución total", "06");
+		resultados.put("07: Devolución por ítem", "07");
+		resultados.put("08: Bonificación", "08");
+		resultados.put("09: Disminución en el valor", "09");
+		resultados.put("10: Otros conceptos", "10");
+		return resultados;
+	}
+	public static Map<String,String> obtenerTipoNotaCreditoMemoria(){
+		Map<String, String> resultados = new HashMap<String, String>();
+		resultados.put("01","01: Anulación de Operación");
+		resultados.put("02","02: Anulación por error en RUC");
+		resultados.put("03","03: Corrección por error en la descripción");
+		resultados.put("04","04: Descuento global");
+		resultados.put("05","05: Descuento por ítem");
+		resultados.put("06","06: Devolución total");
+		resultados.put("07","07: Devolución por ítem");
+		resultados.put("08","08: Bonificación");
+		resultados.put("09","09: Disminución en el valor");
+		resultados.put("10","10: Otros conceptos");
+		return resultados;
+	}
 
 	public  boolean generarCxCLuz(Model model, BitacoraBean entidad, HttpServletRequest request){
 		boolean resultado = false;
@@ -808,5 +854,31 @@ public class ListaUtilAction {
 		
 		return resultados;
 	}
-	
+	/*
+	 * Listado de Forma de Pago
+	 * 
+	 */
+	public static Map<String, Object> obtenerFormaPago() {
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		resultados.put("CONTADO", "CONTADO");
+		resultados.put("CREDITO", "CREDITO");
+		return resultados;
+	}
+	/*
+	 * Listado de Forma de Pago
+	 * 
+	 */
+	public static Map<String, Object> obtenerTipoDocumento() {
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		resultados.put("DNI", "1");
+		resultados.put("RUC", "6");
+		return resultados;
+	}
+	public static Map<String, String> obtenerTipoProductoFactura() {
+		Map<String, String> resultados = new LinkedHashMap<String, String>();
+		resultados.put(Constantes.DESC_TIPO_COBRO_ALQUILER, Constantes.TIPO_COBRO_ALQUILER);
+		resultados.put(Constantes.DESC_TIPO_COBRO_SERVICIO, Constantes.TIPO_COBRO_SERVICIO);
+		
+		return resultados;
+	}
 }

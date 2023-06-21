@@ -33,4 +33,7 @@ public interface ITipoCambioDAO extends BaseDAO<TblTipoCambio, Integer> {
 	
 	@Query(value = "select * from mae.tbl_tipo_cambio where fecha = :fecha AND estado = '1'  ORDER BY fecha", nativeQuery = true)
 	List<TblTipoCambio> buscarOneByFecha(@Param("fecha") Date datFecha);
+	
+	@Query(value="select * from mae.tbl_tipo_cambio order by 1 desc limit 1", nativeQuery = true)
+	TblTipoCambio obtenerUltimoTipoCambio();
 }

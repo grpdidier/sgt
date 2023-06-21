@@ -1444,3 +1444,50 @@ function jsEjecutarActualizacionFecha(){
     	document.forms[0].submit();	
    }
 }
+/* *********************************************************************************************************************************
+ * Modulo de Factura: Alquiler y Servicio
+ ********************************************************************************************************************************* */
+function jsListarProducto(){
+	document.forms[0].action = '/facturas/consulta' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();	
+}
+function jsAgregarPagoCredito(){
+	document.forms[0].action = '/facturas/formapago/agregar' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
+function jsMostrarFormaPagoDatos(obj){
+	document.forms[0].action = '/facturas/formapago/mostrar' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();	
+}
+
+function jsLimpiarCriterios(){
+	clearAllForm(document.getElementById("form"))
+}
+/* *********************************************************************************************************************************
+ * PERSONA: Ubigeo
+ ********************************************************************************************************************************* */
+
+function jsCargarProvinciaInei(obj){
+	document.forms[0].action = '/persona/provincia' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
+function jsCargarDistritoInei(obj){
+	document.forms[0].action = '/persona/distrito' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
+/* *********************************************************************************************************************************
+ * Modulo de Notas de Credito
+ ********************************************************************************************************************************* */
+function jsListarFacturas(){
+	document.forms[0].action = '/notas/consulta' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();	
+}
+
+
+

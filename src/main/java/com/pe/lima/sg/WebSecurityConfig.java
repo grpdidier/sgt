@@ -1,6 +1,7 @@
 package com.pe.lima.sg;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,6 +38,7 @@ import com.pe.lima.sg.dao.mantenimiento.IEdificioDAO;
 import com.pe.lima.sg.dao.mantenimiento.IParametroDAO;
 import com.pe.lima.sg.dao.mantenimiento.ISuministroDAO;
 import com.pe.lima.sg.dao.mantenimiento.ITipoServicioDAO;
+import com.pe.lima.sg.dao.mantenimiento.IUbigeoDAO;
 import com.pe.lima.sg.dao.seguridad.IOpcionDAO;
 import com.pe.lima.sg.dao.seguridad.IUsuarioDAO;
 import com.pe.lima.sg.entity.mantenimiento.TblConcepto;
@@ -44,6 +46,7 @@ import com.pe.lima.sg.entity.mantenimiento.TblEdificio;
 import com.pe.lima.sg.entity.mantenimiento.TblParametro;
 import com.pe.lima.sg.entity.mantenimiento.TblSuministro;
 import com.pe.lima.sg.entity.mantenimiento.TblTipoServicio;
+import com.pe.lima.sg.entity.mantenimiento.TblUbigeo;
 import com.pe.lima.sg.entity.seguridad.TblOpcion;
 import com.pe.lima.sg.entity.seguridad.TblUsuario;
 import com.pe.lima.sg.entity.seguridad.TblUsuarioPermiso;
@@ -84,6 +87,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private IUsuarioDAO usuarioDao;
 	
+	@Autowired
+	private IUbigeoDAO ubigeoDao;
 	
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -202,6 +207,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						request.getSession().setAttribute("SessionMapTipoPago",ListaUtilAction.obtenerTipoPago());
 						/*Lista de tipo de Bancarizado*/
 						request.getSession().setAttribute("SessionMapTipoBancarizado",ListaUtilAction.obtenerTipoBancarizado());
+						/*Lista de tipo de Pago: Alquiler - Servicio*/
+						request.getSession().setAttribute("SessionMapTipoPagoFactura",ListaUtilAction.obtenerTipoPagoFactura());
+						/*Lista de tipo de Pago: Alquiler - Servicio*/
+						request.getSession().setAttribute("SessionMapTipoOperacionFactura",ListaUtilAction.obtenerTipoOperacionFactura());
+						/*Lista de Forma de Pago*/
+						request.getSession().setAttribute("SessionMapFormaPago",ListaUtilAction.obtenerFormaPago());
+						/*Lista de Tipo de Documento*/
+						request.getSession().setAttribute("SessionMapTipoDocumento",ListaUtilAction.obtenerTipoDocumento());
+						/*Lista de Tipo de Producto para la factura*/
+						request.getSession().setAttribute("SessionMapTipoProductoFactura",ListaUtilAction.obtenerTipoProductoFactura());
+						/*Ubigeo*/
+						request.getSession().setAttribute("SessionMapDepartamentoInei", obtenerDepartamento());
+						request.getSession().setAttribute("SessionMapProvinciaInei", obtenerTodasLasProvincias());
+						request.getSession().setAttribute("SessionMapDistritoInei", obtenerTodosLosDistritos());
+						
+						//Tipo Comprobante
+						request.getSession().setAttribute("SessionMapTipoComprobante",ListaUtilAction.obtenerTipoComprobanteNota());
+						//Tipo Nota de credito
+						request.getSession().setAttribute("SessionMapNotaCredito",ListaUtilAction.obtenerTipoNotaCredito());
+						request.getSession().setAttribute("SessionMapNotaCreditoMotivo",ListaUtilAction.obtenerTipoNotaCreditoMemoria());
+						
 						/*Cargamos el menu asociado al usuario*/
 						List<TblOpcion> listaOpciones 	= null;
 						//Cargando los parametros del Facturador
@@ -217,6 +243,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 									System.out.println("Constantes.SUNAT_RUC_EMISOR: "+Constantes.SUNAT_RUC_EMISOR);
 								}*/
 							}
+							request.getSession().setAttribute("SessionMapParametros", mapParametro);
 						}
 						/*Se comenta porque no esta implementado el facturador*/
 						/*try{
@@ -332,7 +359,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						}else{
 							//Si es hoja
 							strResultado = strResultado + "<li id=\"child_node_"+opcion.getCodigoOpcion()+"\"> <a href=\"#\" onclick=\"jsOpcionMenu('"+opcion.getRuta()+"');\">"+opcion.getNombre()+"</a> </li>";
-							log.debug("[getOpcionesRecursivo] opcion.getNombre(): "+opcion.getNombre());
+							//log.debug("[getOpcionesRecursivo] opcion.getNombre(): "+opcion.getNombre());
 							//strResultado = strResultado + "<li>"+ opcion.getNombre() + " <img src=\"/images/iconos/hoja.png\" alt=\"Hoja\" width=\"20px\"/> </li>";
 							this.validaAccesoDirecto(accesoDirectoBean, opcion.getNombre());
 						}
@@ -393,7 +420,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			listaEdificio = edificioDao.listarAllActivos();
 			if (listaEdificio!=null){
 				for(TblEdificio edificio: listaEdificio){
-					log.debug("[obtenerValoresEdificacio] edificio:"+edificio.getNombre());
+					//log.debug("[obtenerValoresEdificacio] edificio:"+edificio.getNombre());
 					resultados.put(edificio.getNombre(), edificio.getCodigoEdificio());
 				}
 				
@@ -580,4 +607,78 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		return resultados;
 	}
+	
+	public Map<String, Object> obtenerDepartamento() {
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		List<TblUbigeo> listaDepartamento = null;
+		try{
+			log.debug("[obtenerDepartamento] inicio");
+			listaDepartamento = ubigeoDao.obtenerDepartamento();
+			if (listaDepartamento!=null){
+				for(TblUbigeo entidad: listaDepartamento){
+					log.debug("[obtenerDepartamento] departamento:"+entidad.getNombre());
+					resultados.put(entidad.getNombre(), entidad.getCodigoInei());
+				}
+				
+			}
+			log.debug("[obtenerDepartamento] Fin");
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			listaDepartamento = null;
+		}
+		
+		return resultados;
+	}
+	
+	public Map<String,List<TblUbigeo>> obtenerTodasLasProvincias(){
+		Map<String,List<TblUbigeo>> resultados = new HashMap<>();
+		List<TblUbigeo> listaConsulta = null;
+		List<TblUbigeo> listaProvincia = null;
+		
+		try {
+			listaConsulta = ubigeoDao.obtenerProvincia();
+			for(TblUbigeo entidad:listaConsulta) {
+				listaProvincia = resultados.get(entidad.getCodigoPadreInei());
+				if (listaProvincia == null) {
+					listaProvincia = new ArrayList<>();
+					listaProvincia.add(entidad);
+					resultados.put(entidad.getCodigoPadreInei(), listaProvincia);
+				}else {
+					listaProvincia.add(entidad);
+				}
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultados;
+	}
+
+	public Map<String,List<TblUbigeo>> obtenerTodosLosDistritos(){
+		Map<String,List<TblUbigeo>> resultados = new HashMap<>();
+		List<TblUbigeo> listaConsulta = null;
+		List<TblUbigeo> listaDistritos = null;
+		
+		try {
+			listaConsulta = ubigeoDao.obtenerDistrito();
+			for(TblUbigeo entidad:listaConsulta) {
+				listaDistritos = resultados.get(entidad.getCodigoPadreInei());
+				if (listaDistritos == null) {
+					listaDistritos = new ArrayList<>();
+					listaDistritos.add(entidad);
+					resultados.put(entidad.getCodigoPadreInei(), listaDistritos);
+				}else {
+					listaDistritos.add(entidad);
+				}
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return resultados;
+	}
+
 }

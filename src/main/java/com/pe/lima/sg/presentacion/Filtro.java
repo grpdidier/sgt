@@ -3,8 +3,12 @@ package com.pe.lima.sg.presentacion;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
+import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
+import com.pe.lima.sg.entity.caja.TblDetalleComprobante;
+import com.pe.lima.sg.entity.caja.TblDetalleFormaPago;
 import com.pe.lima.sg.entity.cliente.TblArbitrio;
 import com.pe.lima.sg.entity.cliente.TblLuz;
 import com.pe.lima.sg.entity.mantenimiento.TblSuministro;
@@ -21,6 +25,7 @@ public class Filtro {
 	private String estado   		= "-1";
 	private String estadoUsuario	= "";
 	private String numero			= "";
+	private String numeroFactura	= "";
 	private String tipo				= "-1";
 	private String dato				= "";
 	private String fechaInicio		= null;
@@ -80,6 +85,14 @@ public class Filtro {
 	private String fechaServicio;
 	private BigDecimal montoLuz;
 	private String fechaLuz;
+	//Para la factura
+	private String serie;
+	private TblComprobanteSunat factura;
+	private TblDetalleComprobante facturaDetalle;
+	private TblDetalleFormaPago formaPago;
+	private List<TblDetalleFormaPago> listaFormaPago;
+	private BigDecimal tipoCambio;
+	
 	public Filtro() {
 		
 	}

@@ -31,7 +31,7 @@ import com.pe.lima.sg.presentacion.Filtro;
 public class IngresoEgresoXls {
 	
 	public void reporteIngresoEgresoXls(List<IngresoEgresoBean> listaDataReporte, Filtro criterio, ServletContext context,HttpServletRequest request, HttpServletResponse response, String nameFile) throws IOException{
-		String[] columns = {"Usuario","Modulo","Tienda","RUC","Concepto","Operación","Numero","Fecha","Soles S/","Tipo Cambio","Dolares $","Tipo Pago","Detalle Modulo","Fecha Cobro","Fecha Registro","Periodo"};
+		String[] columns = {"Usuario","Modulo","Tienda","RUC","Concepto","Operación","Numero","Fecha","Soles S/","Tipo Cambio","Dolares $","Tipo Pago","Detalle Modulo","Fecha Cobro","Fecha Registro","Periodo", "Tipo Ingreso"};
 		
 		String filePath = context.getRealPath("/resources/reports");
 		File file = new File(filePath);
@@ -115,6 +115,7 @@ public class IngresoEgresoXls {
 	    	fechaCreacion.setCellValue(ingresoEgresoBean.getFecha_creacion());
 	    	fechaCreacion.setCellStyle(dateCellStyle);
 	    	row.createCell(15).setCellValue(getPeriodo(ingresoEgresoBean.getNota()));
+	    	row.createCell(16).setCellValue(ingresoEgresoBean.getDescripcion());
 		}	    
 	    // Resize all columns to fit the content size
         for(int i = 0; i < columns.length; i++) {

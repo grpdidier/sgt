@@ -27,6 +27,8 @@ import com.pe.lima.sg.bean.caja.CobroGarantia;
 import com.pe.lima.sg.bean.caja.CobroLuzBean;
 import com.pe.lima.sg.bean.caja.CobroPrimerCobro;
 import com.pe.lima.sg.bean.caja.CobroServicioBean;
+import com.pe.lima.sg.bean.caja.FacturaBean;
+import com.pe.lima.sg.bean.caja.NotaBean;
 import com.pe.lima.sg.bean.cliente.PeriodoBean;
 import com.pe.lima.sg.entity.caja.TblCobro;
 import com.pe.lima.sg.entity.caja.TblSunatCabecera;
@@ -264,6 +266,13 @@ public class UtilSGT {
 		cal.setTime(datFecha);
 		mes = cal.get(Calendar.MONTH) + 1;
 		return mes;
+	}
+	public static String getMesDateFormateado(Date datFecha){
+		Integer mes = null;
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(datFecha);
+		mes = cal.get(Calendar.MONTH) + 1;
+		return mes<10?"0"+mes:mes.toString();
 	}
 	/**
 	 * Obtiene el mes de una fecha dd/MM/yyyy
@@ -2027,5 +2036,51 @@ public class UtilSGT {
 		}
 		
 		return tipo;
+	}
+	
+	public static String getFormaPagoSunat(String tipo) {
+		String resultado = null;
+		if (tipo == null || tipo.isEmpty()) {
+			resultado =  "";
+		}
+		if (tipo.equals(Constantes.FORMA_PAGO_CREDITO)){
+			resultado =  "Credito";
+		}
+		if (tipo.equals(Constantes.FORMA_PAGO_CONTADO)){
+			resultado =  "Contado";
+		}
+		return resultado;
+	}
+	
+	public static String getNombreFacturaCVS(FacturaBean entidad) {
+		return getNombreArchivoOSE(entidad)+".csv";
+	}
+	public static String getNombreFacturaCDR(FacturaBean entidad) {
+		return getNombreArchivoOSE(entidad)+"-CDR.xml";
+	}
+	public static String getNombreFacturaPDF(FacturaBean entidad) {
+		return getNombreArchivoOSE(entidad)+"-PDF.pdf";
+	}
+	public static String getNombreFacturaXML(FacturaBean entidad) {
+		return getNombreArchivoOSE(entidad)+"-XML.xml";
+	}
+	
+	private static String getNombreArchivoOSE(FacturaBean entidad) {
+		return Constantes.SUNAT_RUC_EMISOR+"-01-"+entidad.getFactura().getSerie()+"-"+entidad.getFactura().getNumero();
+	}
+	private static String getNombreArchivoNotaOSE(NotaBean entidad) {
+		return Constantes.SUNAT_RUC_EMISOR+"-07-"+entidad.getNota().getSerie()+"-"+entidad.getNota().getNumero();
+	}
+	public static String getNombreNotaCVS(NotaBean entidad) {
+		return getNombreArchivoNotaOSE(entidad)+".csv";
+	}
+	public static String getNombreNotaCDR(NotaBean entidad) {
+		return getNombreArchivoNotaOSE(entidad)+"-CDR.xml";
+	}
+	public static String getNombreNotaPDF(NotaBean entidad) {
+		return getNombreArchivoNotaOSE(entidad)+"-PDF.pdf";
+	}
+	public static String getNombreNotaXML(NotaBean entidad) {
+		return getNombreArchivoNotaOSE(entidad)+"-XML.xml";
 	}
 }

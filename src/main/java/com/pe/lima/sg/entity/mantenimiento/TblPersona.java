@@ -46,6 +46,9 @@ public class TblPersona implements java.io.Serializable {
 	private Date fechaModificacion;
 	private String ipCreacion;
 	private String ipModificacion;
+	private String departamento;
+	private String provincia;
+	private String distrito;
 	
 	public TblPersona() {
 	}
@@ -324,6 +327,33 @@ public class TblPersona implements java.io.Serializable {
 
 	public void setIpModificacion(String ipModificacion) {
 		this.ipModificacion = ipModificacion;
+	}
+
+	@Column(name = "distrito", length = 8)
+	public String getDistrito() {
+		return distrito;
+	}
+
+	public void setDistrito(String distrito) {
+		this.distrito = distrito;
+	}
+
+	@Column(name = "departamento", length = 8)
+	public String getDepartamento() {
+		return departamento;
+	}
+
+	public void setDepartamento(String departamento) {
+		this.departamento = departamento;
+	}
+
+	@Column(name = "provincia", length = 8)
+	public String getProvincia() {
+		return provincia;
+	}
+
+	public void setProvincia(String provincia) {
+		this.provincia = provincia;
 	}
 
 }
