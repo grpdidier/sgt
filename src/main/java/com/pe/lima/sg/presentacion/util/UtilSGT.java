@@ -1911,13 +1911,13 @@ public class UtilSGT {
 		if (numero == null){
 			numero = new BigDecimal("0");
 		}
-		return numero.setScale(decimal, BigDecimal.ROUND_HALF_EVEN);
+		return numero.setScale(decimal, BigDecimal.ROUND_UP);
 	}
 	public static String getRoundDecimalString(BigDecimal numero,  int decimal){
 		if (numero == null){
 			numero = new BigDecimal("0");
 		}
-		return numero.setScale(decimal, BigDecimal.ROUND_HALF_EVEN).toString();
+		return numero.setScale(decimal, BigDecimal.ROUND_UP).toString();
 	}
 	public static BigDecimal getCalculoDescuento(BigDecimal total, BigDecimal descuento, int decimal){
 		BigDecimal calculo = null;
@@ -1930,7 +1930,7 @@ public class UtilSGT {
 		calculo = total.multiply(descuento);
 		calculo = calculo.divide(new BigDecimal("100"), 4, RoundingMode.HALF_EVEN);
 		calculo = total.subtract(calculo);
-		return calculo.setScale(decimal, BigDecimal.ROUND_HALF_EVEN);
+		return calculo.setScale(decimal, BigDecimal.ROUND_UP);
 	}
 	public static List<String> getNombreArchivos(String nombreArchivo){
 		ArrayList<String> lista = new ArrayList<>();

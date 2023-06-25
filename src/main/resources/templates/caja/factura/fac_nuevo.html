@@ -149,7 +149,7 @@
 								</fieldset>
 								<br/>
 								<fieldset class="scheduler-border fondoBlanco">
-									<legend class="scheduler-border title10pt"><b>Importe Totales</b></legend>
+									<legend class="scheduler-border title10pt"><b>Importe Totales</b><span th:if="${entidad.tipoCambio != null}">(Tipo de Cambio: <span class="title10pt" th:text="${entidad.tipoCambio}" style="color:red"></span>)</span></legend>
 										<div class="row"><div class="col-md-12 mb-0">&nbsp;</div></div>
 										<div class="row">
 											<div class="col-md-4 mb-0">

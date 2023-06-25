@@ -407,7 +407,12 @@ public class FacturaAction {
 			log.debug("[regresar] Inicio");
 			path = "caja/factura/fac_listado";
 			
-			model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroComprobante"));
+			Filtro filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroComprobante");
+			if (filtro == null) {
+				filtro = new Filtro();
+			}
+			
+			model.addAttribute("filtro", filtro);
 			model.addAttribute("registros", request.getSession().getAttribute("ListadoComprobante"));
 			model.addAttribute("page", request.getSession().getAttribute("PageComprobante"));
 			
@@ -458,7 +463,7 @@ public class FacturaAction {
 				bean.setTotal(comprobante.getTotal());
 				bean.setTotalGravados(comprobante.getTotalGravados());
 				bean.setTotalIgv(comprobante.getTotalIgv());
-				bean.setEstadoOperacion(comprobante.getEstadoOperacion());
+				bean.setEstadoOperacion(renombrarEstadoOperacion(comprobante.getEstadoOperacion()));
 				bean.setCodigoComprobante(comprobante.getCodigoComprobante());
 				bean.setTipoPago(comprobante.getTipoPago());
 				bean.setFechaEmision(comprobante.getFechaEmision());
@@ -473,6 +478,28 @@ public class FacturaAction {
 		}
 		
 		return lista;
+	}
+	private String renombrarEstadoOperacion(String estadoOperacion) {
+		if (estadoOperacion.equals("PDF: 200")) {
+			return "VALIDADO";
+		}
+		if (estadoOperacion.equals("CDR: 202")) {
+			return "CDR PENDIENTE";
+		}
+		if (estadoOperacion.equals("CDR: 200")) {
+			return "CDR RECIBIDO";
+		}
+		if (estadoOperacion.equals("XML: 202")) {
+			return "XML PENDIENTE";
+		}
+		if (estadoOperacion.equals("XML: 200")) {
+			return "XML RECIBIDO";
+		}
+		if (estadoOperacion.equals("PDF: 202")) {
+			return "PDF PENDIENTE";
+		}
+		
+		return "ERROR";
 	}
 	private boolean criteriosValido(Filtro filtro, Model model) {
 		return true;
@@ -864,24 +891,25 @@ public class FacturaAction {
 		
 		
 		porcentajeDetraccion = parametro.getValor();
-		montoCalculadoDetraccion = entidad.getFactura().getTotal().multiply(porcentajeDetraccion).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_EVEN);
+		montoCalculadoDetraccion = entidad.getFactura().getTotal().multiply(porcentajeDetraccion).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_UP);
 		entidad.getFactura().setDetracionTotal(entidad.getFactura().getTotal().subtract(montoCalculadoDetraccion));
 		//Sobre este monto se realiza la forma de pago
 		entidad.getFormaPago().setMonto(entidad.getFactura().getDetracionTotal());
 		if (entidad.getFactura().getMoneda().equals("USD")) {
-			montoCalculadoDetraccion = montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, BigDecimal.ROUND_HALF_EVEN);
+			log.info("[asignarDatosDetraccion] detraccion[ROUND_UP]: "+montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, BigDecimal.ROUND_UP));
+			montoCalculadoDetraccion = montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, BigDecimal.ROUND_UP);
 			entidad.getFactura().setDetracionMonto(montoCalculadoDetraccion);
 			//entidad.getFactura().setDetracionTotal((entidad.getFactura().getTotal().multiply(tipoCambio.getValor()).subtract(montoCalculadoDetraccion)).setScale(0, BigDecimal.ROUND_HALF_EVEN));
 		}else {
 			entidad.getFactura().setDetracionMonto(montoCalculadoDetraccion);
 		}
-		
+		entidad.setTipoCambio(tipoCambio.getValor().toString() + " : "+UtilSGT.formatFechaSGT(tipoCambio.getFecha()));
 		entidad.getFactura().setDetracionPorcentaje(porcentajeDetraccion);
 		entidad.getFactura().setTipoOperacion(Constantes.TIPO_OPERACION_DETRACCION_CODIGO);
 	}
 	private boolean montoEsParaDetracccion(TblTipoCambio tipoCambio, FacturaBean entidad, BigDecimal montoDetraccion) {
 		BigDecimal montoSoles = null;
-		montoSoles = tipoCambio.getValor().multiply(entidad.getFactura().getTotal()).setScale(2, BigDecimal.ROUND_HALF_EVEN);
+		montoSoles = tipoCambio.getValor().multiply(entidad.getFactura().getTotal()).setScale(2, BigDecimal.ROUND_UP);
 		if (montoSoles.compareTo(montoDetraccion)>=0) {
 			return true;
 		}else {

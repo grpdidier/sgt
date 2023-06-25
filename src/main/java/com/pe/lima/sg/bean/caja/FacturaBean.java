@@ -28,5 +28,7 @@ public class FacturaBean {
 	//Para actualizar el numero del comprobante en CxC
 	private Integer codigoContrato;
 	private Integer codigoCxCDocumento;
+	//Para mostrar el tipo de cambio en la pantalla
+	private String tipoCambio;
 	
 }

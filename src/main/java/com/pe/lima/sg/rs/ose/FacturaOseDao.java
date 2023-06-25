@@ -187,10 +187,10 @@ public class FacturaOseDao {
 	}
 	private BigDecimal getIgv(BigDecimal montoConIgv, BigDecimal montoSinIgv) {
 		//return monto.multiply(new BigDecimal(Constantes.SUNAT_IGV)).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_HALF_EVEN);
-		return montoConIgv.subtract(montoSinIgv).setScale(2, BigDecimal.ROUND_HALF_EVEN);
+		return montoConIgv.subtract(montoSinIgv).setScale(2, BigDecimal.ROUND_UP);
 	}
 	private BigDecimal getTotal(BigDecimal igv, BigDecimal monto) {
-		return monto.add(igv).setScale(2, BigDecimal.ROUND_HALF_EVEN);
+		return monto.add(igv).setScale(2, BigDecimal.ROUND_UP);
 	}
 	public List<FacturaBean> getConsultaFacturaOse(Filtro criterio){
 		log.info("[getConsultaFacturaOse] Inicio");
