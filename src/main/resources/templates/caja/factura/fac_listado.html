@@ -127,6 +127,7 @@
 												<th>Concepto</th>
 												<th>Serie</th>
 												<th>N&uacute;mero</th>
+												<th>Nro.Local</th>
 												<th>Fecha Emisi&oacute;n</th>
 												<th>Moneda</th>
 												<th>Total Gravado</th>
@@ -145,6 +146,7 @@
 												<td th:text="${comprobante.tipoPago}">Tipo de Pago</td>
 												<td th:text="${comprobante.serie}">serie</td>
 												<td th:text="${comprobante.numero}">numero</td>
+												<td th:text="${comprobante.numeroTienda}">numeroTienda</td>
 												<td th:text="${comprobante.fechaEmision}">fechaEmision</td>
 												<td th:text="${comprobante.moneda}">moneda</td>
 												<td th:text="${comprobante.totalGravados}">totalGravados</td>
@@ -223,6 +225,7 @@
 											<th>Concepto</th>
 											<th>Serie</th>
 											<th>N&uacute;mero</th>
+											<th>Nro.Local</th>
 											<th>Fecha Emisi&oacute;n</th>
 											<th>Moneda</th>
 											<th>Total Gravado</th>
@@ -236,7 +239,7 @@
 											<th>Ver</th>
 										</tr>
 										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
-											<td colspan="14" align="center">No se encontr&oacute; elementos</td>
+											<td colspan="15" align="center">No se encontr&oacute; elementos</td>
 										</tr>
 									</table>
 								</div>

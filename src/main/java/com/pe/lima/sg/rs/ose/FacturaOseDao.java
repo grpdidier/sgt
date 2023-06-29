@@ -174,15 +174,15 @@ public class FacturaOseDao {
 	}
 	private String getConcepto(String tipo, String tienda) {
 		if (tipo.equals(Constantes.TIPO_PAGO_ALQUILER_CODIGO)) {
-			return "ALQUILER MENSUAL DE LA TIENDA "+ tienda +" PERIODO DE " 
-					+ UtilSGT.getMesPersonalizado(UtilSGT.getMesDate(new Date())) + " " + UtilSGT.getAnioDate(new Date()) +
-					" CORRESPONDIENTE A LA FECHA DE " + UtilSGT.getFistDay(UtilSGT.getMesDateFormateado(new Date()), UtilSGT.getAnioDate(new Date())) +
-					" AL " + UtilSGT.getLastDay(UtilSGT.getMesDate(new Date()), UtilSGT.getAnioDate(new Date()));
+			return "Alquiler de la Tienda "+ tienda +" correspondiente al periodo " 
+					+ UtilSGT.getMesPersonalizado(UtilSGT.getMesDate(new Date())) + " " + UtilSGT.getAnioDate(new Date());
+					/*" CORRESPONDIENTE A LA FECHA DE " + UtilSGT.getFistDay(UtilSGT.getMesDateFormateado(new Date()), UtilSGT.getAnioDate(new Date())) +
+					" AL " + UtilSGT.getLastDay(UtilSGT.getMesDate(new Date()), UtilSGT.getAnioDate(new Date()));*/
 		}else {
-			return "SERVICIO MENSUAL DE LA TIENDA "+ tienda +" PERIODO DE " 
-					+ UtilSGT.getMesPersonalizado(UtilSGT.getMesDate(new Date())) + " " + UtilSGT.getAnioDate(new Date()) +
+			return "Servicio de Mantenimiento de la Tienda "+ tienda +" correspondiente al periodo " 
+					+ UtilSGT.getMesPersonalizado(UtilSGT.getMesDate(new Date())) + " " + UtilSGT.getAnioDate(new Date());/* +
 					" CORRESPONDIENTE A LA FECHA DE " + UtilSGT.getFistDay(UtilSGT.getMesDateFormateado(new Date()), UtilSGT.getAnioDate(new Date())) +
-					" AL " + UtilSGT.getLastDay(UtilSGT.getMesDate(new Date()), UtilSGT.getAnioDate(new Date()));
+					" AL " + UtilSGT.getLastDay(UtilSGT.getMesDate(new Date()), UtilSGT.getAnioDate(new Date()));*/
 		}
 	}
 	private BigDecimal getIgv(BigDecimal montoConIgv, BigDecimal montoSinIgv) {

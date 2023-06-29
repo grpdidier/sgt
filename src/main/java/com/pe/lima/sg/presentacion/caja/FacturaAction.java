@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -317,6 +318,7 @@ public class FacturaAction {
 			path = "caja/factura/fac_nuevo";
 			entidad = (FacturaBean)request.getSession().getAttribute("DatosFacturaBean");
 			entidad.getFactura().setFormaPago(factura.getFactura().getFormaPago());
+			calcularNuevoMontoAPagar(entidad);
 			model.addAttribute("entidad", entidad);
 			request.getSession().setAttribute("DatosFacturaBean",entidad);
 			log.debug("[mostrarFormaPago] Fin");
@@ -346,6 +348,7 @@ public class FacturaAction {
 				detalleFormaPago.setFecha(factura.getFechaFin());
 				detalleFormaPago.setMoneda(factura.getFormaPago().getMoneda());
 				entidad.getListaFormaPago().add(detalleFormaPago);
+				calcularNuevoMontoAPagar(entidad);
 			}
 			model.addAttribute("entidad", entidad);
 			model.addAttribute("registrospago", entidad.getListaFormaPago());
@@ -360,6 +363,17 @@ public class FacturaAction {
 		return path;
 	}
 	
+	private void calcularNuevoMontoAPagar(FacturaBean entidad) {
+		BigDecimal monto = entidad.getFormaPago().getMonto();
+		BigDecimal montoCuotaTotal = new BigDecimal("0");
+		if (entidad.getListaFormaPago() != null) {
+			for(TblDetalleFormaPago detalle: entidad.getListaFormaPago()) {
+				montoCuotaTotal = montoCuotaTotal.add(detalle.getMonto());
+			}
+		}
+		log.debug("[calcularNuevoMontoAPagar] monto:"+monto+ " - cuotaTotal:"+montoCuotaTotal);
+		entidad.setMontoCredito(monto.subtract(montoCuotaTotal));
+	}
 	@RequestMapping(value = "/facturas/formapago/eliminar/{id}", method = RequestMethod.GET)
 	public String eliminarFormaPago(@PathVariable Integer id, HttpServletRequest request, Model model, PageableSG pageable) {
 		FacturaBean entidad			= null;
@@ -371,6 +385,7 @@ public class FacturaAction {
 			entidad = (FacturaBean)request.getSession().getAttribute("DatosFacturaBean");
 			TblDetalleFormaPago detalle = entidad.getListaFormaPago().get(id);
 			entidad.getListaFormaPago().remove(detalle);
+			calcularNuevoMontoAPagar(entidad);
 			request.getSession().setAttribute("DatosFacturaBean",entidad);
 			model.addAttribute("entidad", entidad);
 			model.addAttribute("registrospago", entidad.getListaFormaPago());
@@ -458,6 +473,7 @@ public class FacturaAction {
 				bean = new ComprobanteSunatBean();
 				bean.setSerie(comprobante.getSerie());
 				bean.setNumero(comprobante.getNumero());
+				bean.setNumeroTienda(comprobante.getNumeroTienda());
 				bean.setFechaVencimiento(comprobante.getFechaVencimiento());
 				bean.setMoneda(comprobante.getMoneda());
 				bean.setTotal(comprobante.getTotal());
@@ -891,13 +907,13 @@ public class FacturaAction {
 		
 		
 		porcentajeDetraccion = parametro.getValor();
-		montoCalculadoDetraccion = entidad.getFactura().getTotal().multiply(porcentajeDetraccion).divide(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_UP);
+		montoCalculadoDetraccion = entidad.getFactura().getTotal().multiply(porcentajeDetraccion).divide(new BigDecimal("100")).setScale(2, RoundingMode.HALF_UP);
 		entidad.getFactura().setDetracionTotal(entidad.getFactura().getTotal().subtract(montoCalculadoDetraccion));
 		//Sobre este monto se realiza la forma de pago
 		entidad.getFormaPago().setMonto(entidad.getFactura().getDetracionTotal());
 		if (entidad.getFactura().getMoneda().equals("USD")) {
-			log.info("[asignarDatosDetraccion] detraccion[ROUND_UP]: "+montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, BigDecimal.ROUND_UP));
-			montoCalculadoDetraccion = montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, BigDecimal.ROUND_UP);
+			log.info("[asignarDatosDetraccion] detraccion[ROUND_UP]: "+montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, RoundingMode.HALF_UP));
+			montoCalculadoDetraccion = montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, RoundingMode.HALF_UP);
 			entidad.getFactura().setDetracionMonto(montoCalculadoDetraccion);
 			//entidad.getFactura().setDetracionTotal((entidad.getFactura().getTotal().multiply(tipoCambio.getValor()).subtract(montoCalculadoDetraccion)).setScale(0, BigDecimal.ROUND_HALF_EVEN));
 		}else {
@@ -909,7 +925,7 @@ public class FacturaAction {
 	}
 	private boolean montoEsParaDetracccion(TblTipoCambio tipoCambio, FacturaBean entidad, BigDecimal montoDetraccion) {
 		BigDecimal montoSoles = null;
-		montoSoles = tipoCambio.getValor().multiply(entidad.getFactura().getTotal()).setScale(2, BigDecimal.ROUND_UP);
+		montoSoles = tipoCambio.getValor().multiply(entidad.getFactura().getTotal()).setScale(2, RoundingMode.HALF_UP);
 		if (montoSoles.compareTo(montoDetraccion)>=0) {
 			return true;
 		}else {
@@ -951,7 +967,7 @@ public class FacturaAction {
 			resultado = false;
 		}
 		entidad.setMontoCredito(factura.getMontoCredito());
-		if (factura.getFechaFin() == null || factura.getFechaFin().isEmpty() || UtilSGT.getDatetoString(factura.getFechaFin()).before(new Date())) {
+		if (factura.getFechaFin() == null || factura.getFechaFin().isEmpty() || UtilSGT.getDatetoString(factura.getFechaFin()).before(obtenerFechaDeAyer())) {
 			model.addAttribute("respuesta", "Debe ingresar una fecha posterior");
 			resultado = false;
 		}
@@ -959,6 +975,14 @@ public class FacturaAction {
 		return resultado;
 	}
 	
+	private Date obtenerFechaDeAyer() {
+		Date fechaActual = new Date();
+		Calendar calendario = Calendar.getInstance();
+		calendario.setTime(fechaActual);
+		calendario.add(Calendar.DAY_OF_YEAR, -1);
+		Date fechaAyer = calendario.getTime();
+		return fechaAyer;
+	}
 	
 	private void fileDownload(String fullPath, HttpServletResponse response, String filename){
 		File file = new File(fullPath);
@@ -1228,7 +1252,6 @@ public class FacturaAction {
 	public String paginarEntidad(@PathVariable Integer page, @PathVariable Integer size, @PathVariable String operacion, Model model,  PageableSG pageable, HttpServletRequest request) {
 		Filtro filtro = null;
 		String path = null;
-		Map<String, Object> campos = null;
 		try{
 			//log.debug("[traerRegistros] Inicio");
 			path = "caja/factura/fac_listado";
