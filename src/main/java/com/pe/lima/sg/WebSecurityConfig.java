@@ -181,11 +181,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						request.getSession().setAttribute("SessionIngresoSalida", ListaUtilAction.obtenerValoresIngresoSalida());
 						request.getSession().setAttribute("SessionEstadoCajaChica", ListaUtilAction.obtenerValoresEstadoCajaChica());
 						request.getSession().setAttribute("SessionMapAnio", ListaUtilAction.obtenerAnios());
+						request.getSession().setAttribute("SessionMapAnioFactura", ListaUtilAction.obtenerAniosFactura());
 						request.getSession().setAttribute("SessionMapMeses", ListaUtilAction.obtenerValoresMesesSession());
 						request.getSession().setAttribute("SessionMapTipoMoneda", ListaUtilAction.obtenerValoresTipoMoneda());
 						log.debug("[onAuthenticationSuccess] SessionMapEstadoUsuario");
 						/*Lista de Edificaciones: Inmuebles*/
 						request.getSession().setAttribute("SessionMapEdificacion", obtenerValoresEdificacio());
+						request.getSession().setAttribute("SessionMapEdificacionOperacion", obtenerValoresEdificacioOperacion());
 						/*Lista de Concepto x Tipo: Ingreso y Gasto*/
 						request.getSession().setAttribute("SessionMapConceptoIngreso", obtenerValoresConcepto(Constantes.CAJA_CHICA_INGRESO));
 						request.getSession().setAttribute("SessionMapConceptoGasto", obtenerValoresConcepto(Constantes.CAJA_CHICA_GASTO));
@@ -426,6 +428,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				
 			}
 			log.debug("[obtenerValoresEdificacio] Fin");
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			listaEdificio = null;
+		}
+		
+		return resultados;
+	}
+	public Map<Integer, String> obtenerValoresEdificacioOperacion() {
+		Map<Integer, String> resultados = new HashMap<>();
+		List<TblEdificio> listaEdificio = null;
+		try{
+			log.debug("[obtenerValoresEdificacioOperacion] inicio");
+			listaEdificio = edificioDao.listarAllActivos();
+			if (listaEdificio!=null){
+				for(TblEdificio edificio: listaEdificio){
+					resultados.put(edificio.getCodigoEdificio(), edificio.getNombre());
+				}
+			}
+			log.debug("[obtenerValoresEdificacioOperacion] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{

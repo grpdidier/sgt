@@ -1489,5 +1489,14 @@ function jsListarFacturas(){
 	document.forms[0].submit();	
 }
 
-
-
+/* *********************************************************************************************************************************
+ * Modulo de Facturas Masivas - Alquiler
+ ********************************************************************************************************************************* */
+function grabarTiendaParaFacturar(){
+	if (confirm('Esta seguro de grabar los registros')){
+		document.getElementById('idGrabarTiendaFactura').style.display = 'none';
+		document.forms[0].action = '/masivotienda,/facturas/alquiler/nuevo/tiendas/grabar' ;
+		document.forms[0].method = 'POST';
+		document.forms[0].submit();
+	}
+}

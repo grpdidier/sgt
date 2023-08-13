@@ -50,4 +50,7 @@ public interface ICxCDocumentoDAO extends BaseOperacionDAO<TblCxcDocumento, Inte
 	@Query(value = "select * from caj.tbl_cxc_documento where codigo_referencia =:codigoReferencia AND  tipo_referencia =:tipoReferencia AND estado = '1' ORDER BY 1 ", nativeQuery = true)
 	List<TblCxcDocumento> listarCxCxContratoxTipoServicio(@Param("codigoReferencia") int intCodigoReferencia, @Param("tipoReferencia") String strTipoReferencia);
 
+	@Query(value = "select * from caj.tbl_cxc_documento where tipo_referencia = :tipoReferencia AND tipo_documento = 'FAC' AND anio = :anio AND mes =:mes AND estado = '1' ORDER BY 1 ", nativeQuery = true)
+	List<TblCxcDocumento> listarCxCByAnioMes(@Param("tipoReferencia") String strTipoReferencia, @Param("anio") Integer intAnio, @Param("mes")Integer intMes);
+
 }

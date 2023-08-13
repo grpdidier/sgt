@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body >
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-3 mb-3">
+								<a href="#"	th:href="@{/masivo/facturas/alquiler/regresarlista}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Nuevo</div>
+							<div class="col-md-3 mb-3"></div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/masivo/facturas/alquiler/nuevo/tiendas}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border" style="background-color:#FEEF8B;">
+										<br></br>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label>Edificio:</label>
+												<div th:fragment="combo">
+													<select th:field="${entidad.codigoEdificio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label>Periodo:</label>
+												<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" th:field="${entidad.periodo}" readonly="readonly"   />
+												<input type="hidden" th:field="${entidad.anio}"/>
+												<input type="hidden" th:field="${entidad.mes}"/>
+											</div>
+											<div class="col-md-3 mb-3">
+											</div>
+											<div class="col-md-1 mb-3">
+												<button class="btn btn-success" type="submit">Listar Tiendas</button> 
+											</div>
+											<div class="col-md-2 mb-3" align="center">
+											</div>
+										</div>
+								</fieldset>
+								
+								<div class="container_v4" align="center">
+									
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+						  		
+								
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

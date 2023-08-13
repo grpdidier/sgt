@@ -430,6 +430,17 @@ public class ListaUtilAction {
 		}
 		return resultados;
 	}
+	public  static Map<Integer, Object> obtenerAniosFactura() {
+		Map<Integer, Object> resultados = new LinkedHashMap<Integer, Object>();
+		String strFecha	= null;
+		Integer anio = null;
+		strFecha = UtilSGT.getFecha("yyyy-MM-dd");
+		anio = new Integer(strFecha.substring(0,4));
+		for (Integer i=2023; i<=anio; i++){
+			resultados.put(i, i);
+		}
+		return resultados;
+	}
 	/**
 	 * Listado de Meses
 	 * 

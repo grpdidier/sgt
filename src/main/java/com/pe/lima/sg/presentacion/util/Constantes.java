@@ -557,5 +557,10 @@ public class Constantes {
 	public static String TIPO_OPERACION_NOTA_DEBITO_DESCRIPCION				= "08: NOTA DEBITO";	
 	
 	public static String SUNAT_TIPO_NOTA_01_ANULACION_CODIGO					= "01";
-	
+	//Modulo Masivo
+	public static String MASIVO_TIPO_ALQUILER							= "ALQUILER";
+	/*Estados*/
+	public static String MASIVO_ESTADO_REGISTRADO							= "REGISTRADO";
+	public static String MASIVO_ESTADO_EN_PROCESO							= "EN PROCESO";
+	public static String MASIVO_ESTADO_FINALIZADO							= "FINALIZADO";
 }
