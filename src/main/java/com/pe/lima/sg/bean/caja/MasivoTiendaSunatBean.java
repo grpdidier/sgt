@@ -20,6 +20,7 @@ public class MasivoTiendaSunatBean implements Serializable {
 	private int codigoContrato;
 	private int codigoCxcDocumento;
 	private String excluido;
+	private BigDecimal monto;
 	private String estado;	
 	private Integer usuarioCreacion;	
 	private Integer usuarioModificacion;
@@ -31,7 +32,6 @@ public class MasivoTiendaSunatBean implements Serializable {
 	//Campos adicionales
 	private String nombreEdificio;
 	private String nombrePeriodo;
-	private BigDecimal monto;
 	
 	
 

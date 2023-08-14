@@ -71,6 +71,11 @@
 						  				</div>
 						  			</div>
 						  		</div>
+						  		<div class="row">
+						  				<div class="col-md-12 mb-3" align="center">
+						  					<button class="btn btn-success" id="idGrabarTiendaFactura"  onclick="grabarTiendaParaFacturar()">Grabar</button> 
+						  				</div>
+						  			</div>
 						  		<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">	
 							  		<div class="tableFixHead">		
 										<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
@@ -100,11 +105,7 @@
 											</tbody>
 										</table>
 									</div>
-									<div class="row">
-						  				<div class="col-md-12 mb-3" align="center">
-						  					<button class="btn btn-success" id="idGrabarTiendaFactura"  onclick="grabarTiendaParaFacturar()">Grabar</button> 
-						  				</div>
-						  			</div>
+									
 								</div>
 								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
 									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">

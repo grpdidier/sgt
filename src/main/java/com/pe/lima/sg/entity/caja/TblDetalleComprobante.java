@@ -2,6 +2,10 @@ package com.pe.lima.sg.entity.caja;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.servlet.http.HttpServletRequest;
+
+import com.pe.lima.sg.presentacion.util.Constantes;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -211,4 +215,48 @@ public class TblDetalleComprobante implements Serializable {
 		this.ipModificacion = ipModificacion;
 	}
 
+	public void setAuditoriaCreacion(HttpServletRequest request){
+		Integer idUsuario 		= null;
+		String strIdUsuario 	= null;
+		try{
+			this.setFechaCreacion(new Date(System.currentTimeMillis()));
+			this.setIpCreacion(request.getRemoteAddr());
+			this.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
+			strIdUsuario = (String)request.getSession().getAttribute("id_usuario");
+			if (strIdUsuario==null){
+				idUsuario = 1;
+			}else{
+				idUsuario = new Integer(strIdUsuario);
+			}
+			this.setUsuarioCreacion(idUsuario);
+		}catch(Exception e){
+			e.printStackTrace();
+			this.setUsuarioCreacion(0);
+		}finally{
+			idUsuario 		= null;
+			strIdUsuario	= null;
+		}
+	}
+	
+	public void setAuditoriaModificacion(HttpServletRequest request){
+		Integer idUsuario 		= null;
+		String strIdUsuario 	= null;
+		try{
+			this.setFechaModificacion(new Date(System.currentTimeMillis()));
+			this.setIpModificacion(request.getRemoteAddr());
+			strIdUsuario = (String)request.getSession().getAttribute("id_usuario");
+			if (strIdUsuario==null){
+				idUsuario = 1;
+			}else{
+				idUsuario = new Integer(strIdUsuario);
+			}
+			this.setUsuarioModificacion(idUsuario);
+		}catch(Exception e){
+			e.printStackTrace();
+			this.setUsuarioModificacion(0);
+		}finally{
+			idUsuario 		= null;
+			strIdUsuario	= null;
+		}
+	}
 }

@@ -23,6 +23,10 @@ public class TblMasivoSunat implements java.io.Serializable {
 	private int codigoMasivo;
 	private int codigoEdificio;
 	private String periodo;
+	private int csvEnviado;
+	private int csvError;
+	private int csvTotal;
+	private int csvIntento;
 	private int xmlGenerado;
 	private int xmlError;
 	private int xmlTotal;
@@ -428,6 +432,46 @@ public class TblMasivoSunat implements java.io.Serializable {
 
 	public void setMes(String mes) {
 		this.mes = mes;
+	}
+
+	@Column(name = "csv_enviado")
+	public int getCsvEnviado() {
+		return csvEnviado;
+	}
+
+
+	public void setCsvEnviado(int csvEnviado) {
+		this.csvEnviado = csvEnviado;
+	}
+
+	@Column(name = "csv_error")
+	public int getCsvError() {
+		return csvError;
+	}
+
+
+	public void setCsvError(int csvError) {
+		this.csvError = csvError;
+	}
+
+	@Column(name = "csv_total")
+	public int getCsvTotal() {
+		return csvTotal;
+	}
+
+
+	public void setCsvTotal(int csvTotal) {
+		this.csvTotal = csvTotal;
+	}
+
+	@Column(name = "csv_intento")
+	public int getCsvIntento() {
+		return csvIntento;
+	}
+
+
+	public void setCsvIntento(int csvIntento) {
+		this.csvIntento = csvIntento;
 	}
 	
 }

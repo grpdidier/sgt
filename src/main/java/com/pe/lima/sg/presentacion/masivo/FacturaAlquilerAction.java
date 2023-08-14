@@ -6,7 +6,10 @@ import static com.pe.lima.sg.dao.caja.MasivoSunatSpecifications.conEstado;
 import static com.pe.lima.sg.dao.caja.MasivoSunatSpecifications.conMes;
 import static com.pe.lima.sg.dao.caja.MasivoSunatSpecifications.conTipoMasivo;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,23 +34,38 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pe.lima.sg.api.Interface.IApiOseCSV;
+import com.pe.lima.sg.api.bean.CredencialBean;
+import com.pe.lima.sg.bean.Ubl.TagUbl;
+import com.pe.lima.sg.bean.caja.ComprobanteSunatBean;
+import com.pe.lima.sg.bean.caja.FacturaBean;
 import com.pe.lima.sg.bean.caja.MasivoSunatBean;
 import com.pe.lima.sg.bean.caja.MasivoTiendaSunatBean;
+import com.pe.lima.sg.dao.caja.IComprobanteOseDAO;
 import com.pe.lima.sg.dao.caja.ICxCDocumentoDAO;
+import com.pe.lima.sg.dao.caja.IDetalleComprobanteOseDAO;
 import com.pe.lima.sg.dao.caja.IMasivoSunatDAO;
 import com.pe.lima.sg.dao.caja.IMasivoTiendaSunatDAO;
 import com.pe.lima.sg.dao.cliente.IContratoDAO;
 import com.pe.lima.sg.dao.mantenimiento.ITiendaDAO;
+import com.pe.lima.sg.dao.mantenimiento.ITipoCambioDAO;
+import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
 import com.pe.lima.sg.entity.caja.TblCxcDocumento;
 import com.pe.lima.sg.entity.caja.TblMasivoSunat;
 import com.pe.lima.sg.entity.caja.TblMasivoTiendaSunat;
 import com.pe.lima.sg.entity.cliente.TblContrato;
+import com.pe.lima.sg.entity.mantenimiento.TblParametro;
 import com.pe.lima.sg.entity.mantenimiento.TblTienda;
+import com.pe.lima.sg.entity.mantenimiento.TblTipoCambio;
+import com.pe.lima.sg.facturador.dao.ISerieSFS12DAO;
+import com.pe.lima.sg.facturador.entity.TblSerie;
 import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
+import com.pe.lima.sg.presentacion.util.UtilUBL;
+import com.pe.lima.sg.rs.ose.FacturaOseDao;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,10 +91,23 @@ public class FacturaAlquilerAction {
 	private IContratoDAO contratoDao;
 	@Autowired
 	private ICxCDocumentoDAO cxcDocumentoDao;
+	@Autowired
+	private IComprobanteOseDAO comprobanteOseDao;
+	@Autowired
+	private FacturaOseDao facturaOseDao;
+	@Autowired
+	private ISerieSFS12DAO serieDao;
+	@Autowired
+	private ITipoCambioDAO tipoCambioDao;
+	@Autowired
+	private IDetalleComprobanteOseDAO detalleComprobanteOseDao;
+	@Autowired
+	private ICxCDocumentoDAO cxCDocumentoDao;
+	@Autowired
+	private IApiOseCSV apiOseCSV;
+	
+	
 	private String urlPaginado = "/masivo/facturas/alquiler/paginado/"; 
-	
-	
-	
 	/**
 	 * Se encarga de listar todos los registros de caja chica
 	 * 
@@ -137,83 +168,6 @@ public class FacturaAlquilerAction {
 		log.debug("[traerRegistrosFiltrados] Fin");
 		return path;
 	}
-	/*** Listado de Registro de Gasto ***/
-	private void listarMasivoFactura(Model model, Filtro entidad,  PageableSG pageable, String url, HttpServletRequest request){
-
-		Sort sort = new Sort(new Sort.Order(Direction.DESC, "codigoMasivo"));
-		try{
-			Specification<TblMasivoSunat> filtro = Specifications.where(conCodigoEdificio(entidad.getCodigoEdificacion()))
-					.and(conAnio(entidad.getAnio()))
-					.and(conMes(entidad.getMesFiltro()))
-					.and(conTipoMasivo(Constantes.MASIVO_TIPO_ALQUILER))
-					.and(conEstado(Constantes.ESTADO_REGISTRO_ACTIVO));
-			pageable.setSort(sort);
-			Page<TblMasivoSunat> entidadPage = masivoSunatDao.findAll(filtro, pageable);
-			PageWrapper<TblMasivoSunat> page = new PageWrapper<TblMasivoSunat>(entidadPage, url, pageable);
-			List<MasivoSunatBean> lista = this.procesarListaMasivoAlquiler(page.getContent(), request);
-			model.addAttribute("registros", lista);
-			model.addAttribute("page", page);
-			
-
-			request.getSession().setAttribute("CriterioFiltroMasivoFacturaAlquiler", entidad);
-			request.getSession().setAttribute("ListadoMasivoFactura", lista);
-			request.getSession().setAttribute("PageMasivoFactura", page);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<MasivoSunatBean> procesarListaMasivoAlquiler(List<TblMasivoSunat> listaMasivoFactura,	HttpServletRequest request) {
-		List<MasivoSunatBean> lista = new ArrayList<>();
-		MasivoSunatBean masivoSunatBean = null;
-		Map<Integer, String> mapEdificio = null;
-		if (listaMasivoFactura !=null){
-			mapEdificio = (Map<Integer, String>) request.getSession().getAttribute("SessionMapEdificacionOperacion");
-			for(TblMasivoSunat tblMasivoSunat : listaMasivoFactura){
-				masivoSunatBean = new MasivoSunatBean();
-				masivoSunatBean.setAnio(tblMasivoSunat.getAnio());
-				masivoSunatBean.setCodigoEdificio(tblMasivoSunat.getCodigoEdificio());
-				masivoSunatBean.setCodigoMasivo(tblMasivoSunat.getCodigoMasivo());
-				masivoSunatBean.setPeriodo(tblMasivoSunat.getPeriodo());
-				masivoSunatBean.setNombreEdificio(mapEdificio.get(tblMasivoSunat.getCodigoEdificio()));
-				masivoSunatBean.setTotalExcluido(tblMasivoSunat.getTotalExcluido());
-				masivoSunatBean.setEstadoMasivo(tblMasivoSunat.getEstadoMasivo());
-				masivoSunatBean.setTotalProcesada(tblMasivoSunat.getTotalProcesada());
-				masivoSunatBean.setFlagAdicionar("N");
-				masivoSunatBean.setFlagEliminar("N");
-				masivoSunatBean.setFlagProcesa("N");
-				if (masivoSunatBean.getEstadoMasivo().equals("REGISTRO")) {
-					masivoSunatBean.setFlagAdicionar("S");
-					masivoSunatBean.setFlagEliminar("S");
-					masivoSunatBean.setFlagProcesa("S");
-				}
-				
-			}
-		}
-		return lista;
-	}
-	/**
-	 * Se encarga de direccionar a la pantalla de adicionar mas elementos
-	 * 
-	 */
-	@RequestMapping(value = "/masivo/facturas/alquiler/adicionar/{id}", method = RequestMethod.GET)
-	public String adicionarTiendas(@PathVariable Integer id, Model model) {
-		TblMasivoSunat entidad 			= null;
-		String path 					= "caja/gasto/gas_edicion";
-		try{
-			entidad = masivoSunatDao.findOne(id);
-			//Pendiente el detalle
-			
-			model.addAttribute("entidad", entidad);
-			path = "masivo/alquiler/fac_add_tienda";
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			entidad = null;
-		}
-		return path;
-	}
 	/**
 	 * Se encarga de direccionar a la pantalla de creacion de Masivos para la factura de alquiler
 	 * 
@@ -233,22 +187,6 @@ public class FacturaAlquilerAction {
 		}
 		return "masivo/alquiler/fac_nuevo_empresa";
 	}
-	/*Asignamos Empresa y periodo por defecto*/
-	private MasivoSunatBean inicializaDatosParaNuevoRegistro() {
-		MasivoSunatBean masivoSunatBean = new MasivoSunatBean();
-		//Empresa
-		masivoSunatBean.setCodigoEdificio(Constantes.CODIGO_INMUEBLE_LA_REYNA);
-		//Periodo
-		String strMes = UtilSGT.getMesDateFormateado(new Date()); //01 al 12
-		Integer intAnio = UtilSGT.getAnioDate(new Date());
-		String nombreMes = UtilSGT.getMesPersonalizado(new Integer(strMes));
-		masivoSunatBean.setAnio(intAnio);
-		masivoSunatBean.setMes(strMes);
-		masivoSunatBean.setPeriodo(intAnio+"-"+nombreMes);
-		return masivoSunatBean;
-	}
-	
-	
 	/*Mostramos todas las tiendas de la empresa(edificio) seleccionado*/
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "masivo/facturas/alquiler/nuevo/tiendas", method = RequestMethod.POST)
@@ -328,6 +266,849 @@ public class FacturaAlquilerAction {
 		}
 		return path;
 	}
+
+	/**
+	 * Se encarga de guardar la informacion 
+	 * 
+	 */
+	@RequestMapping(value = "/masivotienda,/facturas/alquiler/nuevo/tiendas/guardar", method = RequestMethod.POST)
+	public String guardarEntidad(Model model, MasivoSunatBean entidad, HttpServletRequest request, String path , PageableSG pageable) {
+		path = "masivo/alquiler/fac_listado";
+		MasivoSunatBean masivoSunatBean = null;
+		try{
+			log.debug("[guardarEntidad] Inicio" );
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerNuevo");
+			if (this.validarNegocio(model, masivoSunatBean, request)){
+				log.debug("[guardarEntidad] Pre Guardar..." );
+				TblMasivoSunat tblMasivoSunat = setearDatosMasivoSunat(masivoSunatBean,request);
+				tblMasivoSunat = masivoSunatDao.save(tblMasivoSunat);
+				List<TblMasivoTiendaSunat> listaMasivoTienda = setearDatosMasivoTienda(masivoSunatBean, tblMasivoSunat,request);
+				for(TblMasivoTiendaSunat tblMasivoTiendaSunat : listaMasivoTienda) {
+					masivoTiendaSunatDao.save(tblMasivoTiendaSunat);
+				}
+				model.addAttribute("respuesta", "Se registró exitosamente");
+				Filtro filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+				this.traerRegistrosFiltrados(model,filtro, path, pageable, request);
+			}else{
+				model.addAttribute("entidad", masivoSunatBean);
+				model.addAttribute("registros", masivoSunatBean.getListaTiendaSunat());
+				
+				path = "masivo/alquiler/fac_nuevo_tienda";
+				model.addAttribute("entidad", entidad);
+			}
+			
+			log.debug("[guardarEntidad] Fin" );
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return path;
+		
+	}
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/masivo/facturas/alquiler/ver/{id}", method = RequestMethod.GET)
+	public String verMasivoFacturaTienda(@PathVariable Integer id, Model model, HttpServletRequest request) {
+		String path 				= null;
+		List<MasivoSunatBean> lista = null;
+		try{
+			log.debug("[verMasivoFacturaTienda] Inicio");
+			path = "masivo/alquiler/fac_ver_tienda";
+			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
+			MasivoSunatBean masivoSunatBean = lista.get(id.intValue());
+			//entidad = masivoSunatDao.findOne(masivoSunatBean.getCodigoMasivo());
+			List<TblMasivoTiendaSunat> listaTiendaMasivo = masivoTiendaSunatDao.listarActivosxMasivo(masivoSunatBean.getCodigoMasivo());
+			
+			obtenerListaTiendaVer(listaTiendaMasivo,masivoSunatBean);
+			
+			model.addAttribute("entidad", masivoSunatBean);
+			model.addAttribute("registros", masivoSunatBean.getListaTiendaSunat());
+			request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", masivoSunatBean);
+			request.getSession().setAttribute("SessionMapTiendaExcluida", masivoSunatBean.getMapTiendaExcluidasComboBox());
+			
+			log.debug("[verMasivoFacturaTienda] Fin");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return path;
+	}
+	private void obtenerListaTiendaVer(List<TblMasivoTiendaSunat> listaTiendaMasivo, MasivoSunatBean masivoSunatBean) {
+		
+		List<MasivoTiendaSunatBean> listaTienda = new ArrayList<>();
+		Map<Integer,String> mapTiendaExcluida = new HashMap<>();
+		Map<String,Integer> mapTiendaExcluidaComboBox = new HashMap<>();
+		MasivoTiendaSunatBean masivoTiendaSunatBean = new MasivoTiendaSunatBean();
+		
+		for(TblMasivoTiendaSunat tblMasivoTiendaSunat: listaTiendaMasivo) {
+			if (tblMasivoTiendaSunat.getExcluido().equals("N")) {
+				masivoTiendaSunatBean = new MasivoTiendaSunatBean();
+				masivoTiendaSunatBean.setNombreEdificio(masivoSunatBean.getNombreEdificio());
+				masivoTiendaSunatBean.setNumeroTienda(tblMasivoTiendaSunat.getNumeroTienda());
+				masivoTiendaSunatBean.setMonto(tblMasivoTiendaSunat.getMonto());
+				masivoTiendaSunatBean.setNombrePeriodo(masivoSunatBean.getPeriodo());
+				masivoTiendaSunatBean.setCodigoTienda(tblMasivoTiendaSunat.getCodigoTienda());
+				listaTienda.add(masivoTiendaSunatBean);
+			}else {
+				Integer keyTienda = tblMasivoTiendaSunat.getCodigoTienda();
+				mapTiendaExcluida.put(keyTienda,tblMasivoTiendaSunat.getNumeroTienda());
+			}
+		}
+		mapTiendaExcluidaComboBox= generarNuevoMapTiendaExcluidaCombo(mapTiendaExcluida);
+		
+		masivoSunatBean.setMapTiendaExcluidas(mapTiendaExcluida);
+		masivoSunatBean.setMapTiendaExcluidasComboBox(mapTiendaExcluidaComboBox);
+		masivoSunatBean.setListaTiendaSunat(listaTienda);
+	}
+
+	/**
+	 * Se encarga de la eliminacion logica del registro
+	 * 
+	 * @param id
+	 * @param request
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/masivo/facturas/alquiler/eliminar/{id}", method = RequestMethod.GET)
+	public String eliminarMasivoFactura(@PathVariable Integer id, HttpServletRequest request, Model model, PageableSG pageable) {
+		TblMasivoSunat entidad		= null;
+		String path 				= null;
+		Filtro filtro				= null;
+		List<MasivoSunatBean> lista = null;
+		try{
+			log.debug("[eliminarMasivoFactura] Inicio");
+			path = "masivo/alquiler/fac_listado";
+			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
+			MasivoSunatBean masivoSunatBean = lista.get(id.intValue());
+			entidad = masivoSunatDao.findOne(masivoSunatBean.getCodigoMasivo());
+			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
+			entidad.setAuditoriaModificacion(request);
+			
+			masivoSunatDao.save(entidad);
+			model.addAttribute("respuesta", "Eliminación exitosa");
+			model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler"));
+			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+			this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
+			log.debug("[eliminarMasivoFactura] Fin");
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			entidad 	= null;
+			filtro		= null;
+		}
+		return path;
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/masivo/facturas/alquiler/regresarlista", method = RequestMethod.GET)
+	public String regresar(Model model, String path, HttpServletRequest request) {
+		Filtro filtro = null;
+		List<TblMasivoSunat> lista = null;
+		PageWrapper<TblMasivoSunat> page = null;
+		try{
+			log.debug("[regresar] Inicio");
+			path = "masivo/alquiler/fac_listado";
+			
+			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+			model.addAttribute("filtro", filtro);
+			lista = (List<TblMasivoSunat>)request.getSession().getAttribute("ListadoMasivoFactura");
+			model.addAttribute("registros",lista);
+			page = (PageWrapper<TblMasivoSunat>) request.getSession().getAttribute("PageMasivoFactura");
+			model.addAttribute("page", page);
+			
+			
+			log.debug("[regresar] Fin");
+		}catch(Exception e){
+			log.debug("[regresar] Error:"+e.getMessage());
+			e.printStackTrace();
+		}finally{
+			filtro = null;
+		}
+		
+		return path;
+	} 
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/masivo/facturas/alquiler/procesar/{id}", method = RequestMethod.GET)
+	public String procesarMasivoFacturaTienda(@PathVariable Integer id, Model model, HttpServletRequest request, PageableSG pageable) {
+		MasivoSunatBean masivoSunatBean = null;
+		String path 					= null;
+		List<MasivoSunatBean> lista 	= null;
+		List<FacturaBean> listaFactura	= null;	
+		Filtro filtro 					= new Filtro();
+		TblMasivoSunat tblMasivoSunat 	= null;
+		TblMasivoTiendaSunat tblMasivoTiendaSunat = null;
+		try{
+			log.debug("[procesarMasivoFacturaTienda] Inicio");
+			path = "masivo/alquiler/fac_listado";
+			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
+			masivoSunatBean = lista.get(id.intValue());
+			tblMasivoSunat = masivoSunatDao.findOne(masivoSunatBean.getCodigoMasivo());
+			if (fechaDelProcesoValido(masivoSunatBean, model)) {
+				filtro.setTipo(Constantes.TIPO_COBRO_ALQUILER);
+				filtro.setCodigoEdificacion(masivoSunatBean.getCodigoEdificio());
+				filtro.setNumero("");
+				listaFactura = facturaOseDao.getConsultaAlquilerServicioOse(filtro);
+				Integer totalFacturasAGenerar = listaFactura.size();
+				for(FacturaBean entidad: listaFactura) {
+					this.obtenerDatosFactura(entidad.getFactura(), request);
+					actualizarTipoOperacion(entidad,request);
+					//Graba el comprobante
+					tblMasivoTiendaSunat = masivoTiendaSunatDao.obtenerMasivoTiendaxPeriodo(masivoSunatBean.getCodigoMasivo(), entidad.getNumeroTienda());
+					boolean resultado = grabarComprobante(entidad,request,model,tblMasivoSunat,tblMasivoTiendaSunat);
+					if (resultado) {
+						log.info("[procesarMasivoFacturaTienda Exito] Tienda:"+tblMasivoTiendaSunat.getNumeroTienda());
+					}else {
+						log.info("[procesarMasivoFacturaTienda Error] --> Tienda:"+tblMasivoTiendaSunat.getNumeroTienda());
+					}
+				}
+				actualizarEstadoMasivo(tblMasivoSunat,totalFacturasAGenerar);
+				model.addAttribute("respuesta", "Proceso finalizado.");
+				model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler"));
+				filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+				this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
+				
+			}else {
+				model.addAttribute("registros", request.getSession().getAttribute("ListadoMasivoFactura"));
+				model.addAttribute("page", request.getSession().getAttribute("PageMasivoFactura"));
+				model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler"));
+
+			}
+			log.debug("[procesarMasivoFacturaTienda] Fin");
+		}catch(Exception e){
+			log.debug("[procesarMasivoFacturaTienda] Error:"+e.getMessage());
+			e.printStackTrace();
+		}finally{
+			masivoSunatBean = null;
+		}
+		
+		return path;
+	}
+	
+
+	private void actualizarEstadoMasivo(TblMasivoSunat tblMasivoSunat, Integer totalFacturasAGenerar) {
+		Integer xmlGenerado = tblMasivoSunat.getXmlGenerado();
+		Integer cdrGenerado = tblMasivoSunat.getCdrGenerado();
+		Integer pdfGenerado = tblMasivoSunat.getPdfGenerado();
+		if (xmlGenerado == cdrGenerado && cdrGenerado == pdfGenerado && pdfGenerado == totalFacturasAGenerar) {
+			tblMasivoSunat.setEstadoMasivo(Constantes.MASIVO_ESTADO_FINALIZADO);
+		}else {
+			tblMasivoSunat.setEstadoMasivo(Constantes.MASIVO_ESTADO_EN_PROCESO);
+		}
+		masivoSunatDao.save(tblMasivoSunat);
+	}
+
+	private boolean grabarComprobante(FacturaBean entidad,HttpServletRequest request,Model model,TblMasivoSunat tblMasivoSunat,TblMasivoTiendaSunat tblMasivoTiendaSunat) {
+		boolean resultado = false;
+		try {
+			CredencialBean credencial 		= null;
+			log.debug("[grabarComprobante] Pre Guardar..." );
+			entidad.getFactura().setAuditoriaCreacion(request);
+			/*Obtener numero de la serie*/
+			obtenerNumeroSerie(entidad.getFactura());
+			TblComprobanteSunat comprobante = comprobanteOseDao.save(entidad.getFactura());
+			entidad.getFacturaDetalle().setAuditoriaCreacion(request);
+			entidad.getFacturaDetalle().setTblComprobante(comprobante);
+			detalleComprobanteOseDao.save(entidad.getFacturaDetalle());
+			if (entidad.getFactura().getFormaPago().equals(Constantes.FORMA_PAGO_CREDITO)) {
+				log.error("[grabarComprobante] Error en la forma de Pago:"+entidad.getFactura().getFormaPago());
+			}
+			/*Guardar numero de comprobante*/
+			actualizarCxCDocumentoConNumeroComprobante(entidad.getCodigoCxCDocumento(), comprobante.getCodigoComprobante(), comprobante.getSerie() , comprobante.getNumero(),request);
+			actualizarMasivoTiendaConNumeroComprobante(tblMasivoTiendaSunat,comprobante.getCodigoComprobante(),request);
+			/*Incrementar el numero de la serie*/
+			incrementarNumeroSerie();
+			/*Generamos el archivo CSV para la factura*/
+			credencial = obtenerCredenciales(request);
+			obtenerNombreArchivos(credencial,entidad);
+			generarArchivoCSV(entidad, credencial);
+			/*Llamamos a los apis*/
+			resultado = llamadasApiOse(credencial,model,comprobante,request,tblMasivoSunat);
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+			resultado = false;
+		}
+
+		return resultado;
+	}
+	private void actualizarMasivoTiendaConNumeroComprobante(TblMasivoTiendaSunat tblMasivoTiendaSunat,
+			Integer codigoComprobante,HttpServletRequest request) {
+		tblMasivoTiendaSunat.setCodigoComprobante(codigoComprobante);
+		tblMasivoTiendaSunat.setAuditoriaModificacion(request);
+		masivoTiendaSunatDao.save(tblMasivoTiendaSunat);
+	}
+
+	private boolean llamadasApiOse(CredencialBean credencial,Model model,TblComprobanteSunat comprobante, HttpServletRequest request,TblMasivoSunat tblMasivoSunat) {
+		boolean resultado = false;
+		try {
+			String token = apiOseCSV.obtenerToken(credencial); 
+			credencial.setAccessToken(token);
+			Integer status = apiOseCSV.obtenerTicket(credencial);
+			
+			if (status.compareTo(200)==0) {
+				
+				okEnvioCsv(tblMasivoSunat);
+				comprobante = actualizarTicketEnComprobanteSunat(credencial,comprobante,request);
+				status = apiOseCSV.obtenerCDRDocumento(credencial);
+				if (status.compareTo(200)==0) {
+					okGeneracionCDR(tblMasivoSunat);
+					comprobante = actualizarCdrEnComprobanteSunat(credencial,comprobante,request);
+					status = apiOseCSV.obtenerXMLDocumento(credencial);
+					if (status.compareTo(200)==0) {
+						okGeneracionXML(tblMasivoSunat);
+						comprobante = actualizarXmlEnComprobanteSunat(credencial,comprobante,request);
+						status = apiOseCSV.obtenerPDFDocumento(credencial);
+						if (status.compareTo(200)==0) {
+							okGeneracionPDF(tblMasivoSunat);
+							comprobante = actualizarPdfEnComprobanteSunat(credencial,comprobante,request);
+							resultado = true;
+						}else {
+							errorPDF(tblMasivoSunat);
+							actualizarStatusPdfEnComprobanteSunat(credencial, comprobante, request);
+							log.info("[llamadasApiOse] Con error en PDF:"+status);
+							model.addAttribute("respuesta", "Con error en PDF:"+status);
+						}
+					}else {
+						errorXML(tblMasivoSunat);
+						actualizarStatusXmlEnComprobanteSunat(credencial, comprobante, request);
+						errorCDR(tblMasivoSunat);
+						log.info("[llamadasApiOse] Con error en XML:"+status);
+						model.addAttribute("respuesta", "Con error en XML:"+status);
+					}
+				}else {
+					actualizarStatusCdrEnComprobanteSunat(credencial, comprobante, request);
+					log.info("[llamadasApiOse] Con error en CDR:"+status);
+					model.addAttribute("respuesta", "Con error en CDR:"+status);
+				}
+			}else {
+				
+				errorEnvioCsv(tblMasivoSunat);
+				actualizarStatusTicketEnComprobanteSunat(credencial, comprobante, request);
+				log.info("[llamadasApiOse] Con error en Ticket:"+status);
+				model.addAttribute("respuesta", "Con error en Ticket:"+status);
+			}
+		}catch(Exception e) {
+			model.addAttribute("respuesta", "Error obtener el token:"+e.getMessage());
+			errorEnvioCsv(tblMasivoSunat);
+			e.printStackTrace();
+		}
+		masivoSunatDao.save(tblMasivoSunat);
+		return resultado;
+	}
+	private void errorPDF(TblMasivoSunat tblMasivoSunat) {
+		tblMasivoSunat.setPdfError(tblMasivoSunat.getPdfError()+1);
+		tblMasivoSunat.setPdfTotal(tblMasivoSunat.getPdfTotal()+1);
+		tblMasivoSunat.setPdfIntento(tblMasivoSunat.getPdfIntento()+1);
+		
+	}
+
+	private void okGeneracionPDF(TblMasivoSunat tblMasivoSunat) {
+		tblMasivoSunat.setPdfGenerado(tblMasivoSunat.getPdfGenerado()+1);
+		tblMasivoSunat.setPdfTotal(tblMasivoSunat.getPdfTotal()+1);
+		tblMasivoSunat.setPdfIntento(tblMasivoSunat.getPdfIntento()+1);
+		
+	}
+
+	private void errorXML(TblMasivoSunat tblMasivoSunat) {
+		tblMasivoSunat.setXmlError(tblMasivoSunat.getXmlError()+1);
+		tblMasivoSunat.setXmlTotal(tblMasivoSunat.getXmlTotal()+1);
+		tblMasivoSunat.setXmlIntento(tblMasivoSunat.getXmlIntento()+1);
+	}
+
+	private void okGeneracionXML(TblMasivoSunat tblMasivoSunat) {
+		tblMasivoSunat.setXmlGenerado(tblMasivoSunat.getXmlGenerado()+1);
+		tblMasivoSunat.setXmlTotal(tblMasivoSunat.getXmlTotal()+1);
+		tblMasivoSunat.setXmlIntento(tblMasivoSunat.getXmlIntento()+1);
+	}
+
+	private void errorCDR(TblMasivoSunat tblMasivoSunat) {
+		tblMasivoSunat.setCdrError(tblMasivoSunat.getCdrError()+1);
+		tblMasivoSunat.setCdrTotal(tblMasivoSunat.getCdrTotal()+1);
+		tblMasivoSunat.setCdrIntento(tblMasivoSunat.getCdrIntento()+1);
+		
+		
+	}
+
+	private void okGeneracionCDR(TblMasivoSunat tblMasivoSunat) {
+		tblMasivoSunat.setCdrGenerado(tblMasivoSunat.getCdrGenerado()+1);
+		tblMasivoSunat.setCdrTotal(tblMasivoSunat.getCdrTotal()+1);
+		tblMasivoSunat.setCdrIntento(tblMasivoSunat.getCdrIntento()+1);
+		
+	}
+
+	private void errorEnvioCsv(TblMasivoSunat tblMasivoSunat) {
+		tblMasivoSunat.setCsvError(tblMasivoSunat.getCsvError()+1);
+		tblMasivoSunat.setCsvTotal(tblMasivoSunat.getCsvTotal()+1);
+		tblMasivoSunat.setCsvIntento(tblMasivoSunat.getCsvIntento()+1);
+	}
+
+	private void okEnvioCsv(TblMasivoSunat tblMasivoSunat) {
+		tblMasivoSunat.setCsvEnviado(tblMasivoSunat.getCsvEnviado()+1);
+		tblMasivoSunat.setCsvTotal(tblMasivoSunat.getCsvTotal()+1);
+		tblMasivoSunat.setCsvIntento(tblMasivoSunat.getCsvIntento()+1);
+	}
+
+	private TblComprobanteSunat actualizarTicketEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
+		comprobante.setNumeroTicket(credencial.getTicket());
+		return actualizarStatusTicketEnComprobanteSunat(credencial, comprobante, request);
+	}
+	private TblComprobanteSunat actualizarStatusTicketEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
+		comprobante.setNombreCsv(credencial.getCsvFileName());
+		comprobante.setEstadoOperacion("TICKET: "+credencial.getStatus());
+		comprobante.setAuditoriaModificacion(request);
+		TblComprobanteSunat comprobanteUpdate = comprobanteOseDao.save(comprobante);
+		return comprobanteUpdate;
+	}
+	private TblComprobanteSunat actualizarCdrEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
+		comprobante.setNombreCdr(credencial.getCdrFileName());
+		return actualizarStatusCdrEnComprobanteSunat(credencial, comprobante, request);
+	}
+	private TblComprobanteSunat actualizarStatusCdrEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
+		comprobante.setEstadoOperacion("CDR: "+credencial.getStatus());
+		comprobante.setAuditoriaModificacion(request);
+		TblComprobanteSunat comprobanteUpdate = comprobanteOseDao.save(comprobante);
+		return comprobanteUpdate;
+	}
+	private TblComprobanteSunat actualizarXmlEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
+		comprobante.setNombreXml(credencial.getXmlFileName());
+		return actualizarStatusXmlEnComprobanteSunat(credencial, comprobante, request);
+	}
+	private TblComprobanteSunat actualizarStatusXmlEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
+		comprobante.setEstadoOperacion("XML: "+credencial.getStatus());
+		comprobante.setAuditoriaModificacion(request);
+		TblComprobanteSunat comprobanteUpdate = comprobanteOseDao.save(comprobante);
+		return comprobanteUpdate;
+	}
+	private TblComprobanteSunat actualizarPdfEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
+		comprobante.setNombrePdf(credencial.getPdfFileName());
+		return actualizarStatusPdfEnComprobanteSunat(credencial, comprobante, request);
+	}
+	private TblComprobanteSunat actualizarStatusPdfEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
+		comprobante.setEstadoOperacion("PDF: "+credencial.getStatus());
+		comprobante.setAuditoriaModificacion(request);
+		TblComprobanteSunat comprobanteUpdate = comprobanteOseDao.save(comprobante);
+		return comprobanteUpdate;
+	}
+	private void generarArchivoCSV(FacturaBean entidad, CredencialBean crendencial) {
+		List<TagUbl> listaHeader = null;
+		List<TagUbl> listaDetail = null;
+		listaHeader = UtilUBL.nodoUblHeader(entidad);
+		listaDetail = UtilUBL.nodoUblDetail(entidad);
+		generarArchivo(listaHeader, listaDetail, entidad , crendencial);
+	}
+	
+	private boolean generarArchivo(List<TagUbl> listaHeader,List<TagUbl> listaDetail, FacturaBean entidad, CredencialBean crendencial){
+		boolean resultado = false;
+		String cadena = null;
+		BufferedWriter bufferedWriter = null;
+		String FILENAME = crendencial.getPath() + crendencial.getCsvFileName();
+		log.debug("[generarArchivoCabecera] filename: "+FILENAME);
+		try{
+			bufferedWriter = new BufferedWriter(new FileWriter(FILENAME, true));
+			//Nombres del Header
+			cadena = obtenerNodoOValorDeLista(listaHeader,"NODO");
+			bufferedWriter.write(cadena);
+			bufferedWriter.newLine();
+			//Datos del Header
+			cadena = obtenerNodoOValorDeLista(listaHeader,"VALOR");
+			bufferedWriter.write(cadena);
+			bufferedWriter.newLine();
+			//Nombres del Detail
+			cadena = obtenerNodoOValorDeLista(listaDetail,"NODO");
+			bufferedWriter.write(cadena);
+			bufferedWriter.newLine();
+			//Datos del Detail
+			cadena = obtenerNodoOValorDeLista(listaDetail,"VALOR");
+			bufferedWriter.write(cadena);
+			resultado = true;
+
+		}catch(Exception e){
+			e.printStackTrace();
+			resultado = false;
+		}finally{
+			try{
+				if (bufferedWriter !=null){
+					bufferedWriter.close();
+				}
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
+
+		}
+		return resultado;
+	}
+	private String obtenerNodoOValorDeLista(List<TagUbl> lista, String tipoDato) {
+		String cadena = null;
+		for(TagUbl tag:lista) {
+			if (cadena == null) {
+				cadena = obtenerDato(tag,tipoDato);
+			}else {
+				cadena = cadena + Constantes.SUNAT_COMA + obtenerDato(tag,tipoDato);;
+			}
+		}
+		return cadena;
+	}
+	private String obtenerDato(TagUbl tag,String tipoDato) {
+		if (tipoDato.equals("NODO")) {
+			return tag.getNodo();
+		}else {
+			return tag.getValor();
+		}
+		
+	}
+	private void obtenerNombreArchivos(CredencialBean crendencial, FacturaBean entidad) {
+		crendencial.setCsvFileName(UtilSGT.getNombreFacturaCVS(entidad));
+		crendencial.setCdrFileName(UtilSGT.getNombreFacturaCDR(entidad));
+		crendencial.setXmlFileName(UtilSGT.getNombreFacturaXML(entidad));
+		crendencial.setPdfFileName(UtilSGT.getNombreFacturaPDF(entidad));
+	}
+	@SuppressWarnings("unchecked")
+	private CredencialBean obtenerCredenciales(HttpServletRequest request) {
+		CredencialBean credencialBean = new CredencialBean();
+		TblParametro parametro = null;
+		Map<String, TblParametro> mapParametro = (Map<String, TblParametro>)request.getSession().getAttribute("SessionMapParametros");
+		parametro = mapParametro.get(Constantes.RUTA_FILE_OSE);
+		credencialBean.setPath(parametro.getDato());
+		parametro = mapParametro.get(Constantes.URL_EFACT_TOKEN);
+		credencialBean.setResourceToken(parametro.getDato());
+		parametro = mapParametro.get(Constantes.URL_EFACT_DOCUMENTO);
+		credencialBean.setResourceDocumento(parametro.getDato());
+		parametro = mapParametro.get(Constantes.URL_EFACT_CDR);
+		credencialBean.setResourceCdr(parametro.getDato());
+		parametro = mapParametro.get(Constantes.URL_EFACT_XML);
+		credencialBean.setResourceXml(parametro.getDato());
+		parametro = mapParametro.get(Constantes.URL_EFACT_PDF);
+		credencialBean.setResourcePdf(parametro.getDato());
+		
+		parametro = mapParametro.get(Constantes.EFACT_CLIENT_SECRET);
+		credencialBean.setClientSecret(parametro.getDato());
+		parametro = mapParametro.get(Constantes.EFACT_GRANT_TYPE);
+		credencialBean.setGrantType(parametro.getDato());
+		parametro = mapParametro.get(Constantes.EFACT_USER_NAME);
+		credencialBean.setUserName(parametro.getDato());
+		parametro = mapParametro.get(Constantes.EFACT_PASSWORD);
+		credencialBean.setPassword(parametro.getDato());
+		
+		return credencialBean;
+	}
+	private void incrementarNumeroSerie() {
+		TblSerie serie = null;
+		serie = serieDao.buscarOneByTipoComprobante(Constantes.SUNAT_CODIGO_COMPROBANTE_FACTURA);
+		Integer numero = serie.getSecuencialSerie();
+		numero++;
+		String numeroFormateado = String.format("%08d", numero);
+		serie.setNumeroComprobante(numeroFormateado);
+		serie.setSecuencialSerie(numero);
+		serieDao.save(serie);
+		
+	}
+	private void actualizarCxCDocumentoConNumeroComprobante(Integer codigoCxCDocumento, Integer codigoComprobante, String serie, String numeroComprobante, HttpServletRequest request) {
+		TblCxcDocumento documento = cxCDocumentoDao.findOne(codigoCxCDocumento);
+		documento.setCodigoComprobante(codigoComprobante);
+		documento.setSerieComprobante(serie);
+		documento.setNumeroComprobante(numeroComprobante);
+		documento.setAuditoriaModificacion(request);
+		cxCDocumentoDao.save(documento);
+	}
+	@SuppressWarnings("unchecked")
+	private void actualizarTipoOperacion(FacturaBean entidad, HttpServletRequest request) {
+		TblParametro parametro = null;
+		TblTipoCambio tipoCambio = null;
+		BigDecimal montoDetraccion = null;
+		tipoCambio = tipoCambioDao.obtenerUltimoTipoCambio();
+		
+		Map<String, TblParametro> mapParametro = (Map<String, TblParametro>)request.getSession().getAttribute("SessionMapParametros");
+		
+		
+		if (entidad.getFactura().getTipoPago().equals(Constantes.TIPO_COBRO_ALQUILER)) {
+			parametro = mapParametro.get(Constantes.PARAMETRO_MONTO_DETRACCION_ALQUILER);
+			montoDetraccion = parametro.getValor();
+			if (montoEsParaDetracccion(tipoCambio,entidad,montoDetraccion)) {
+				parametro = mapParametro.get(Constantes.PARAMETRO_PORCENTAJE_DETRACCION_ALQUILER);	
+				asignarDatosDetraccion(parametro, entidad);
+			}else {
+				entidad.getFactura().setTipoOperacion(Constantes.TIPO_OPERACION_VENTA_INTERNA_CODIGO);
+			}
+		}else {
+			parametro = mapParametro.get(Constantes.PARAMETRO_MONTO_DETRACCION_SERVICIO);
+			montoDetraccion = parametro.getValor();
+			if (entidad.getFactura().getTotal().compareTo(montoDetraccion)>=0) {
+				parametro = mapParametro.get(Constantes.PARAMETRO_PORCENTAJE_DETRACCION_SERVICIO);
+				asignarDatosDetraccion(parametro, entidad);
+			}else {
+				entidad.getFactura().setTipoOperacion(Constantes.TIPO_OPERACION_VENTA_INTERNA_CODIGO);
+			}
+		}
+		
+	}
+	private void asignarDatosDetraccion(TblParametro parametro, FacturaBean entidad) {
+		BigDecimal porcentajeDetraccion = null;
+		BigDecimal montoCalculadoDetraccion = null;
+		TblTipoCambio tipoCambio = tipoCambioDao.obtenerUltimoTipoCambio();
+		
+		
+		porcentajeDetraccion = parametro.getValor();
+		montoCalculadoDetraccion = entidad.getFactura().getTotal().multiply(porcentajeDetraccion).divide(new BigDecimal("100")).setScale(2, RoundingMode.HALF_UP);
+		entidad.getFactura().setDetracionTotal(entidad.getFactura().getTotal().subtract(montoCalculadoDetraccion));
+		//Sobre este monto se realiza la forma de pago
+		entidad.getFormaPago().setMonto(entidad.getFactura().getDetracionTotal());
+		if (entidad.getFactura().getMoneda().equals("USD")) {
+			log.info("[asignarDatosDetraccion] detraccion[ROUND_UP]: "+montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, RoundingMode.HALF_UP));
+			montoCalculadoDetraccion = montoCalculadoDetraccion.multiply(tipoCambio.getValor()).setScale(0, RoundingMode.HALF_UP);
+			entidad.getFactura().setDetracionMonto(montoCalculadoDetraccion);
+			//entidad.getFactura().setDetracionTotal((entidad.getFactura().getTotal().multiply(tipoCambio.getValor()).subtract(montoCalculadoDetraccion)).setScale(0, BigDecimal.ROUND_HALF_EVEN));
+		}else {
+			entidad.getFactura().setDetracionMonto(montoCalculadoDetraccion);
+		}
+		entidad.setTipoCambio(tipoCambio.getValor().toString() + " : "+UtilSGT.formatFechaSGT(tipoCambio.getFecha()));
+		entidad.getFactura().setDetracionPorcentaje(porcentajeDetraccion);
+		entidad.getFactura().setTipoOperacion(Constantes.TIPO_OPERACION_DETRACCION_CODIGO);
+	}
+	private boolean montoEsParaDetracccion(TblTipoCambio tipoCambio, FacturaBean entidad, BigDecimal montoDetraccion) {
+		BigDecimal montoSoles = null;
+		montoSoles = tipoCambio.getValor().multiply(entidad.getFactura().getTotal()).setScale(2, RoundingMode.HALF_UP);
+		if (montoSoles.compareTo(montoDetraccion)>=0) {
+			return true;
+		}else {
+			return false;
+		}
+	}
+	@SuppressWarnings("unchecked")
+	private void obtenerDatosFactura(TblComprobanteSunat facturaSunat, HttpServletRequest request) {
+		//Obtener Serie - Numero
+		TblParametro parametro = null;
+		Map<String, TblParametro> mapParametro = (Map<String, TblParametro>)request.getSession().getAttribute("SessionMapParametros");
+		parametro = mapParametro.get(Constantes.PARAMETRO_DOMICILIO_FISCAL);
+		facturaSunat.setDomicilioFiscal(parametro.getDato());
+		obtenerNumeroSerie(facturaSunat);
+		facturaSunat.setFechaEmision(UtilSGT.getFecha("yyyy-MM-dd"));
+		facturaSunat.setHoraEmision(UtilSGT.getHora());
+		facturaSunat.setFechaVencimiento(UtilSGT.getFecha("yyyy-MM-dd"));
+	}
+	private void obtenerNumeroSerie(TblComprobanteSunat facturaSunat) {
+		TblSerie serie = null;
+		serie = serieDao.buscarOneByTipoComprobante(Constantes.SUNAT_CODIGO_COMPROBANTE_FACTURA);
+		facturaSunat.setSerie(serie.getPrefijoSerie());
+		facturaSunat.setNumero(serie.getNumeroComprobante());
+		
+	}
+	private boolean fechaDelProcesoValido(MasivoSunatBean masivoSunatBean, Model model) {
+		Integer anioCurso		= UtilSGT.getAnioDate(new Date());
+		Integer mesCurso		= UtilSGT.getMesDate(new Date());
+		if ( (anioCurso.compareTo(masivoSunatBean.getAnio())==0) && (mesCurso.compareTo(new Integer(masivoSunatBean.getMes()))==0)) {
+			return true;
+		}else {
+			model.addAttribute("respuesta", "No se puede procesar, no corresponde al periodo en curso.");
+			return false;
+			
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/masivo/facturas/alquiler/proceso/ver/{id}", method = RequestMethod.GET)
+	public String verProcesoMasivoFacturaTienda(@PathVariable Integer id, Model model, HttpServletRequest request) {
+		MasivoSunatBean masivoSunatBean = null;
+		String path 					= null;
+		List<MasivoSunatBean> lista 	= null;
+		try{
+			log.debug("[verProcesoMasivoFacturaTienda] Inicio");
+			path = "masivo/alquiler/fac_proceso";
+			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
+			masivoSunatBean = lista.get(id.intValue());
+			List<TblComprobanteSunat> listaTblComprobante = comprobanteOseDao.listarComprobantexEdificioxPeriodoAlquiler(masivoSunatBean.getCodigoEdificio(), masivoSunatBean.getPeriodo());
+			List<ComprobanteSunatBean> listaComprobanteBean = this.procesarListaComprobante(listaTblComprobante, request);
+			masivoSunatBean.setListaComprobanteBean(listaComprobanteBean);
+			model.addAttribute("registros",listaComprobanteBean);
+			model.addAttribute("entidad",masivoSunatBean);
+			request.getSession().setAttribute("MasivoFacturaAlquilerProcesoComprobante",masivoSunatBean);
+			
+			log.debug("[verProcesoMasivoFacturaTienda] Fin");
+		}catch(Exception e){
+			log.debug("[verProcesoMasivoFacturaTienda] Error:"+e.getMessage());
+			e.printStackTrace();
+		}finally{
+			masivoSunatBean = null;
+		}
+		
+		return path;
+	}
+	private List<ComprobanteSunatBean> procesarListaComprobante(List<TblComprobanteSunat> content,HttpServletRequest request) {
+		List<ComprobanteSunatBean> lista = null;
+		ComprobanteSunatBean bean = null;
+		if (content != null && !content.isEmpty()) {
+			lista = new ArrayList<>();
+			for (TblComprobanteSunat comprobante: content) {
+				bean = new ComprobanteSunatBean();
+				bean.setSerie(comprobante.getSerie());
+				bean.setNumero(comprobante.getNumero());
+				bean.setNumeroTienda(comprobante.getNumeroTienda());
+				bean.setFechaVencimiento(comprobante.getFechaVencimiento());
+				bean.setMoneda(comprobante.getMoneda());
+				bean.setTotal(comprobante.getTotal());
+				bean.setTotalGravados(comprobante.getTotalGravados());
+				bean.setTotalIgv(comprobante.getTotalIgv());
+				bean.setEstadoOperacion(renombrarEstadoOperacion(comprobante.getEstadoOperacion()));
+				bean.setCodigoComprobante(comprobante.getCodigoComprobante());
+				bean.setTipoPago(comprobante.getTipoPago());
+				bean.setFechaEmision(comprobante.getFechaEmision());
+				bean.setNumeroTienda(comprobante.getNumeroTienda());
+				bean.setNumeroTicket(comprobante.getNumeroTicket());
+				bean.setNombreCsv(comprobante.getNombreCsv());
+				bean.setNombreCdr(comprobante.getNombreCdr());
+				bean.setNombreXml(comprobante.getNombreXml());
+				bean.setNombrePdf(comprobante.getNombrePdf());
+				lista.add(bean);
+			}	
+		}
+		
+		return lista;
+	}
+	@RequestMapping(value = "/masivotienda,/facturas/alquiler/regresarempresa", method = RequestMethod.GET)
+	public String regresarEmpresa(Model model, String path, HttpServletRequest request) {
+		MasivoSunatBean masivoSunatBean = null;
+		try{
+			log.debug("[regresarEmpresa] Inicio");
+			path = "masivo/alquiler/fac_nuevo_empresa";
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerNuevo");
+			model.addAttribute("entidad", masivoSunatBean);
+			
+			
+			log.debug("[regresarEmpresa] Fin");
+		}catch(Exception e){
+			log.debug("[regresarEmpresa] Error:"+e.getMessage());
+			e.printStackTrace();
+		}finally{
+			masivoSunatBean = null;
+		}
+		
+		return path;
+	}
+
+	/*
+	 * Paginado
+	 */
+	@RequestMapping(value = "/masivo/facturas/alquiler/paginado/{page}/{size}/{operacion}", method = RequestMethod.GET)
+	public String paginarEntidad(@PathVariable Integer page, @PathVariable Integer size, @PathVariable String operacion, Model model,  PageableSG pageable, HttpServletRequest request) {
+		Filtro filtro = null;
+		String path = null;
+		try{
+			//log.debug("[traerRegistros] Inicio");
+			path = "masivo/alquiler/fac_listado";
+			if (pageable!=null){
+				if (pageable.getLimit() == 0){
+					pageable.setLimit(size);
+				}
+				if (pageable.getOffset()== 0){
+					pageable.setOffset(page*size);
+				}
+				if (pageable.getOperacion() ==null || pageable.getOperacion().equals("")){
+					pageable.setOperacion(operacion);
+				}
+				
+			}
+			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+			this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
+			//this.traerRegistrosFiltrados(model, filtro, pageable, this.urlPaginado, request);
+			model.addAttribute("filtro", filtro);
+			
+		}catch(Exception e){
+			//log.debug("[traerRegistros] Error:"+e.getMessage());
+			e.printStackTrace();
+		}finally{
+			filtro = null;
+		}
+		return path;
+	}
+	/*** Listado de Registro de Gasto ***/
+	private void listarMasivoFactura(Model model, Filtro entidad,  PageableSG pageable, String url, HttpServletRequest request){
+
+		Sort sort = new Sort(new Sort.Order(Direction.DESC, "codigoMasivo"));
+		try{
+			Specification<TblMasivoSunat> filtro = Specifications.where(conCodigoEdificio(entidad.getCodigoEdificacion()))
+					.and(conAnio(entidad.getAnio()))
+					.and(conMes(entidad.getMesFiltro()))
+					.and(conTipoMasivo(Constantes.MASIVO_TIPO_ALQUILER))
+					.and(conEstado(Constantes.ESTADO_REGISTRO_ACTIVO));
+			pageable.setSort(sort);
+			Page<TblMasivoSunat> entidadPage = masivoSunatDao.findAll(filtro, pageable);
+			PageWrapper<TblMasivoSunat> page = new PageWrapper<TblMasivoSunat>(entidadPage, url, pageable);
+			List<MasivoSunatBean> lista = this.procesarListaMasivoAlquiler(page.getContent(), request);
+			model.addAttribute("registros", lista);
+			model.addAttribute("page", page);
+			
+
+			request.getSession().setAttribute("CriterioFiltroMasivoFacturaAlquiler", entidad);
+			request.getSession().setAttribute("ListadoMasivoFactura", lista);
+			request.getSession().setAttribute("PageMasivoFactura", page);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	@SuppressWarnings("unchecked")
+	private List<MasivoSunatBean> procesarListaMasivoAlquiler(List<TblMasivoSunat> listaMasivoFactura,	HttpServletRequest request) {
+		List<MasivoSunatBean> lista = new ArrayList<>();
+		MasivoSunatBean masivoSunatBean = null;
+		Map<Integer, String> mapEdificio = null;
+		if (listaMasivoFactura !=null){
+			mapEdificio = (Map<Integer, String>) request.getSession().getAttribute("SessionMapEdificacionOperacion");
+			for(TblMasivoSunat tblMasivoSunat : listaMasivoFactura){
+				masivoSunatBean = new MasivoSunatBean();
+				masivoSunatBean.setAnio(tblMasivoSunat.getAnio());
+				masivoSunatBean.setMes(tblMasivoSunat.getMes());
+				masivoSunatBean.setCodigoEdificio(tblMasivoSunat.getCodigoEdificio());
+				masivoSunatBean.setCodigoMasivo(tblMasivoSunat.getCodigoMasivo());
+				masivoSunatBean.setPeriodo(tblMasivoSunat.getPeriodo());
+				masivoSunatBean.setNombreEdificio(mapEdificio.get(tblMasivoSunat.getCodigoEdificio()));
+				masivoSunatBean.setTotalExcluido(tblMasivoSunat.getTotalExcluido());
+				masivoSunatBean.setEstadoMasivo(tblMasivoSunat.getEstadoMasivo());
+				masivoSunatBean.setTotalProcesada(tblMasivoSunat.getTotalProcesada());
+				masivoSunatBean.setFlagAdicionar("N");
+				masivoSunatBean.setFlagEliminar("N");
+				masivoSunatBean.setFlagProcesa("N");
+				if (masivoSunatBean.getEstadoMasivo().equals(Constantes.MASIVO_ESTADO_REGISTRADO)) {
+					masivoSunatBean.setFlagAdicionar("S");
+					masivoSunatBean.setFlagEliminar("S");
+					masivoSunatBean.setFlagProcesa("S");
+				}
+				masivoSunatBean.setCsvEnviado(tblMasivoSunat.getCsvEnviado());
+				masivoSunatBean.setCsvError(tblMasivoSunat.getCsvError());
+				masivoSunatBean.setCsvIntento(tblMasivoSunat.getCsvIntento());
+				masivoSunatBean.setCsvTotal(tblMasivoSunat.getCsvTotal());
+				masivoSunatBean.setXmlError(tblMasivoSunat.getXmlError());
+				masivoSunatBean.setXmlGenerado(tblMasivoSunat.getXmlGenerado());
+				masivoSunatBean.setXmlIntento(tblMasivoSunat.getXmlIntento());
+				masivoSunatBean.setXmlTotal(tblMasivoSunat.getXmlTotal());
+				masivoSunatBean.setCdrError(tblMasivoSunat.getCdrError());
+				masivoSunatBean.setCdrGenerado(tblMasivoSunat.getCdrGenerado());
+				masivoSunatBean.setCdrIntento(tblMasivoSunat.getCdrIntento());
+				masivoSunatBean.setCdrTotal(tblMasivoSunat.getCdrTotal());
+				masivoSunatBean.setPdfError(tblMasivoSunat.getPdfError());
+				masivoSunatBean.setPdfGenerado(tblMasivoSunat.getPdfGenerado());
+				masivoSunatBean.setPdfIntento(tblMasivoSunat.getPdfIntento());
+				masivoSunatBean.setPdfTotal(tblMasivoSunat.getPdfTotal());
+				lista.add(masivoSunatBean);
+			}
+		}
+		return lista;
+	}
+	
+	
+	/*Asignamos Empresa y periodo por defecto*/
+	private MasivoSunatBean inicializaDatosParaNuevoRegistro() {
+		MasivoSunatBean masivoSunatBean = new MasivoSunatBean();
+		//Empresa
+		masivoSunatBean.setCodigoEdificio(Constantes.CODIGO_INMUEBLE_LA_REYNA);
+		//Periodo
+		String strMes = UtilSGT.getMesDateFormateado(new Date()); //01 al 12
+		Integer intAnio = UtilSGT.getAnioDate(new Date());
+		String nombreMes = UtilSGT.getMesPersonalizado(new Integer(strMes));
+		masivoSunatBean.setAnio(intAnio);
+		masivoSunatBean.setMes(strMes);
+		masivoSunatBean.setPeriodo(intAnio+"-"+nombreMes);
+		return masivoSunatBean;
+	}
+	
+	
+	
 	private MasivoSunatBean adicionarTiendaEnLista(MasivoSunatBean masivoSunatBean, Integer codigoTienda, String numeroTienda) {
 		MasivoTiendaSunatBean tiendaSunatBean = new MasivoTiendaSunatBean();
 		Integer codigoContrato = obtenerCodigoContratoDeTienda(codigoTienda);
@@ -472,47 +1253,18 @@ public class FacturaAlquilerAction {
 				model.addAttribute("respuesta", "Debe agregar tiendas a la lista para generar las facturas");
 				return false;
 			}
-			
-			
+			Integer totalRegistros = masivoSunatDao.existeMasivoxEmpresaxPeriodo(entidad.getPeriodo(), entidad.getCodigoEdificio());
+			if (totalRegistros > 0){
+				model.addAttribute("respuesta", "Se encontró registros para el periodo y edificio seleccionado. No se puede registrar. Elimine el antiguo para continuar.");
+				return false;
+			}
 			
 		}catch(Exception e){
 			exitoso = false;
 		}
 		return exitoso;
 	}
-	/**
-	 * Se encarga de guardar la informacion 
-	 * 
-	 */
-	@RequestMapping(value = "/masivotienda,/facturas/alquiler/nuevo/tiendas/guardar", method = RequestMethod.POST)
-	public String guardarEntidad(Model model, MasivoSunatBean entidad, HttpServletRequest request, String path , PageableSG pageable) {
-		path = "masivo/alquiler/fac_listado";
-		try{
-			log.debug("[guardarEntidad] Inicio" );
-
-			if (this.validarNegocio(model, entidad, request)){
-				log.debug("[guardarEntidad] Pre Guardar..." );
-				TblMasivoSunat tblMasivoSunat = setearDatosMasivoSunat(entidad,request);
-				tblMasivoSunat = masivoSunatDao.save(tblMasivoSunat);
-				List<TblMasivoTiendaSunat> listaMasivoTienda = setearDatosMasivoTienda(entidad, tblMasivoSunat,request);
-				for(TblMasivoTiendaSunat tblMasivoTiendaSunat : listaMasivoTienda) {
-					masivoTiendaSunatDao.save(tblMasivoTiendaSunat);
-				}
-				model.addAttribute("respuesta", "Se registró exitosamente");
-				Filtro filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
-				this.traerRegistrosFiltrados(model,filtro, path, pageable, request);
-			}else{
-				path = "masivo/alquiler/fac_nuevo_tienda";
-				model.addAttribute("entidad", entidad);
-			}
-			
-			log.debug("[guardarEntidad] Fin" );
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		return path;
-		
-	}
+	
 	private List<TblMasivoTiendaSunat> setearDatosMasivoTienda(MasivoSunatBean entidad, TblMasivoSunat tblMasivoSunat,
 			HttpServletRequest request) {
 		List<TblMasivoTiendaSunat> listaMasivoTienda = new ArrayList<>();
@@ -525,6 +1277,8 @@ public class FacturaAlquilerAction {
 			tblMasivoTiendaSunat.setExcluido(masivoTiendaSunatBean.getExcluido());
 			tblMasivoTiendaSunat.setCodigoTienda(masivoTiendaSunatBean.getCodigoTienda());
 			tblMasivoTiendaSunat.setAuditoriaCreacion(request);
+			tblMasivoTiendaSunat.setTblMasivoSunat(tblMasivoSunat);
+			tblMasivoTiendaSunat.setMonto(masivoTiendaSunatBean.getMonto());
 			listaMasivoTienda.add(tblMasivoTiendaSunat);
 		}
 		if (entidad.getMapTiendaExcluidas().size()>0) {
@@ -537,21 +1291,28 @@ public class FacturaAlquilerAction {
 				tblMasivoTiendaSunat.setExcluido("S");
 				tblMasivoTiendaSunat.setCodigoTienda(key);
 				tblMasivoTiendaSunat.setAuditoriaCreacion(request);
+				tblMasivoTiendaSunat.setTblMasivoSunat(tblMasivoSunat);
+				tblMasivoTiendaSunat.setMonto(new BigDecimal("0"));
 				listaMasivoTienda.add(tblMasivoTiendaSunat);
 		    }
 		}
-		return null;
+		return listaMasivoTienda;
 	}
 
 	/*Seteamos los datos a registrar en la tabla*/
 	private TblMasivoSunat setearDatosMasivoSunat(MasivoSunatBean entidad, HttpServletRequest request) {
 		TblMasivoSunat tblMasivoSunat = new TblMasivoSunat();
 		tblMasivoSunat.setAnio(entidad.getAnio());
+		tblMasivoSunat.setMes(entidad.getMes());
 		tblMasivoSunat.setCodigoEdificio(entidad.getCodigoEdificio());
 		tblMasivoSunat.setPeriodo(entidad.getPeriodo());
 		tblMasivoSunat.setTotalProcesada(entidad.getListaTiendaSunat().size());
 		tblMasivoSunat.setTotalExcluido(entidad.getMapTiendaExcluidas().size());
 		tblMasivoSunat.setEstadoMasivo(Constantes.MASIVO_ESTADO_REGISTRADO);
+		tblMasivoSunat.setCsvError(0);
+		tblMasivoSunat.setCsvEnviado(0);
+		tblMasivoSunat.setCsvIntento(0);
+		tblMasivoSunat.setCsvTotal(0);
 		tblMasivoSunat.setXmlError(0);
 		tblMasivoSunat.setXmlGenerado(0);
 		tblMasivoSunat.setXmlIntento(0);
@@ -564,129 +1325,31 @@ public class FacturaAlquilerAction {
 		tblMasivoSunat.setPdfGenerado(0);
 		tblMasivoSunat.setPdfIntento(0);
 		tblMasivoSunat.setPdfTotal(0);
+		tblMasivoSunat.setTipoMasivo(Constantes.MASIVO_TIPO_ALQUILER);
 		tblMasivoSunat.setAuditoriaCreacion(request);
 		
 		return tblMasivoSunat;
 	}
-
-	
-	/**
-	 * Se encarga de la eliminacion logica del registro
-	 * 
-	 * @param id
-	 * @param request
-	 * @return
-	 */
-	@RequestMapping(value = "/masivo/facturas/alquiler/eliminar/{id}", method = RequestMethod.GET)
-	public String eliminarMasivoFactura(@PathVariable Integer id, HttpServletRequest request, Model model, PageableSG pageable) {
-		TblMasivoSunat entidad		= null;
-		String path 				= null;
-		Filtro filtro				= null;
-		try{
-			log.debug("[eliminarMasivoFactura] Inicio");
-			path = "masivo/alquiler/fac_listado";
-			
-			entidad = masivoSunatDao.findOne(id);
-			entidad.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
-			entidad.setAuditoriaModificacion(request);
-			
-			masivoSunatDao.save(entidad);
-			model.addAttribute("respuesta", "Eliminación exitosa");
-			model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler"));
-			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
-			this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
-			log.debug("[eliminarMasivoFactura] Fin");
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			entidad 	= null;
-			filtro		= null;
+	private String renombrarEstadoOperacion(String estadoOperacion) {
+		if (estadoOperacion.equals("PDF: 200")) {
+			return "VALIDADO";
 		}
-		return path;
-	}
-	
-
-	/*
-	 * Paginado
-	 */
-	@RequestMapping(value = "/masivo/facturas/alquiler/paginado/{page}/{size}/{operacion}", method = RequestMethod.GET)
-	public String paginarEntidad(@PathVariable Integer page, @PathVariable Integer size, @PathVariable String operacion, Model model,  PageableSG pageable, HttpServletRequest request) {
-		Filtro filtro = null;
-		String path = null;
-		try{
-			//log.debug("[traerRegistros] Inicio");
-			path = "masivo/alquiler/fac_listado";
-			if (pageable!=null){
-				if (pageable.getLimit() == 0){
-					pageable.setLimit(size);
-				}
-				if (pageable.getOffset()== 0){
-					pageable.setOffset(page*size);
-				}
-				if (pageable.getOperacion() ==null || pageable.getOperacion().equals("")){
-					pageable.setOperacion(operacion);
-				}
-				
-			}
-			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
-			this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
-			//this.traerRegistrosFiltrados(model, filtro, pageable, this.urlPaginado, request);
-			model.addAttribute("filtro", filtro);
-			
-		}catch(Exception e){
-			//log.debug("[traerRegistros] Error:"+e.getMessage());
-			e.printStackTrace();
-		}finally{
-			filtro = null;
+		if (estadoOperacion.equals("CDR: 202")) {
+			return "CDR PENDIENTE";
 		}
-		return path;
-	}
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/masivo/facturas/alquiler/regresarlista", method = RequestMethod.GET)
-	public String regresar(Model model, String path, HttpServletRequest request) {
-		Filtro filtro = null;
-		List<TblMasivoSunat> lista = null;
-		PageWrapper<TblMasivoSunat> page = null;
-		try{
-			log.debug("[regresar] Inicio");
-			path = "masivo/alquiler/fac_listado";
-			
-			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
-			model.addAttribute("filtro", filtro);
-			lista = (List<TblMasivoSunat>)request.getSession().getAttribute("ListadoMasivoFactura");
-			model.addAttribute("registros",lista);
-			page = (PageWrapper<TblMasivoSunat>) request.getSession().getAttribute("PageMasivoFactura");
-			model.addAttribute("page", page);
-			
-			
-			log.debug("[regresar] Fin");
-		}catch(Exception e){
-			log.debug("[regresar] Error:"+e.getMessage());
-			e.printStackTrace();
-		}finally{
-			filtro = null;
+		if (estadoOperacion.equals("CDR: 200")) {
+			return "CDR RECIBIDO";
+		}
+		if (estadoOperacion.equals("XML: 202")) {
+			return "XML PENDIENTE";
+		}
+		if (estadoOperacion.equals("XML: 200")) {
+			return "XML RECIBIDO";
+		}
+		if (estadoOperacion.equals("PDF: 202")) {
+			return "PDF PENDIENTE";
 		}
 		
-		return path;
-	} 
-	@RequestMapping(value = "/masivotienda,/facturas/alquiler/regresarempresa", method = RequestMethod.GET)
-	public String regresarEmpresa(Model model, String path, HttpServletRequest request) {
-		MasivoSunatBean masivoSunatBean = null;
-		try{
-			log.debug("[regresarEmpresa] Inicio");
-			path = "masivo/alquiler/fac_nuevo_empresa";
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerNuevo");
-			model.addAttribute("entidad", masivoSunatBean);
-			
-			
-			log.debug("[regresarEmpresa] Fin");
-		}catch(Exception e){
-			log.debug("[regresarEmpresa] Error:"+e.getMessage());
-			e.printStackTrace();
-		}finally{
-			masivoSunatBean = null;
-		}
-		
-		return path;
+		return "ERROR";
 	}
 }

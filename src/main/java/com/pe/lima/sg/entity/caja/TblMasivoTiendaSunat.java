@@ -1,5 +1,6 @@
 package com.pe.lima.sg.entity.caja;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -29,6 +30,7 @@ public class TblMasivoTiendaSunat implements java.io.Serializable {
 	private int codigoContrato;
 	private int codigoCxcDocumento;
 	private String excluido;
+	private BigDecimal monto;
 	private String estado;	
 	private Integer usuarioCreacion;	
 	private Integer usuarioModificacion;
@@ -267,6 +269,16 @@ public class TblMasivoTiendaSunat implements java.io.Serializable {
 
 	public void setNumeroTienda(String numeroTienda) {
 		this.numeroTienda = numeroTienda;
+	}
+
+	@Column(name = "monto")
+	public BigDecimal getMonto() {
+		return monto;
+	}
+
+
+	public void setMonto(BigDecimal monto) {
+		this.monto = monto;
 	}
 	
 }

@@ -80,6 +80,7 @@ public class FacturaOseDao {
 					"    and cxc.mes = ? " + 
 					"    and cxc.tipo_referencia = ? " + 
 					"    and tie.codigo_edificio = ? " + 
+					"    and cxc.tipo_documento = 'FAC' "+
 					"    and (cxc.codigo_comprobante is null or cxc.codigo_comprobante <= 0)"+
 					"    and tie.numero like ? Order by 2 asc"; 
 

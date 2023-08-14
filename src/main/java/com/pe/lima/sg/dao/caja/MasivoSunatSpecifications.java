@@ -12,7 +12,7 @@ public final class MasivoSunatSpecifications {
 
 	public static Specification<TblMasivoSunat> conAnio(Integer intAnio) {
 		return (root, query, cb) -> {
-			if (intAnio.compareTo(-1) == 0) {
+			if (intAnio== null || intAnio.compareTo(-1) == 0) {
 				return cb.equal(cb.literal(1), 1);
 			}
 			return cb.equal(root.<Integer> get("anio"), intAnio);
@@ -20,7 +20,7 @@ public final class MasivoSunatSpecifications {
 	}
 	public static Specification<TblMasivoSunat> conCodigoEdificio(Integer intCodigoEdificio) {
 		return (root, query, cb) -> {
-			if (intCodigoEdificio.compareTo(-1) == 0) {
+			if (intCodigoEdificio == null || intCodigoEdificio.compareTo(-1) == 0) {
 				return cb.equal(cb.literal(1), 1);
 			}
 			return cb.equal(root.<Integer> get("codigoEdificio"), intCodigoEdificio);
@@ -35,7 +35,7 @@ public final class MasivoSunatSpecifications {
 	}
 	public static Specification<TblMasivoSunat> conMes(String strMes) {
 		return (root, query, cb) -> {
-			if (strMes.equals("-1")) {
+			if (strMes== null || strMes.equals("-1")) {
 				return cb.equal(cb.literal(1), 1);
 			}
 			return cb.equal(root.<String> get("mes"), strMes);

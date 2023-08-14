@@ -140,36 +140,27 @@
 											<tr>
 												<th>Periodo</th>
 												<th>Empresa</th>
-												<th>Excluidas</th>
+												<th># Tiendas Excluidas</th>
 												<th>Estado</th>
-												<th># Tiendas Procesadas</th>
-												<th>Adicionar</th>
+												<th># Tiendas Seleccionadas </th>
 												<th>Procesar</th>
 												<th>Eliminar</th>
-												<th>Ver</th>
+												<th>Ver Tiendas</th>
+												<th>Ver Proceso</th>
 											</tr>
 										</thead>
 										<tbody>
 											<tr th:each="masivo, iterStat : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'" style="cursor: pointer" >
 												<td th:text="${masivo.periodo}">periodo</td>
 												<td th:text="${masivo.nombreEdificio}">nombreEdificio</td>
-												<td th:text="${masivo.totalExcluido}">totalExcluido</td>
+												<td th:text="${masivo.totalExcluido}" align="center">totalExcluido</td>
 												<td th:text="${masivo.estadoMasivo}">estadoMasivo</td>
-												<td th:text="${masivo.totalProcesada}">totalProcesada</td>
-												<td align="center">
-													<div th:if="${masivo.flagAdicionar} == 'S'">
-														<a th:href="${'/masivo/facturas/alquiler/adicionar/' + iterStat.index}">
-														<img th:src="@{/images/iconos/agregar.png}" alt="agregar"
-														 	 onclick="if(!confirm('Desea agregar más tiendas?')){ return false;}" /></a>
-													</div>
-													<div th:if="${masivo.flagAdicionar} == 'N'">
-														-
-													</div>
-												</td>
+												<td th:text="${masivo.totalProcesada}" align="center">totalProcesada</td>
+												
 												<td align="center">
 													<div th:if="${masivo.flagProcesa} == 'S'">
 														<a th:href="${'/masivo/facturas/alquiler/procesar/' + iterStat.index}">
-														<img th:src="@{/images/iconos/procesar.png}" alt="CDR"
+														<img th:src="@{/images/iconos/procesar.png}" alt="CDR" width="20px"
 														 	 onclick="if(!confirm('Desea Generar las facturas de todas las tiendas registradas')){ return false;}" /></a>
 													</div>
 													<div th:if="${masivo.flagProcesa} == 'N'">
@@ -179,7 +170,7 @@
 												<td align="center">
 													<div th:if="${masivo.flagEliminar} == 'S'">
 														<a th:href="${'/masivo/facturas/alquiler/eliminar/' + iterStat.index}">
-														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML"
+														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML" width="20px"
 														 	 onclick="if(!confirm('Desea Eliminar el periodo seleccionado')){ return false;}" /></a>
 													</div>
 													<div th:if="${masivo.flagEliminar} == 'N'">
@@ -189,6 +180,16 @@
 												<td align="center">
 													<a th:href="${'/masivo/facturas/alquiler/ver/' + iterStat.index}">
 													<img th:src="@{/images/iconos/ver.png}" alt="Eliminar"/></a>
+												</td>
+												<td align="center">
+													<div th:if="${masivo.flagProcesa} == 'N'">
+														<a th:href="${'/masivo/facturas/alquiler/proceso/ver/' + iterStat.index}">
+													<img th:src="@{/images/iconos/ver.png}" alt="Eliminar"/></a>
+													</div>
+													<div th:if="${masivo.flagProcesa} == 'S'">
+													-
+													</div>
+													
 												</td>
 											</tr>
 										</tbody>
@@ -200,13 +201,13 @@
 										<tr>
 											<th>Periodo</th>
 											<th>Empresa</th>
-											<th>Excluidas</th>
+											<th># Tiendas Excluidas</th>
 											<th>Estado</th>
-											<th># Tiendas Procesadas</th>
-											<th>Adicionar</th>
+											<th># Tiendas Seleccionadas </th>
 											<th>Procesar</th>
 											<th>Eliminar</th>
-											<th>Ver</th>
+											<th>Ver Tiendas</th>
+											<th>Ver Proceso</th>
 										</tr>
 										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
 											<td colspan="9" align="center">No se encontr&oacute; elementos</td>

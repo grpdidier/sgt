@@ -18,6 +18,10 @@ public class MasivoSunatBean implements Serializable {
 	private int codigoMasivo;
 	private int codigoEdificio;
 	private String periodo;
+	private int csvEnviado;
+	private int csvError;
+	private int csvTotal;
+	private int csvIntento;
 	private int xmlGenerado;
 	private int xmlError;
 	private int xmlTotal;
@@ -55,7 +59,8 @@ public class MasivoSunatBean implements Serializable {
 	//Tiendas excluidas
 	private Map<Integer,String> mapTiendaExcluidas;
 	private Map<String,Integer> mapTiendaExcluidasComboBox;
-	
+	//Para los comprobantes
+	List<ComprobanteSunatBean> listaComprobanteBean;
 	
 	
 

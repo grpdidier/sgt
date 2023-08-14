@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body >
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-3 mb-3">
+								<a href="#"	th:href="@{/masivo/facturas/alquiler/regresarlista}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Estado del Proceso</div>
+							<div class="col-md-3 mb-3"></div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border fondoFactura">
+										<br></br>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<label ><b>Edificio</b>: <span th:text="${entidad.nombreEdificio}"></span></label>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label><b>Periodo</b>: <span th:text="${entidad.periodo}"></span></label>
+											</div>
+											<div class="col-md-3 mb-3">
+												
+											</div>
+											<div class="col-md-1 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3" align="center">
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-1 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label><b>CSV</b> Enviado: <span th:text="${entidad.csvEnviado}"></span></label>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label>Con Error en <b>CSV</b>: <span th:text="${entidad.csvError}"></span></label>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label>Total <b>CSV</b>: <span th:text="${entidad.csvTotal}"></span></label>
+											</div>
+											
+											<div class="col-md-3 mb-3">
+												<a th:href="${'/masivo/facturas/alquiler/procesar/csv/' + entidad.codigoMasivo}" onclick="if(!confirm('Desea Procesar los XML?')){ return false;}">
+													Re-Procesar <b>CSV</b> con Error
+												</a>
+											</div>
+											<div class="col-md-2 mb-3" align="center">
+												<label><b>Total Ejecuciones</b>: <span th:text="${entidad.csvIntento}"></span></label>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-1 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label><b>XML</b> Generado: <span th:text="${entidad.xmlGenerado}"></span></label>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label>Con Error en <b>XML</b>: <span th:text="${entidad.xmlError}"></span></label>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label>Total <b>XML</b>: <span th:text="${entidad.xmlTotal}"></span></label>
+											</div>
+											
+											<div class="col-md-3 mb-3">
+												<a th:href="${'/masivo/facturas/alquiler/procesar/xml/' + entidad.codigoMasivo}" onclick="if(!confirm('Desea Procesar los XML?')){ return false;}">
+													Re-Procesar <b>XML</b> con Error
+												</a>
+											</div>
+											<div class="col-md-2 mb-3" align="center">
+												<label><b>Total Ejecuciones</b>: <span th:text="${entidad.xmlIntento}"></span></label>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-1 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label><b>CDR</b> Generado: <span th:text="${entidad.cdrGenerado}"></span></label>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label>Con Error en <b>CDR</b>: <span th:text="${entidad.cdrError}"></span></label>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label>Total <b>CDR</b>: <span th:text="${entidad.cdrTotal}"></span></label>
+											</div>
+											
+											<div class="col-md-3 mb-3">
+												<a th:href="${'/masivo/facturas/alquiler/procesar/cdr/' + entidad.codigoMasivo}" onclick="if(!confirm('Desea Procesar los CDR?')){ return false;}">
+													Re-Procesar <b>CDR</b> con Error
+												</a>
+											</div>
+											<div class="col-md-2 mb-3" align="center">
+												<label><b>Total Ejecuciones</b>: <span th:text="${entidad.cdrIntento}"></span></label>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-1 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label><b>PDF</b> Generado: <span th:text="${entidad.pdfGenerado}"></span></label>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label>Con Error en <b>PDF</b>: <span th:text="${entidad.pdfError}"></span></label>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label>Total <b>PDF</b>: <span th:text="${entidad.pdfTotal}"></span></label>
+											</div>
+											
+											<div class="col-md-3 mb-3">
+												<a th:href="${'/masivo/facturas/alquiler/procesar/pdf/' + entidad.codigoMasivo}" onclick="if(!confirm('Desea Procesar los PDF?')){ return false;}">
+													Re-Procesar <b>PDF</b> con Error
+												</a>
+											</div>
+											<div class="col-md-2 mb-3" align="center">
+												<label><b>Total Ejecuciones</b>: <span th:text="${entidad.pdfIntento}"></span></label>
+											</div>
+										</div>
+								</fieldset>
+								
+								<div class="container_v4" align="center">
+									
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+						  		<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">		
+									
+									<div class="tableFixHead">		
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<thead>
+											<tr>
+												<th>Concepto</th>
+												<th>Serie</th>
+												<th>N&uacute;mero</th>
+												<th>Nro.Local</th>
+												<th>Fecha Emisi&oacute;n</th>
+												<th>Moneda</th>
+												<th>Total Gravado</th>
+												<th>Igv</th>
+												<th>Importe Total</th>
+												<th>Estado</th>
+												<th>Ticket</th>
+												<th>CDR</th>
+												<th>XML</th>
+												<th>PDF</th>
+												<th>Ver</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="comprobante, iterStat : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'" style="cursor: pointer" >
+												<td th:text="${comprobante.tipoPago}">Tipo de Pago</td>
+												<td th:text="${comprobante.serie}">serie</td>
+												<td th:text="${comprobante.numero}">numero</td>
+												<td th:text="${comprobante.numeroTienda}">numeroTienda</td>
+												<td th:text="${comprobante.fechaEmision}">fechaEmision</td>
+												<td th:text="${comprobante.moneda}">moneda</td>
+												<td th:text="${comprobante.totalGravados}">totalGravados</td>
+												<td th:text="${comprobante.totalIgv}">totalIgv</td>
+												<td th:text="${comprobante.total}">total</td>
+												<td th:text="${comprobante.estadoOperacion}">estadoOperacion</td>
+												<td align="center">
+													<div th:if="${comprobante.numeroTicket} == null">
+														<a th:href="${'/facturas/ticket/' + iterStat.index}">
+														<img th:src="@{/images/iconos/descargar.png}" alt="Ticket"
+														 	 onclick="if(!confirm('Desea Obtener el Ticket')){ return false;}" /></a>
+													</div>
+													<div th:if="${comprobante.numeroTicket} != null">
+														OK
+													</div>
+												</td>
+												<td align="center">
+													<div th:if="${comprobante.numeroTicket} != null">
+														<div th:if="${comprobante.nombreCdr} == null">
+															<a th:href="${'/facturas/cdr/' + iterStat.index}">
+															<img th:src="@{/images/iconos/descargar.png}" alt="CDR"
+															 	 onclick="if(!confirm('Desea Obtener el CDR')){ return false;}" /></a>
+														</div>
+														<div th:if="${comprobante.nombreCdr} != null">
+															<a th:href="${'/facturas/cdr/descargar/' + iterStat.index}">
+															<img th:src="@{/images/iconos/cdr.jpg}" alt="CDR" width="30px"
+															 	 onclick="if(!confirm('Desea Descargar el CDR')){ return false;}" /></a>
+														</div>
+													</div>
+												</td>
+												<td align="center">
+													<div th:if="${comprobante.numeroTicket} != null">
+														<div th:if="${comprobante.nombreXml} == null">
+															<a th:href="${'/facturas/xml/' + iterStat.index}">
+															<img th:src="@{/images/iconos/descargar.png}" alt="XML"
+															 	 onclick="if(!confirm('Desea Obtener el XML')){ return false;}" /></a>
+														</div>
+														<div th:if="${comprobante.nombreXml} != null">
+															<a th:href="${'/facturas/xml/descargar/' + iterStat.index}">
+															<img th:src="@{/images/iconos/xml.jpg}" alt="XML" width="30px"
+															 	 onclick="if(!confirm('Desea Descargar el XML')){ return false;}" /></a>
+														</div>
+													</div>
+												</td>
+												<td align="center">
+													<div th:if="${comprobante.numeroTicket} != null">
+														<div th:if="${comprobante.nombrePdf == null || comprobante.nombrePdf == ''} ">
+															<a th:href="${'/facturas/pdf/' + iterStat.index}">
+															<img th:src="@{/images/iconos/descargar.png}" alt="PDF"
+															 	 onclick="if(!confirm('Desea Obtener el PDF')){ return false;}" /></a>
+														</div>
+														<div th:if="${(comprobante.nombrePdf != null)} ">
+															<div th:if="${(comprobante.nombrePdf != '')} ">
+																<a th:href="${'/facturas/pdf/descargar/' + iterStat.index}">
+																<img th:src="@{/images/iconos/pdf.jpg}" alt="PDF" width="30px"
+																 	 onclick="if(!confirm('Desea Descargar el PDF')){ return false;}" /></a>
+															</div>
+														</div>
+													</div>
+												</td>
+												<td align="center">
+
+														<a th:href="${'/facturas/ver/' + iterStat.index}">
+														<img th:src="@{/images/iconos/ver.png}" alt="Eliminar"/></a>
+
+												</td>
+												
+											</tr>
+										</tbody>
+									</table>
+									</div>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Concepto</th>
+											<th>Serie</th>
+											<th>N&uacute;mero</th>
+											<th>Nro.Local</th>
+											<th>Fecha Emisi&oacute;n</th>
+											<th>Moneda</th>
+											<th>Total Gravado</th>
+											<th>Igv</th>
+											<th>Importe Total</th>
+											<th>Estado</th>
+											<th>Ticket</th>
+											<th>CDR</th>
+											<th>XML</th>
+											<th>PDF</th>
+											<th>Ver</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="15" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
