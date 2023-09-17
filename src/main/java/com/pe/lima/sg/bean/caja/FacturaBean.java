@@ -19,6 +19,7 @@ public class FacturaBean {
 	private TblDetalleComprobante facturaDetalle;
 	private TblDetalleFormaPago formaPago;
 	private List<TblDetalleFormaPago> listaFormaPago;
+	private UbigeoBean ubigeo;
 	//Para la consulta
 	private String nombreInmueble;
 	private String numeroTienda;

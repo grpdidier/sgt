@@ -18,7 +18,6 @@ import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
 import com.pe.lima.sg.entity.caja.TblDetalleComprobante;
 import com.pe.lima.sg.entity.caja.TblDetalleFormaPago;
 import com.pe.lima.sg.presentacion.Filtro;
-import com.pe.lima.sg.presentacion.caja.NotaAction;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 
@@ -201,8 +200,8 @@ public class FacturaOseDao {
 		PreparedStatement pstmt = null;
 		ResultSet rs 			= null;
 		String query 			= null;
-		Integer anioCurso		= UtilSGT.getAnioDate(new Date());
-		Integer mesCurso		= UtilSGT.getMesDate(new Date());
+		//Integer anioCurso		= UtilSGT.getAnioDate(new Date());
+		//Integer mesCurso		= UtilSGT.getMesDate(new Date());
 		try{
 			url = urlTienda + userUrl + nombreUsuario + userPass + credencialUsuario;
 			con = DriverManager.getConnection(url);

@@ -21,7 +21,7 @@
 					<div id="container">
 						<div id="actionbar" class="row">
 							<div class="col-md-3 mb-3">
-								<a href="#"	th:href="@{/masivo/facturas/alquiler/regresarlista}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+								<a href="#"	th:href="@{/masivo/facturas/servicio/regresarlista}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
 							</div>
 							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Estado del Proceso</div>
 							<div class="col-md-3 mb-3"></div>
@@ -114,7 +114,7 @@
 															-
 														</div>
 														<div th:if="${comprobante.nombreCdr} != null">
-															<a th:href="${'/masivotienda/facturas/alquiler/cdr/descargar/' + iterStat.index}">
+															<a th:href="${'/masivotienda/facturas/servicio/cdr/descargar/' + iterStat.index}">
 															<img th:src="@{/images/iconos/cdr.jpg}" alt="CDR" width="30px"
 															 	 onclick="if(!confirm('Desea Descargar el CDR')){ return false;}" /></a>
 														</div>
@@ -126,7 +126,7 @@
 															-
 														</div>
 														<div th:if="${comprobante.nombreXml} != null">
-															<a th:href="${'/masivotienda/facturas/alquiler/xml/descargar/' + iterStat.index}">
+															<a th:href="${'/masivotienda/facturas/servicio/xml/descargar/' + iterStat.index}">
 															<img th:src="@{/images/iconos/xml.jpg}" alt="XML" width="30px"
 															 	 onclick="if(!confirm('Desea Descargar el XML')){ return false;}" /></a>
 														</div>
@@ -139,7 +139,7 @@
 														</div>
 														<div th:if="${(comprobante.nombrePdf != null)} ">
 															<div th:if="${(comprobante.nombrePdf != '')} ">
-																<a th:href="${'/masivotienda/facturas/alquiler/pdf/descargar/' + iterStat.index}">
+																<a th:href="${'/masivotienda/facturas/servicio/pdf/descargar/' + iterStat.index}">
 																<img th:src="@{/images/iconos/pdf.jpg}" alt="PDF" width="30px"
 																 	 onclick="if(!confirm('Desea Descargar el PDF')){ return false;}" /></a>
 															</div>
@@ -148,7 +148,7 @@
 												</td>
 												<td align="center">
 
-														<a th:href="${'/masivo/facturas/alquiler/comprobante/ver/' + iterStat.index}">
+														<a th:href="${'/masivo/facturas/servicio/comprobante/ver/' + iterStat.index}">
 														<img th:src="@{/images/iconos/ver.png}" alt="Eliminar"/></a>
 
 												</td>

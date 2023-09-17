@@ -2,6 +2,7 @@ package com.pe.lima.sg.api.Interface;
 
 
 import com.pe.lima.sg.api.bean.CredencialBean;
+import com.pe.lima.sg.bean.caja.UbigeoBean;
 
 public interface IApiOseCSV {
 
@@ -14,4 +15,8 @@ public interface IApiOseCSV {
 	public Integer obtenerXMLDocumento(CredencialBean credencialBean);
 	
 	public Integer obtenerPDFDocumento(CredencialBean credencialBean);
+	
+	public Integer obtenerTicketParaMasivo(CredencialBean credencialBean);
+	
+	public UbigeoBean obtenerUbigeo(String ruc, String token);
 }

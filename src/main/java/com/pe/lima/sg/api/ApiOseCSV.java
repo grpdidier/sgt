@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pe.lima.sg.api.Interface.IApiOseCSV;
 import com.pe.lima.sg.api.bean.CredencialBean;
+import com.pe.lima.sg.bean.caja.UbigeoBean;
 import com.pe.lima.sg.presentacion.util.Constantes;
 
 import lombok.extern.slf4j.Slf4j;
@@ -255,5 +256,120 @@ public class ApiOseCSV implements IApiOseCSV {
 		log.info("[obtenerPDFDocumento] Fin");
 		return status;
 	}
+	@Override
+	public Integer obtenerTicketParaMasivo(CredencialBean credencialBean) {
+		log.info("[obtenerTicketParaMasivo] Inicio");
+		Integer status = 0;
+		String ticket = null; 
+		String nombreDocumento = credencialBean.getCsvFileName();
+		log.info("[obtenerTicketParaMasivo] Archivo: "+nombreDocumento);
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		/*Se establece el cliente POST para el servidor de autenticación*/
+		HttpPost post = new HttpPost(credencialBean.getResourceDocumento());
+		log.info("[obtenerTicketParaMasivo] Resource: "+credencialBean.getResourceDocumento());
+		/*Se agrega un Header de autorización con el token recibido por el servidor de autenticación*/
+		post.setHeader("Authorization", "Bearer " + credencialBean.getAccessToken());
+		log.info("[obtenerTicketParaMasivo] Token: "+credencialBean.getAccessToken());
+		/*Se adjuntarán los documentos electrónicos en el body de la petición*/
+		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+		try {
+			String FILENAME = credencialBean.getPath() + nombreDocumento;
+			log.info("[obtenerTicketParaMasivo] FILENAME: "+FILENAME);
+			byte[] byteFile = Files.readAllBytes(Paths.get(FILENAME));
+			builder.addBinaryBody(Constantes.BODY_FILE, byteFile, ContentType.create(Constantes.BODY_FILE_EXTENSION), nombreDocumento); 
+			HttpEntity entity = builder.build(); 
+			post.setEntity(entity);
+			/*Se envía el documento electrónico a la plataforma Efact OSE*/
+			HttpResponse response = httpclient.execute(post);
+			/*Se valida el codigo de estado de la peticion*/
+			status = response.getStatusLine().getStatusCode();
+			credencialBean.setStatus(status);
+			log.info("[obtenerTicketParaMasivo] STATUS CODE: " + status );
+			/*Se valida que sea el status correcto*/
+			if (status == 200) { 
+				HttpEntity entity2 = response.getEntity();
+				//Se obtiene el resultado del response 
+				String jsonResponse = entity2 != null ? EntityUtils.toString(entity2) : null;
+				
+				// Se transforma el Json y se obtiene el ticket 
+				ObjectMapper mapper = new ObjectMapper(); 
+				JsonNode rootNodeResponse = mapper.readTree(jsonResponse); 
+				ticket = rootNodeResponse.path("description").asText(); 
+				credencialBean.setTicket(ticket);
+				log.info("[obtenerTicketParaMasivo] Ticket: "+ticket);
+			}
 
+		} catch (IOException e) {
+			log.error("[obtenerTicketParaMasivo] Error: "+e.getMessage());
+			e.printStackTrace();
+		} 
+		log.info("[obtenerTicket] Fin");
+		return status;
+	}
+	@Override
+	public UbigeoBean obtenerUbigeo(String ruc, String token) {
+		log.info("[obtenerUbigeo] Inicio");
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		int status = 0;
+		UbigeoBean ubigeo = new UbigeoBean();
+		/*Se establece el cliente GET para el servidor de autenticación*/
+		HttpGet httpget = new HttpGet("https://www.apisperu.net/api/ruc/" + ruc);
+		log.info("[obtenerUbigeo] ruc: "+ruc);
+		/*Se agrega un Header de autorización con el token recibido por el servidor de autenticación*/
+		httpget.setHeader(Constantes.HEADER_AUTORIZATION, Constantes.HEADER_BEARER + token);
+		/* Se envía la petición a la plataforma APIsPERU*/
+		try {
+			HttpResponse response = httpclient.execute(httpget);
+			status = response.getStatusLine().getStatusCode(); 
+			if (status == 200) {
+				HttpEntity entity2 = response.getEntity();
+				//Se obtiene el resultado del response 
+				String jsonResponse = entity2 != null ? EntityUtils.toString(entity2) : null;
+				
+				// Se transforma el Json y se obtiene el ticket 
+				ObjectMapper mapper = new ObjectMapper(); 
+				JsonNode rootNodeResponse = mapper.readTree(jsonResponse); 
+				String ubigeoSunat = rootNodeResponse.get("data").get("ubigeo_sunat").asText();
+				String departamento = rootNodeResponse.get("data").get("departamento").asText();
+				String provincia = rootNodeResponse.get("data").get("provincia").asText();
+				String distrito = rootNodeResponse.get("data").get("distrito").asText();
+				String direccion = rootNodeResponse.get("data").get("direccion").asText();
+				ubigeo = new UbigeoBean();
+				ubigeo.setUbigeoSunat(ubigeoSunat);
+				ubigeo.setNombreDepartamento(departamento);
+				ubigeo.setNombreProvincia(provincia);
+				ubigeo.setNombreDistrito(distrito);
+				ubigeo.setDireccionCompleta(direccion);
+				log.info("[obtenerUbigeo] Ubigeo: " + ubigeo.getUbigeoSunat() );
+			}else {
+				log.info("[obtenerUbigeo] status: " + status );
+				ubigeo = inicializaUbigeo();
+			}
+
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			ubigeo = inicializaUbigeo();
+			log.error("[obtenerUbigeo] ClientProtocolException Error:"+e.getMessage());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+			log.error("[obtenerUbigeo] IOException Error:"+e.getMessage());
+		} 
+		/*Se valida el código de estado de la petición*/
+		log.info("[obtenerUbigeo] Fin");
+		return ubigeo;
+	}
+	private UbigeoBean inicializaUbigeo() {
+		UbigeoBean ubigeo = new UbigeoBean();
+		ubigeo.setUbigeoSunat("000000");
+		ubigeo.setNombreDepartamento("");
+		ubigeo.setNombreProvincia("");
+		ubigeo.setNombreDistrito("");
+		ubigeo.setDireccionCompleta("");
+		return ubigeo;
+	}
+	
 }

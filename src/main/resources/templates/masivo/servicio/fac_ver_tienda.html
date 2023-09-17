@@ -21,12 +21,12 @@
 					<div id="container">
 						<div id="actionbar" class="row">
 							<div class="col-md-3 mb-3">
-								<a href="#"	th:href="@{/masivotienda/facturas/alquiler/regresarempresa}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+								<a href="#"	th:href="@{/masivo/facturas/servicio/regresarlista}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
 							</div>
-							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Nuevo</div>
+							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Ver</div>
 							<div class="col-md-3 mb-3"></div>
 						</div>
-						<form id="form" th:object="${filtro}" th:action="@{/masivotienda/facturas/alquiler/nuevo/agregarExcluida}" method="Post">
+						<form id="form" th:object="${filtro}" th:action="@{/}" method="Post">
 							<div id="informacion" class="container_v3">
 								<fieldset class="scheduler-border" style="background-color:#FEEF8B;">
 										<br></br>
@@ -56,7 +56,7 @@
 												</div>
 											</div>
 											<div class="col-md-1 mb-3">
-												<button class="btn btn-success" type="submit">Agregar</button> 
+												
 											</div>
 											<div class="col-md-2 mb-3" align="center">
 											</div>
@@ -71,11 +71,6 @@
 						  				</div>
 						  			</div>
 						  		</div>
-						  		<div class="row">
-						  				<div class="col-md-12 mb-3" align="center">
-						  					<button class="btn btn-success" id="idGrabarTiendaFactura"  onclick="grabarTiendaParaFacturar()">Grabar</button> 
-						  				</div>
-						  			</div>
 						  		<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">	
 							  		<div class="tableFixHead">		
 										<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
@@ -83,7 +78,7 @@
 												<tr>
 													<th>Empresa</th>
 													<th>Tienda</th>
-													<th>Alquiler $</th>
+													<th>Servicio S/</th>
 													<th>Periodo</th>
 													<th>Eliminar</th>
 												</tr>
@@ -95,10 +90,7 @@
 													<td th:text="${masivotienda.monto}">monto</td>
 													<td th:text="${masivotienda.nombrePeriodo}">nombrePeriodo</td>
 													<td align="center">
-														<a th:href="${'/masivotienda/facturas/alquiler/tienda/eliminar/' + iterStat.index}">
-														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML" width="20px"
-														 	 onclick="if(!confirm('Desea Eliminar la tienda seleccionado')){ return false;}" />
-														</a>
+														-
 													</td>
 													
 												</tr>
@@ -113,7 +105,7 @@
 											<tr>
 												<th>Empresa</th>
 												<th>Tienda</th>
-												<th>Alquiler $</th>
+												<th>Servicio S/</th>
 												<th>Periodo</th>
 												<th>Eliminar</th>
 											</tr>

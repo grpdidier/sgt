@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+
+</head>
+<body >
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-3 mb-3">
+								<a href="#" th:href="@{/masivo/facturas/servicio/nuevo}"><img th:src="@{/images/iconos/nuevo.png}" alt="Nuevo" /></a> 
+								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
+							</div>
+							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Servicio</div>
+							<div class="col-md-3 mb-3"></div>
+						</div>
+						<form id="form" th:object="${filtro}" th:action="@{/masivo/facturas/servicio/q}" method="Post">
+							<div id="informacion" class="container_v3">
+								<fieldset class="scheduler-border" style="background-color:#FEEF8B;">
+										<br></br>
+			
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<select th:field="${filtro.codigoEdificacion}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<select th:field="${filtro.anio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapAnioFactura}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<select th:field="${filtro.mesFiltro}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapMeses}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-1 mb-3"><button class="btn btn-success" type="submit">Buscar</button> </div>
+											<div class="col-md-2 mb-3" align="center">
+												<input type="button" class="btn btn-primary" onclick="jsLimpiarCriterios();" value="Limpiar"></input>
+												
+												
+											</div>
+											
+											
+										</div>
+										
+			
+											
+								</fieldset>
+								
+								<div class="container_v4" align="center">
+									
+						  			<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
+						  		
+								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">		
+									<!--Pagination -->
+									<nav class="my-1">
+									    <ul class="pagination pagination-circle pg-blue mb-0">
+											 <!--First-->
+									        <li th:class="${page.firstPage}? 'page-item disabled' : 'page-item'">
+									        	<span aria-hidden="true" class="page-link" th:if='${page.firstPage}'>First</span>
+									        	<a th:if='${not page.firstPage}' th:href="${ page.url + '0' + '/' +  page.size + '/F'  }">
+									        		 <span class="page-link" th:if='${not page.firstPage}'>First</span>
+									        	</a>
+									        </li>
+									
+									        <!--Arrow left-->
+									        <li  th:class="${page.hasPreviousPage}? 'page-item disabled' : 'page-link'">
+									        	<span aria-hidden="true"  class="page-link" th:if='${page.hasPreviousPage}'>&laquo;</span>
+									            <a  th:if='${not page.hasPreviousPage}' th:href="${page.url + (page.pageActual-2) + '/' +  page.size + '/P'}" title='Go to previous page' aria-label="Previous" >
+									               <span  aria-hidden="true">&laquo;Previous</span>
+									            </a>
+									        </li>
+									
+									        <!--Numbers-->
+									        <li th:each='item : ${page.items}' th:class="${item.current}? 'page-item active' : 'page-item'">
+									        	 <span th:if='${item.current}' th:text='${item.number}' class="page-link">1</span>
+									        	 <a class="page-link" th:if='${not item.current}' th:href="${page.url + (item.number-1)  + '/' +  page.size + '/C'}"><span th:text='${item.number}'>1</span></a>
+									        </li>
+									        <!--Arrow right-->
+									        <li th:class="${page.hasNextPage}? 'page-item disable' : 'page-link'">
+									        	<span aria-hidden="true"  class="page-link" th:if='${page.hasNextPage}'>&raquo;</span>
+									        	<a aria-label="Next" th:if='${not page.hasNextPage}' th:href="${page.url + (page.pageActual)  + '/' +  page.size + '/N'}" title='Go to next page'>
+									            	<span aria-hidden="true">Next&raquo;</span>
+									            </a>
+									        </li>
+									
+									        <!--First-->
+									        <li th:class="${page.lastPage}? 'page-item disabled' : 'page-link'">
+									        	<span aria-hidden="true" class="page-link" th:if='${page.lastPage}'>Last</span>
+									        	<a  aria-label="Last" th:if='${not page.lastPage}' th:href="${page.url + (page.totalPages - 1)  + '/' +  page.size + '/L'}">
+									        		<span aria-hidden="true" >Last: </span><font th:text="${page.total}"> </font> Elements
+									        	</a>
+									        </li>
+									        
+									        
+									
+									    </ul>
+									</nav>
+									
+									
+									<!--/Pagination -->	
+									<div class="tableFixHead">		
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<thead>
+											<tr>
+												<th>Periodo</th>
+												<th>Empresa</th>
+												<th># Tiendas Excluidas</th>
+												<th>Estado</th>
+												<th># Tiendas Seleccionadas </th>
+												<th>Procesar</th>
+												<th>Eliminar</th>
+												<th>Ver Tiendas</th>
+												<th>Ver Proceso</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="masivo, iterStat : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'" style="cursor: pointer" >
+												<td th:text="${masivo.periodo}">periodo</td>
+												<td th:text="${masivo.nombreEdificio}">nombreEdificio</td>
+												<td th:text="${masivo.totalExcluido}" align="center">totalExcluido</td>
+												<td th:text="${masivo.estadoMasivo}">estadoMasivo</td>
+												<td th:text="${masivo.totalProcesada}" align="center">totalProcesada</td>
+												
+												<td align="center">
+													<div th:if="${masivo.flagProcesa} == 'S'">
+														<a th:href="${'/masivo/facturas/servicio/procesar/' + iterStat.index}">
+														<img th:src="@{/images/iconos/procesar.png}" alt="CDR" width="20px"
+														 	 onclick="if(!confirm('Desea Generar las facturas de todas las tiendas registradas')){ return false;}" /></a>
+													</div>
+													<div th:if="${masivo.flagProcesa} == 'N'">
+													-
+													</div>
+												</td>
+												<td align="center">
+													<div th:if="${masivo.flagEliminar} == 'S'">
+														<a th:href="${'/masivo/facturas/servicio/eliminar/' + iterStat.index}">
+														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML" width="20px"
+														 	 onclick="if(!confirm('Desea Eliminar el periodo seleccionado')){ return false;}" /></a>
+													</div>
+													<div th:if="${masivo.flagEliminar} == 'N'">
+													-
+													</div>
+												</td>
+												<td align="center">
+													<a th:href="${'/masivo/facturas/servicio/ver/' + iterStat.index}">
+													<img th:src="@{/images/iconos/ver.png}" alt="Eliminar"/></a>
+												</td>
+												<td align="center">
+													<div th:if="${masivo.flagProcesa} == 'N'">
+														<a th:href="${'/masivo/facturas/servicio/proceso/ver/' + iterStat.index}">
+													<img th:src="@{/images/iconos/ver.png}" alt="Eliminar"/></a>
+													</div>
+													<div th:if="${masivo.flagProcesa} == 'S'">
+													-
+													</div>
+													
+												</td>
+											</tr>
+										</tbody>
+									</table>
+									</div>
+								</div>
+								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
+									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+										<tr>
+											<th>Periodo</th>
+											<th>Empresa</th>
+											<th># Tiendas Excluidas</th>
+											<th>Estado</th>
+											<th># Tiendas Seleccionadas </th>
+											<th>Procesar</th>
+											<th>Eliminar</th>
+											<th>Ver Tiendas</th>
+											<th>Ver Proceso</th>
+										</tr>
+										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+											<td colspan="9" align="center">No se encontr&oacute; elementos</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</form>
+						
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

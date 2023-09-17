@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body onload=" jsSetFocusGasto();">
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">	
+						<div id="actionbar" class="row">
+							<div class="col-md-3 mb-3">
+								<a href="#" th:href="@{/masivotienda/facturas/servicio/regresarverfactura}"><img th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Factura Alquiler y Servicios - VER</div>
+							<div class="col-md-3 mb-3"></div>
+						</div>
+						
+						<form id="form" th:object="${entidad}" th:action="@{/facturas/nuevo/guardar}" method="post">
+							<div id="informacion" class="container_v3">
+								<br/>
+								<fieldset class="scheduler-border fondoFactura">
+									<legend class="scheduler-border title10pt"><b>Datos de la Factura</b></legend>
+										<div class="row"><div class="col-md-12 mb-0">&nbsp;</div></div>
+										<div class="row">
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Tipo de Operaci&oacute;n: </label>
+												<select th:field="${entidad.factura.tipoOperacion}" class="form-control_v2 " required="required" disabled="disabled">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapTipoOperacionFactura}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-8 mb-0">
+												<label for="idNombre" class="title10pt">Domicilio Fiscal: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.domicilioFiscal}" readonly="readonly"  />
+											</div>
+										</div>
+										<br/>
+										<div class="row">
+											<div class="col-md-1 mb-3">
+												<label for="idNombre" class="title10pt">Serie : </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.serie}" readonly="readonly"  />
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="title10pt">N&uacute;mero: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.numero}" readonly="readonly"   />
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="title10pt">Fecha Emisi&oacute;n: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.fechaEmision}" readonly="readonly"   />
+											</div>
+											<div class="col-md-1 mb-3">
+												<label for="idNombre" class="title10pt">Hora : </label>
+												 <input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.horaEmision}" readonly="readonly"   />
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="title10pt">Fecha Vencimiento: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.fechaVencimiento}" readonly="readonly"   />
+											</div>
+											<div class="col-md-4 mb-3">
+											</div>
+										</div>
+																				
+								</fieldset>
+								<br/>
+								<fieldset class="scheduler-border fondoBlanco">
+									<legend class="scheduler-border title10pt"><b>Datos del Cliente</b></legend>
+										<div class="row"><div class="col-md-12 mb-0">&nbsp;</div></div>
+										<div class="row">
+											<div class="col-md-3 mb-0">
+												<label for="idNombre" class="title10pt">Tipo de Documento: </label>
+												<select th:field="${entidad.factura.clienteTipoDocumento}" class="form-control_v2 " required="required" disabled="disabled">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapTipoDocumento}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-3 mb-0">
+												<label for="idNombre" class="title10pt">N&uacute;mero de Documento: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.clienteNumero}" readonly="readonly"   />
+											</div>
+											<div class="col-md-6 mb-0">
+												<label for="idNombre" class="title10pt">Direcci&oacute;n Empresa: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.clienteDireccion}" readonly="readonly"   />
+											</div>
+										</div>
+										<br/>
+										<div class="row">
+											<div class="col-md-6 mb-0">
+												<label for="idNombre" class="title10pt">Raz&oacute;n Social: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.clienteNombre}" readonly="readonly"   />
+											</div>
+											<div class="col-md-6 mb-0">
+											</div>
+										</div>
+								</fieldset>
+								<br/>
+								<fieldset class="scheduler-border fondoFactura">
+									<legend class="scheduler-border title10pt"><b>Datos del Alquiler o Servicio</b></legend>
+										<div class="row"><div class="col-md-12 mb-0">&nbsp;</div></div>
+										<div class="row">
+											<div class="col-md-2 mb-0">
+												<label for="idNombre" class="title10pt">Unidad de Medida: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.facturaDetalle.unidadMedida}" readonly="readonly"   />
+											</div>
+											<div class="col-md-2 mb-0">
+												<label for="idNombre" class="title10pt">Moneda: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.facturaDetalle.moneda}" readonly="readonly"   />
+											</div>
+											<div class="col-md-2 mb-0">
+												<label for="idNombre" class="title10pt">Cantidad: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.facturaDetalle.cantidad}" readonly="readonly"   />
+											</div>
+											<div class="col-md-2 mb-0">
+												<label for="idNombre" class="title10pt">Precio Unitario: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.facturaDetalle.precioUnitario}" readonly="readonly"   />
+											</div>
+											<div class="col-md-3 mb-0">
+												<label for="idNombre" class="title10pt">Nombre del Producto: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.facturaDetalle.nombreProducto}" readonly="readonly"   />
+											</div>
+											<div class="col-md-1 mb-0">
+												
+											</div>
+										</div>
+
+										<div class="row">
+										</div>
+										<br/>
+										<div class="row">
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Afectaci&oacute;n IGV: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.facturaDetalle.afectacionIgv}" readonly="readonly"   />
+											</div>
+											<div class="col-md-8 mb-0">
+												<label for="idNombre" class="title10pt">Descripci&oacute;n del concepto: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.facturaDetalle.descripcionConcepto}" readonly="readonly"   />
+											</div>
+										</div>
+								</fieldset>
+								<br/>
+								<fieldset class="scheduler-border fondoBlanco">
+									<legend class="scheduler-border title10pt"><b>Importe Totales</b></legend>
+										<div class="row"><div class="col-md-12 mb-0">&nbsp;</div></div>
+										<div class="row">
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Total Operaciones Gravadas: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.totalGravados}" readonly="readonly"   />
+											</div>
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Total Igv: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.totalIgv}" readonly="readonly"   />
+											</div>
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Importe Total: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.total}" readonly="readonly"   />
+											</div>
+										</div>
+										<div class="row" th:if="${entidad.factura.tipoOperacion == '1001'}" >
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Total Sin Detracci&oacute;n: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.detracionTotal}" readonly="readonly"   />
+											</div>
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Porcentaje Detracci&oacute;n: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.detracionPorcentaje}" readonly="readonly"   />
+											</div>
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Monto Detracci&oacute;n (Soles): </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.factura.detracionMonto}" readonly="readonly"   />
+											</div>
+										</div>
+								</fieldset>
+								<br></br>
+								<br></br>
+								<fieldset class="scheduler-border fondoFactura">
+									<legend class="scheduler-border title10pt"><b>Datos de la Forma de Pago</b></legend>
+										<div class="row"><div class="col-md-12 mb-0">&nbsp;</div></div>
+										<div class="row">
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Forma de Pago: </label>
+												<select th:field="${entidad.factura.formaPago}" class="form-control_v2 " required="required" disabled="disabled" >
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapFormaPago}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
+											</div>
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Monto Neto: </label>
+												<input type="text" class="form-control_v2 "  th:field="${entidad.factura.total}"  style="background-color: #FFFFFF;"  readonly="readonly"/>
+											</div>
+											<div class="col-md-4 mb-0">
+												<label for="idNombre" class="title10pt">Moneda: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" th:field="${entidad.facturaDetalle.moneda}" readonly="readonly"   />
+											</div>
+										</div>
+								</fieldset>
+								<br></br>
+								<div th:if="${entidad.factura.formaPago == 'CREDITO'}">
+									
+									<div id="c_tablas" th:if="${not #lists.isEmpty(registrospago)}">		
+		
+										<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+											<thead>
+												<tr>
+													<th>Monto a Pagar</th>
+													<th>Fecha de Pago</th>
+													<th>Moneda</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr th:each="pago, iterStat : ${registrospago}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'" style="cursor: pointer" >
+													<td th:text="${pago.monto}">monto</td>
+													<td th:text="${pago.fecha}">fecha</td>
+													<td th:text="${pago.moneda}">moneda</td>
+													
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+									<div id="c_tablas" th:if="${#lists.isEmpty(registrospago)}">				
+										<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
+											<tr>
+												<th>Monto a Pagar</th>
+												<th>Fecha de Pago</th>
+												<th>Moneda</th>
+												
+											</tr>
+											<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+												<td colspan="3" align="center">No se encontr&oacute; elementos</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+								<br></br>
+								
+						  	</div>
+						</form>
+			
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>	
+</body>
+</html>

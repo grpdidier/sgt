@@ -205,16 +205,16 @@ public class UtilUBL {
 		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationName",facturaBean.getFactura().getClienteNombre()));
 		/* Codigo de ubigeo (Domicilio fiscal del receptor) */
 		/**<CodigoUbigeoReceptor>*/
-		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/ID","150101"));//TODO: UBIGEO DEL RECEPTOR
+		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/ID",facturaBean.getUbigeo().getUbigeoSunat()));//TODO: UBIGEO DEL RECEPTOR
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/ID/@schemeAgencyName","PE:INEI"));
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/ID/@schemeName","Ubigeos	"));
 		/* Domicilio fiscal del recepto*/
-		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CitySubdivisionName","LIMA"));
-		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CityName","LIMA"));
-		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CountrySubentity","LIMA"));
-		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/District","LIMA"));
+		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CitySubdivisionName",facturaBean.getUbigeo().getNombreDepartamento()));
+		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CityName",facturaBean.getUbigeo().getNombreDepartamento()));
+		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CountrySubentity",facturaBean.getUbigeo().getNombreProvincia()));
+		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/District",facturaBean.getUbigeo().getNombreDistrito()));
 		/**<DireccionCompletaDetalladaReceptor>*/
-		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/AddressLine/Line","Calle Lima 120 Lima Lima Lima")); //Direccion completa:facturaBean.getFactura().getClienteDireccion()
+		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/AddressLine/Line",facturaBean.getUbigeo().getDireccionCompleta())); //Direccion completa:facturaBean.getFactura().getClienteDireccion()
 		/*  Codigo de pais (Domicilio fiscal del receptor) */
 		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/Country/IdentificationCode","PE"));
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/Country/IdentificationCode/@listID","ISO 3166-1"));

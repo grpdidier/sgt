@@ -88,7 +88,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 //@PreAuthorize("hasAuthority('CRUD')")
-public class FacturaAlquilerAction {
+public class FacturaServicioAction {
 	
 	
 	@Autowired
@@ -120,7 +120,7 @@ public class FacturaAlquilerAction {
 	@Autowired
 	private ServletContext context;
 	
-	private String urlPaginado = "/masivo/facturas/alquiler/paginado/"; 
+	private String urlPaginado = "/masivo/facturas/servicio/paginado/"; 
 	
 	private final Integer MAXIMO_REPETICIONES = 4;
 	/**
@@ -131,16 +131,16 @@ public class FacturaAlquilerAction {
 	 */
 	
 
-	@RequestMapping(value = "/masivo/facturas/alquiler", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio", method = RequestMethod.GET)
 	public String traerRegistros(Model model, String path, HttpServletRequest request) {
 		Filtro filtro = null;
 		
 		try{
 			log.debug("[traerRegistros] Inicio");
-			path = "masivo/alquiler/fac_listado";
+			path = "masivo/servicio/fac_listado";
 			
 			filtro = new Filtro();
-			request.getSession().setAttribute("CriterioFiltroMasivoFacturaAlquiler",filtro);
+			request.getSession().setAttribute("CriterioFiltroMasivoFacturaServicio",filtro);
 			
 			model.addAttribute("registros",null);
 			model.addAttribute("page", null);
@@ -165,9 +165,9 @@ public class FacturaAlquilerAction {
 	 * seleccionado
 	 * 
 	 */
-	@RequestMapping(value = "/masivo/facturas/alquiler/q", method = RequestMethod.POST)
+	@RequestMapping(value = "/masivo/facturas/servicio/q", method = RequestMethod.POST)
 	public String traerRegistrosFiltrados(Model model, Filtro filtro, String path ,  PageableSG pageable,HttpServletRequest request) {
-		path = "masivo/alquiler/fac_listado";
+		path = "masivo/servicio/fac_listado";
 		try{
 			log.debug("[traerRegistrosFiltrados] Inicio");
 			this.listarMasivoFactura(model, filtro, pageable, this.urlPaginado, request);
@@ -187,24 +187,24 @@ public class FacturaAlquilerAction {
 	 * Se encarga de direccionar a la pantalla de creacion de Masivos para la factura de alquiler
 	 * 
 	 */
-	@RequestMapping(value = "/masivo/facturas/alquiler/nuevo", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio/nuevo", method = RequestMethod.GET)
 	public String nuevoMasivoFactura(Model model,HttpServletRequest request) {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[nuevoMasivoFactura] Inicio");
 			masivoSunatBean = inicializaDatosParaNuevoRegistro();
 			model.addAttribute("entidad", masivoSunatBean);
-			request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", masivoSunatBean);
+			request.getSession().setAttribute("MasivoFacturaServicioNuevo", masivoSunatBean);
 			request.getSession().setAttribute("SessionMapTiendaExcluida", null);
 			log.debug("[nuevoMasivoFactura] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return "masivo/alquiler/fac_nuevo_empresa";
+		return "masivo/servicio/fac_nuevo_empresa";
 	}
 	/*Mostramos todas las tiendas de la empresa(edificio) seleccionado*/
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "masivo/facturas/alquiler/nuevo/tiendas", method = RequestMethod.POST)
+	@RequestMapping(value = "masivo/facturas/servicio/nuevo/tiendas", method = RequestMethod.POST)
 	public String nuevoConTiendaMasivoFacturaTienda(Model model, MasivoSunatBean entidad, HttpServletRequest request) {
 		Map<Integer, String> mapEdificio = null;
 		try{
@@ -214,27 +214,27 @@ public class FacturaAlquilerAction {
 			entidad.setNombreEdificio(mapEdificio.get(keyTienda));
 			List<TblTienda> listaTiendaActivo = tiendaDao.listarAllActivos(entidad.getCodigoEdificio());
 			List<TblContrato> listaContratoActivo = contratoDao.listAllContratoActivosxFecha(new Date());
-			List<TblCxcDocumento> listaCxCActivo = cxcDocumentoDao.listarCxCByAnioMes(Constantes.TIPO_PAGO_ALQUILER_CODIGO, entidad.getAnio(), new Integer(entidad.getMes()));
+			List<TblCxcDocumento> listaCxCActivo = cxcDocumentoDao.listarCxCByAnioMes(Constantes.TIPO_PAGO_SERVICIO_CODIGO, entidad.getAnio(), new Integer(entidad.getMes()));
 			obtenerListaTiendasAFacturar(listaTiendaActivo,listaContratoActivo,listaCxCActivo,entidad);
 			
 			model.addAttribute("entidad", entidad);
 			model.addAttribute("registros", entidad.getListaTiendaSunat());
-			request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", entidad);
+			request.getSession().setAttribute("MasivoFacturaServicioNuevo", entidad);
 			request.getSession().setAttribute("SessionMapTiendaExcluida", entidad.getMapTiendaExcluidasComboBox());
 			log.debug("[nuevoConTiendaMasivoFacturaTienda] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return "masivo/alquiler/fac_nuevo_tienda";
+		return "masivo/servicio/fac_nuevo_tienda";
 	}
 	
 
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/nuevo/agregarExcluida", method = RequestMethod.POST)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/nuevo/agregarExcluida", method = RequestMethod.POST)
 	public String agregarNuevoTiendaMasivoFacturaTienda(Model model, MasivoSunatBean entidad, HttpServletRequest request) {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[agregarNuevoTiendaMasivoFacturaTienda] Inicio");
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerNuevo");
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioNuevo");
 			if (entidad.getCodigoTienda().compareTo(-1) ==0){
 				model.addAttribute("respuesta", "Debe seleccionar una tienda para ser agregada.");
 				model.addAttribute("entidad", masivoSunatBean);
@@ -248,7 +248,7 @@ public class FacturaAlquilerAction {
 				masivoSunatBean = adicionarTiendaEnLista(masivoSunatBean, entidad.getCodigoTienda(), numeroTienda);
 				model.addAttribute("entidad", masivoSunatBean);
 				model.addAttribute("registros", masivoSunatBean.getListaTiendaSunat());
-				request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", masivoSunatBean);
+				request.getSession().setAttribute("MasivoFacturaServicioNuevo", masivoSunatBean);
 				request.getSession().setAttribute("SessionMapTiendaExcluida", masivoSunatBean.getMapTiendaExcluidasComboBox());
 			}
 			
@@ -256,15 +256,15 @@ public class FacturaAlquilerAction {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return "masivo/alquiler/fac_nuevo_tienda";
+		return "masivo/servicio/fac_nuevo_tienda";
 	}
 	
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/tienda/eliminar/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/tienda/eliminar/{id}", method = RequestMethod.GET)
 	public String quitarNuevoTiendaMasivoFacturaTienda(@PathVariable Integer id, Model model, HttpServletRequest request) {
 		MasivoSunatBean masivoSunatBean = null;
-		String path 					= "masivo/alquiler/fac_nuevo_tienda";
+		String path 					= "masivo/servicio/fac_nuevo_tienda";
 		try{
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerNuevo");
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioNuevo");
 			MasivoTiendaSunatBean masivoTiendaSunatBean = masivoSunatBean.getListaTiendaSunat().get(id.intValue());
 			Integer codigoTienda = masivoTiendaSunatBean.getCodigoTienda();
 			String numeroTienda = masivoTiendaSunatBean.getNumeroTienda();
@@ -274,7 +274,7 @@ public class FacturaAlquilerAction {
 			masivoSunatBean.setMapTiendaExcluidasComboBox(mapTiendaExcluidasCombo);
 			model.addAttribute("entidad", masivoSunatBean);
 			model.addAttribute("registros", masivoSunatBean.getListaTiendaSunat());
-			request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", masivoSunatBean);
+			request.getSession().setAttribute("MasivoFacturaServicioNuevo", masivoSunatBean);
 			request.getSession().setAttribute("SessionMapTiendaExcluida", masivoSunatBean.getMapTiendaExcluidasComboBox());
 		}catch(Exception e){
 			e.printStackTrace();
@@ -286,13 +286,13 @@ public class FacturaAlquilerAction {
 	 * Se encarga de guardar la informacion 
 	 * 
 	 */
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/nuevo/tiendas/guardar", method = RequestMethod.POST)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/nuevo/tiendas/guardar", method = RequestMethod.POST)
 	public String guardarEntidad(Model model, MasivoSunatBean entidad, HttpServletRequest request, String path , PageableSG pageable) {
-		path = "masivo/alquiler/fac_listado";
+		path = "masivo/servicio/fac_listado";
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[guardarEntidad] Inicio" );
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerNuevo");
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioNuevo");
 			if (this.validarNegocio(model, masivoSunatBean, request)){
 				log.debug("[guardarEntidad] Pre Guardar..." );
 				TblMasivoSunat tblMasivoSunat = setearDatosMasivoSunat(masivoSunatBean,request);
@@ -302,13 +302,13 @@ public class FacturaAlquilerAction {
 					masivoTiendaSunatDao.save(tblMasivoTiendaSunat);
 				}
 				model.addAttribute("respuesta", "Se registró exitosamente");
-				Filtro filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+				Filtro filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaServicio");
 				this.traerRegistrosFiltrados(model,filtro, path, pageable, request);
 			}else{
 				model.addAttribute("entidad", masivoSunatBean);
 				model.addAttribute("registros", masivoSunatBean.getListaTiendaSunat());
 				
-				path = "masivo/alquiler/fac_nuevo_tienda";
+				path = "masivo/servicio/fac_nuevo_tienda";
 				model.addAttribute("entidad", entidad);
 			}
 			
@@ -320,13 +320,13 @@ public class FacturaAlquilerAction {
 		
 	}
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/masivo/facturas/alquiler/ver/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio/ver/{id}", method = RequestMethod.GET)
 	public String verMasivoFacturaTienda(@PathVariable Integer id, Model model, HttpServletRequest request) {
 		String path 				= null;
 		List<MasivoSunatBean> lista = null;
 		try{
 			log.debug("[verMasivoFacturaTienda] Inicio");
-			path = "masivo/alquiler/fac_ver_tienda";
+			path = "masivo/servicio/fac_ver_tienda";
 			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
 			MasivoSunatBean masivoSunatBean = lista.get(id.intValue());
 			//entidad = masivoSunatDao.findOne(masivoSunatBean.getCodigoMasivo());
@@ -336,7 +336,7 @@ public class FacturaAlquilerAction {
 			
 			model.addAttribute("entidad", masivoSunatBean);
 			model.addAttribute("registros", masivoSunatBean.getListaTiendaSunat());
-			request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", masivoSunatBean);
+			request.getSession().setAttribute("MasivoFacturaServicioNuevo", masivoSunatBean);
 			request.getSession().setAttribute("SessionMapTiendaExcluida", masivoSunatBean.getMapTiendaExcluidasComboBox());
 			
 			log.debug("[verMasivoFacturaTienda] Fin");
@@ -381,7 +381,7 @@ public class FacturaAlquilerAction {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/masivo/facturas/alquiler/eliminar/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio/eliminar/{id}", method = RequestMethod.GET)
 	public String eliminarMasivoFactura(@PathVariable Integer id, HttpServletRequest request, Model model, PageableSG pageable) {
 		TblMasivoSunat entidad		= null;
 		String path 				= null;
@@ -389,7 +389,7 @@ public class FacturaAlquilerAction {
 		List<MasivoSunatBean> lista = null;
 		try{
 			log.debug("[eliminarMasivoFactura] Inicio");
-			path = "masivo/alquiler/fac_listado";
+			path = "masivo/servicio/fac_listado";
 			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
 			MasivoSunatBean masivoSunatBean = lista.get(id.intValue());
 			entidad = masivoSunatDao.findOne(masivoSunatBean.getCodigoMasivo());
@@ -398,8 +398,8 @@ public class FacturaAlquilerAction {
 			
 			masivoSunatDao.save(entidad);
 			model.addAttribute("respuesta", "Eliminación exitosa");
-			model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler"));
-			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+			model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaServicio"));
+			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaServicio");
 			this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
 			log.debug("[eliminarMasivoFactura] Fin");
 		}catch(Exception e){
@@ -413,16 +413,16 @@ public class FacturaAlquilerAction {
 	
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/masivo/facturas/alquiler/regresarlista", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio/regresarlista", method = RequestMethod.GET)
 	public String regresar(Model model, String path, HttpServletRequest request) {
 		Filtro filtro = null;
 		List<TblMasivoSunat> lista = null;
 		PageWrapper<TblMasivoSunat> page = null;
 		try{
 			log.debug("[regresar] Inicio");
-			path = "masivo/alquiler/fac_listado";
+			path = "masivo/servicio/fac_listado";
 			
-			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaServicio");
 			model.addAttribute("filtro", filtro);
 			lista = (List<TblMasivoSunat>)request.getSession().getAttribute("ListadoMasivoFactura");
 			model.addAttribute("registros",lista);
@@ -442,7 +442,7 @@ public class FacturaAlquilerAction {
 	} 
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/masivo/facturas/alquiler/procesar/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio/procesar/{id}", method = RequestMethod.GET)
 	public String procesarMasivoFacturaTienda(@PathVariable Integer id, Model model, HttpServletRequest request, PageableSG pageable) {
 		MasivoSunatBean masivoSunatBean = null;
 		String path 					= null;
@@ -454,7 +454,7 @@ public class FacturaAlquilerAction {
 		List<ComprobanteReintentoBean> listaComprobanteReintento = new ArrayList<>();
 		try{
 			log.debug("[procesarMasivoFacturaTienda] Inicio");
-			path = "masivo/alquiler/fac_listado";
+			path = "masivo/servicio/fac_listado";
 			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
 			masivoSunatBean = lista.get(id.intValue());
 			tblMasivoSunat = masivoSunatDao.findOne(masivoSunatBean.getCodigoMasivo());
@@ -506,14 +506,14 @@ public class FacturaAlquilerAction {
 				}
 				actualizarEstadoMasivo(tblMasivoSunat,totalFacturasAGenerar);
 				model.addAttribute("respuesta", "Proceso finalizado.");
-				model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler"));
-				filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+				model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaServicio"));
+				filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaServicio");
 				this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
 				
 			}else {
 				model.addAttribute("registros", request.getSession().getAttribute("ListadoMasivoFactura"));
 				model.addAttribute("page", request.getSession().getAttribute("PageMasivoFactura"));
-				model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler"));
+				model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaServicio"));
 
 			}
 			log.debug("[procesarMasivoFacturaTienda] Fin");
@@ -1115,14 +1115,14 @@ public class FacturaAlquilerAction {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/masivo/facturas/alquiler/proceso/ver/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio/proceso/ver/{id}", method = RequestMethod.GET)
 	public String verProcesoMasivoFacturaTienda(@PathVariable Integer id, Model model, HttpServletRequest request) {
 		MasivoSunatBean masivoSunatBean = null;
 		String path 					= null;
 		List<MasivoSunatBean> lista 	= null;
 		try{
 			log.debug("[verProcesoMasivoFacturaTienda] Inicio");
-			path = "masivo/alquiler/fac_proceso";
+			path = "masivo/servicio/fac_proceso";
 			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
 			masivoSunatBean = lista.get(id.intValue());
 			List<TblComprobanteSunat> listaTblComprobante = comprobanteOseDao.listarComprobantexEdificioxPeriodoAlquiler(masivoSunatBean.getCodigoEdificio(), masivoSunatBean.getPeriodo());
@@ -1132,7 +1132,7 @@ public class FacturaAlquilerAction {
 			masivoSunatBean.setListaComprobanteBean(listaComprobanteBean);
 			model.addAttribute("registros",listaComprobanteBean);
 			model.addAttribute("entidad",masivoSunatBean);
-			request.getSession().setAttribute("MasivoFacturaAlquilerProcesoComprobante",masivoSunatBean);
+			request.getSession().setAttribute("MasivoFacturaServicioProcesoComprobante",masivoSunatBean);
 			//apiOseCSV.obtenerUbigeo("20386431427", "708f63d6550fa89310e64c5a39591034e1ed36721cf30b7dfb2466222a82522c");
 			log.debug("[verProcesoMasivoFacturaTienda] Fin");
 		}catch(Exception e){
@@ -1188,13 +1188,13 @@ public class FacturaAlquilerAction {
 		
 		return lista;
 	}
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/regresarempresa", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/regresarempresa", method = RequestMethod.GET)
 	public String regresarEmpresa(Model model, String path, HttpServletRequest request) {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[regresarEmpresa] Inicio");
-			path = "masivo/alquiler/fac_nuevo_empresa";
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerNuevo");
+			path = "masivo/servicio/fac_nuevo_empresa";
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioNuevo");
 			model.addAttribute("entidad", masivoSunatBean);
 			
 			
@@ -1212,13 +1212,13 @@ public class FacturaAlquilerAction {
 	/*
 	 * Paginado
 	 */
-	@RequestMapping(value = "/masivo/facturas/alquiler/paginado/{page}/{size}/{operacion}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio/paginado/{page}/{size}/{operacion}", method = RequestMethod.GET)
 	public String paginarEntidad(@PathVariable Integer page, @PathVariable Integer size, @PathVariable String operacion, Model model,  PageableSG pageable, HttpServletRequest request) {
 		Filtro filtro = null;
 		String path = null;
 		try{
 			//log.debug("[traerRegistros] Inicio");
-			path = "masivo/alquiler/fac_listado";
+			path = "masivo/servicio/fac_listado";
 			if (pageable!=null){
 				if (pageable.getLimit() == 0){
 					pageable.setLimit(size);
@@ -1231,7 +1231,7 @@ public class FacturaAlquilerAction {
 				}
 				
 			}
-			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler");
+			filtro = (Filtro)request.getSession().getAttribute("CriterioFiltroMasivoFacturaServicio");
 			this.traerRegistrosFiltrados(model, filtro, path, pageable, request);
 			//this.traerRegistrosFiltrados(model, filtro, pageable, this.urlPaginado, request);
 			model.addAttribute("filtro", filtro);
@@ -1252,17 +1252,17 @@ public class FacturaAlquilerAction {
 			Specification<TblMasivoSunat> filtro = Specifications.where(conCodigoEdificio(entidad.getCodigoEdificacion()))
 					.and(conAnio(entidad.getAnio()))
 					.and(conMes(entidad.getMesFiltro()))
-					.and(conTipoMasivo(Constantes.MASIVO_TIPO_ALQUILER))
+					.and(conTipoMasivo(Constantes.MASIVO_TIPO_SERVICIO))
 					.and(conEstado(Constantes.ESTADO_REGISTRO_ACTIVO));
 			pageable.setSort(sort);
 			Page<TblMasivoSunat> entidadPage = masivoSunatDao.findAll(filtro, pageable);
 			PageWrapper<TblMasivoSunat> page = new PageWrapper<TblMasivoSunat>(entidadPage, url, pageable);
-			List<MasivoSunatBean> lista = this.procesarListaMasivoAlquiler(page.getContent(), request);
+			List<MasivoSunatBean> lista = this.procesarListaMasivoServicio(page.getContent(), request);
 			model.addAttribute("registros", lista);
 			model.addAttribute("page", page);
 			
 
-			request.getSession().setAttribute("CriterioFiltroMasivoFacturaAlquiler", entidad);
+			request.getSession().setAttribute("CriterioFiltroMasivoFacturaServicio", entidad);
 			request.getSession().setAttribute("ListadoMasivoFactura", lista);
 			request.getSession().setAttribute("PageMasivoFactura", page);
 		}catch(Exception e){
@@ -1270,7 +1270,7 @@ public class FacturaAlquilerAction {
 		}
 	}
 	@SuppressWarnings("unchecked")
-	private List<MasivoSunatBean> procesarListaMasivoAlquiler(List<TblMasivoSunat> listaMasivoFactura,	HttpServletRequest request) {
+	private List<MasivoSunatBean> procesarListaMasivoServicio(List<TblMasivoSunat> listaMasivoFactura,	HttpServletRequest request) {
 		List<MasivoSunatBean> lista = new ArrayList<>();
 		MasivoSunatBean masivoSunatBean = null;
 		Map<Integer, String> mapEdificio = null;
@@ -1447,7 +1447,7 @@ public class FacturaAlquilerAction {
 		Map<Integer,TblCxcDocumento> mapDocumento = new HashMap<>();
 		if (listaCxCActivo!=null && !listaCxCActivo.isEmpty()) {
 			for(TblCxcDocumento documento:listaCxCActivo) {
-				TblContrato contrato = mapContrato.get(documento.getCodigoReferencia());
+				TblContrato contrato = mapContrato.get(documento.getCodigoContrato());
 				if (contrato != null) {
 					mapDocumento.put(new Integer(contrato.getTblTienda().getCodigoTienda()), documento);
 				}
@@ -1551,7 +1551,7 @@ public class FacturaAlquilerAction {
 		tblMasivoSunat.setPdfGenerado(0);
 		tblMasivoSunat.setPdfIntento(0);
 		tblMasivoSunat.setPdfTotal(0);
-		tblMasivoSunat.setTipoMasivo(Constantes.MASIVO_TIPO_ALQUILER);
+		tblMasivoSunat.setTipoMasivo(Constantes.MASIVO_TIPO_SERVICIO);
 		tblMasivoSunat.setAuditoriaCreacion(request);
 		
 		return tblMasivoSunat;
@@ -1579,7 +1579,7 @@ public class FacturaAlquilerAction {
 		return "ERROR";
 	}
 	
-	@RequestMapping(value = "/masivo/facturas/alquiler/comprobante/ver/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivo/facturas/servicio/comprobante/ver/{id}", method = RequestMethod.GET)
 	public String verFactura(@PathVariable Integer id,Model model, HttpServletRequest request) {
 		ComprobanteSunatBean entidad	= null;
 		List<ComprobanteSunatBean> lista= null;	
@@ -1590,7 +1590,7 @@ public class FacturaAlquilerAction {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[verFactura] Inicio");
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerProcesoComprobante");
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioProcesoComprobante");
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			factura = comprobanteOseDao.findOne(entidad.getCodigoComprobante());
@@ -1605,16 +1605,16 @@ public class FacturaAlquilerAction {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return "masivo/alquiler/fac_ver";
+		return "masivo/servicio/fac_ver";
 	}
 	
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/regresarverfactura", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/regresarverfactura", method = RequestMethod.GET)
 	public String regresarVerProceso(Model model, String path, HttpServletRequest request) {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[regresarVerProceso] Inicio");
-			path = "masivo/alquiler/fac_proceso";
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerProcesoComprobante");
+			path = "masivo/servicio/fac_proceso";
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioProcesoComprobante");
 			model.addAttribute("entidad", masivoSunatBean);
 			model.addAttribute("registros",masivoSunatBean.getListaComprobanteBean());
 			log.debug("[regresarVerProceso] Fin");
@@ -1627,7 +1627,7 @@ public class FacturaAlquilerAction {
 		
 		return path;
 	}
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/pdf/descargar/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/pdf/descargar/{id}", method = RequestMethod.GET)
 	public void obtenerPdfDocumentoDescargar(@PathVariable Integer id, HttpServletRequest request, HttpServletResponse response) {
 		ComprobanteSunatBean entidad	= null;
 		List<ComprobanteSunatBean> lista= null;		
@@ -1636,7 +1636,7 @@ public class FacturaAlquilerAction {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[obtenerPdfDocumentoDescargar] Inicio");
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerProcesoComprobante");
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioProcesoComprobante");
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
@@ -1652,7 +1652,7 @@ public class FacturaAlquilerAction {
 			entidad 	= null;			
 		}
 	}
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/xml/descargar/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/xml/descargar/{id}", method = RequestMethod.GET)
 	public void obtenerXmlDocumentoDescargar(@PathVariable Integer id, HttpServletRequest request, HttpServletResponse response) {
 		ComprobanteSunatBean entidad	= null;
 		List<ComprobanteSunatBean> lista= null;		
@@ -1661,7 +1661,7 @@ public class FacturaAlquilerAction {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[obtenerXmlDocumentoDescargar] Inicio");
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerProcesoComprobante");
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioProcesoComprobante");
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
@@ -1677,7 +1677,7 @@ public class FacturaAlquilerAction {
 			entidad 	= null;			
 		}
 	}
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/cdr/descargar/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/cdr/descargar/{id}", method = RequestMethod.GET)
 	public void obtenerCdrDocumentoDescargar(@PathVariable Integer id, HttpServletRequest request, HttpServletResponse response) {
 		ComprobanteSunatBean entidad	= null;
 		List<ComprobanteSunatBean> lista= null;		
@@ -1686,7 +1686,7 @@ public class FacturaAlquilerAction {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[obtenerCdrDocumentoDescargar] Inicio");
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerProcesoComprobante");
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioProcesoComprobante");
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
@@ -1702,7 +1702,7 @@ public class FacturaAlquilerAction {
 			entidad 	= null;			
 		}
 	}
-	@RequestMapping(value = "/masivotienda/facturas/alquiler/ticket/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/masivotienda/facturas/servicio/ticket/{id}", method = RequestMethod.GET)
 	public String obtenerTicketDocumento(@PathVariable Integer id, HttpServletRequest request, Model model) {
 		ComprobanteSunatBean entidad	= null;
 		List<ComprobanteSunatBean> lista= null;		
@@ -1711,7 +1711,7 @@ public class FacturaAlquilerAction {
 		MasivoSunatBean masivoSunatBean = null;
 		try{
 			log.debug("[obtenerTicketDocumento] Inicio");
-			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerProcesoComprobante");
+			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioProcesoComprobante");
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
@@ -1739,7 +1739,7 @@ public class FacturaAlquilerAction {
 		}finally{
 			entidad 	= null;			
 		}
-		return "masivo/alquiler/fac_proceso";
+		return "masivo/servicio/fac_proceso";
 	}
 	private void asignarDatosFacturaBeanDeComprobanteSunatBean(FacturaBean factura, ComprobanteSunatBean entidad) {
 		factura.setFactura(new TblComprobanteSunat());
