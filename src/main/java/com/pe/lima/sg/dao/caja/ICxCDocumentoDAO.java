@@ -53,4 +53,8 @@ public interface ICxCDocumentoDAO extends BaseOperacionDAO<TblCxcDocumento, Inte
 	@Query(value = "select * from caj.tbl_cxc_documento where tipo_referencia = :tipoReferencia AND tipo_documento = 'FAC' AND anio = :anio AND mes =:mes AND estado = '1' ORDER BY 1 ", nativeQuery = true)
 	List<TblCxcDocumento> listarCxCByAnioMes(@Param("tipoReferencia") String strTipoReferencia, @Param("anio") Integer intAnio, @Param("mes")Integer intMes);
 
+	//Se excluye a las tiendas que ya tiene comprobante
+	@Query(value = "select * from caj.tbl_cxc_documento where tipo_referencia = :tipoReferencia AND tipo_documento = 'FAC' AND anio = :anio AND mes =:mes AND estado = '1' and codigo_comprobante is null ORDER BY 1 ", nativeQuery = true)
+	List<TblCxcDocumento> listarCxCByAnioMesSinComprobante(@Param("tipoReferencia") String strTipoReferencia, @Param("anio") Integer intAnio, @Param("mes")Integer intMes);
+
 }

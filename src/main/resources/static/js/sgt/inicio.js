@@ -1508,3 +1508,13 @@ function grabarTiendaParaFacturarServicio(){
 		document.forms[0].submit();
 	}
 }
+
+function ocultarIcono(obj){
+	//obj.style.display = 'none';
+	obj.src='/images/iconos/loading.gif';
+	var objsEliminar = document.getElementsByName('nameEliminar');
+	for (var i = 0; i < objsEliminar.length; i++) {
+	  var elemento = objsEliminar[i];
+	  elemento.style.display = 'none';
+	}
+}

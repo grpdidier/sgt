@@ -32,6 +32,12 @@ public final class ComprobanteOseSpecifications {
 			return cb.like(root.<String> get("numero"), valor.toUpperCase());
 		};
 	}
+	public static Specification<TblComprobanteSunat> conTienda(String strTienda) {
+		return (root, query, cb) -> {
+			String valor = obtenerValorString(strTienda);
+			return cb.like(root.<String> get("numeroTienda"), valor);
+		};
+	}
 	public static Specification<TblComprobanteSunat> conEstado(String strEstado) {
 		return (root, query, cb) -> {
 			String valor = obtenerValorString(strEstado);

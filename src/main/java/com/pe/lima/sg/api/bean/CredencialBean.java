@@ -28,4 +28,7 @@ public class CredencialBean {
 	//PDF
 	private String resourcePdf;
 	private String pdfFileName;
+	//UBIGEO
+	private String urlUbigeo;
+	private String tokenUbigeo;
 }

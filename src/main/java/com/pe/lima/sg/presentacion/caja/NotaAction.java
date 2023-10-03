@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -45,13 +44,13 @@ import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
 import com.pe.lima.sg.entity.caja.TblDetalleComprobante;
 import com.pe.lima.sg.entity.caja.TblDetalleFormaPago;
 import com.pe.lima.sg.entity.caja.TblNotaSunat;
-import com.pe.lima.sg.entity.mantenimiento.TblParametro;
 import com.pe.lima.sg.facturador.dao.ISerieSFS12DAO;
 import com.pe.lima.sg.facturador.entity.TblSerie;
 import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
+import com.pe.lima.sg.presentacion.util.UtilFacturacion;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.presentacion.util.UtilUBLNota;
 import com.pe.lima.sg.rs.ose.FacturaOseDao;
@@ -81,6 +80,8 @@ public class NotaAction {
 	@Autowired
 	private IDetalleFormaPagoOseDAO formaPagoOseDao;
 	
+	@Autowired
+	private UtilFacturacion utilFacturacion;
 		
 	@Autowired
 	private IApiOseCSV apiOseCSV;
@@ -209,7 +210,7 @@ public class NotaAction {
 				/*Incrementar el numero de la serie*/
 				incrementarNumeroSerie();
 				/*Generamos el archivo CSV para la nota*/
-				credencial = obtenerCredenciales(request);
+				credencial = utilFacturacion.obtenerCredenciales(request);
 				obtenerNombreArchivos(credencial,entidad);
 				generarArchivoCSV(entidad, credencial);
 				/*Llamamos a los apis*/
@@ -479,35 +480,7 @@ public class NotaAction {
 		crendencial.setXmlFileName(UtilSGT.getNombreNotaXML(entidad));
 		crendencial.setPdfFileName(UtilSGT.getNombreNotaPDF(entidad));
 	}
-	@SuppressWarnings("unchecked")
-	private CredencialBean obtenerCredenciales(HttpServletRequest request) {
-		CredencialBean credencialBean = new CredencialBean();
-		TblParametro parametro = null;
-		Map<String, TblParametro> mapParametro = (Map<String, TblParametro>)request.getSession().getAttribute("SessionMapParametros");
-		parametro = mapParametro.get(Constantes.RUTA_FILE_OSE);
-		credencialBean.setPath(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_TOKEN);
-		credencialBean.setResourceToken(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_DOCUMENTO);
-		credencialBean.setResourceDocumento(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_CDR);
-		credencialBean.setResourceCdr(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_XML);
-		credencialBean.setResourceXml(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_PDF);
-		credencialBean.setResourcePdf(parametro.getDato());
-		
-		parametro = mapParametro.get(Constantes.EFACT_CLIENT_SECRET);
-		credencialBean.setClientSecret(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_GRANT_TYPE);
-		credencialBean.setGrantType(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_USER_NAME);
-		credencialBean.setUserName(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_PASSWORD);
-		credencialBean.setPassword(parametro.getDato());
-		
-		return credencialBean;
-	}
+	
 	private void generarArchivoCSV(NotaBean entidad, CredencialBean crendencial) {
 		List<TagUbl> listaHeader = null;
 		List<TagUbl> listaDetail = null;
@@ -745,7 +718,7 @@ public class NotaAction {
 			lista = (List<NotaSunatBean>)request.getSession().getAttribute("ListadoNota");
 			entidad = lista.get(id);
 			asignarDatosNotaBeanDeNotaSunatBean(nota,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,nota);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
@@ -784,7 +757,7 @@ public class NotaAction {
 			lista = (List<NotaSunatBean>)request.getSession().getAttribute("ListadoNota");
 			entidad = lista.get(id);
 			asignarDatosNotaBeanDeNotaSunatBean(nota,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,nota);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
@@ -825,7 +798,7 @@ public class NotaAction {
 			lista = (List<NotaSunatBean>)request.getSession().getAttribute("ListadoNota");
 			entidad = lista.get(id);
 			asignarDatosNotaBeanDeNotaSunatBean(nota,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,nota);
 			String path = credencial.getPath() + credencial.getCdrFileName();
 			fileDownload(path, response, credencial.getCdrFileName());
@@ -850,7 +823,7 @@ public class NotaAction {
 			lista = (List<NotaSunatBean>)request.getSession().getAttribute("ListadoNota");
 			entidad = lista.get(id);
 			asignarDatosNotaBeanDeNotaSunatBean(nota,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,nota);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
@@ -891,7 +864,7 @@ public class NotaAction {
 			lista = (List<NotaSunatBean>)request.getSession().getAttribute("ListadoNota");
 			entidad = lista.get(id);
 			asignarDatosNotaBeanDeNotaSunatBean(nota,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,nota);
 			String path = credencial.getPath() + credencial.getXmlFileName();
 			fileDownload(path, response, credencial.getXmlFileName());
@@ -915,7 +888,7 @@ public class NotaAction {
 			lista = (List<NotaSunatBean>)request.getSession().getAttribute("ListadoNota");
 			entidad = lista.get(id);
 			asignarDatosNotaBeanDeNotaSunatBean(nota,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,nota);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
@@ -956,7 +929,7 @@ public class NotaAction {
 			lista = (List<NotaSunatBean>)request.getSession().getAttribute("ListadoNota");
 			entidad = lista.get(id);
 			asignarDatosNotaBeanDeNotaSunatBean(nota,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,nota);
 			String path = credencial.getPath() + credencial.getPdfFileName();
 			fileDownload(path, response, credencial.getPdfFileName());
@@ -975,7 +948,7 @@ public class NotaAction {
 	public String paginarEntidad(@PathVariable Integer page, @PathVariable Integer size, @PathVariable String operacion, Model model,  PageableSG pageable, HttpServletRequest request) {
 		Filtro filtro = null;
 		String path = null;
-		Map<String, Object> campos = null;
+
 		try{
 			//log.debug("[traerRegistros] Inicio");
 			path = "caja/nota/not_listado";

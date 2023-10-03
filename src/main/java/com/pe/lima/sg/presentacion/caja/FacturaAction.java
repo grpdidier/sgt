@@ -4,7 +4,7 @@ import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conEstado;
 import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conNumero;
 import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conSerie;
 import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conTipoPago;
-
+import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conTienda;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +39,7 @@ import com.pe.lima.sg.api.bean.CredencialBean;
 import com.pe.lima.sg.bean.Ubl.TagUbl;
 import com.pe.lima.sg.bean.caja.ComprobanteSunatBean;
 import com.pe.lima.sg.bean.caja.FacturaBean;
+import com.pe.lima.sg.bean.caja.UbigeoBean;
 import com.pe.lima.sg.dao.caja.IComprobanteOseDAO;
 import com.pe.lima.sg.dao.caja.ICxCDocumentoDAO;
 import com.pe.lima.sg.dao.caja.IDetalleComprobanteOseDAO;
@@ -56,6 +57,7 @@ import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
+import com.pe.lima.sg.presentacion.util.UtilFacturacion;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.presentacion.util.UtilUBL;
 import com.pe.lima.sg.rs.ose.FacturaOseDao;
@@ -92,6 +94,9 @@ public class FacturaAction {
 	
 	@Autowired
 	private ServletContext context;
+	
+	@Autowired
+	private UtilFacturacion utilFacturacion;
 	
 	private String urlPaginado = "/facturas/paginado/"; 
 	
@@ -214,11 +219,15 @@ public class FacturaAction {
 				/*Incrementar el numero de la serie*/
 				incrementarNumeroSerie();
 				/*Generamos el archivo CSV para la factura*/
-				credencial = obtenerCredenciales(request);
+				credencial = utilFacturacion.obtenerCredenciales(request);
 				obtenerNombreArchivos(credencial,entidad);
+				/*Obtenemos el Ubigeo*/
+				UbigeoBean ubigeo = apiOseCSV.obtenerUbigeo(entidad.getFactura().getClienteNumero().trim(), credencial.getTokenUbigeo(), credencial.getUrlUbigeo());
+				entidad.setUbigeo(ubigeo);
 				generarArchivoCSV(entidad, credencial);
 				/*Llamamos a los apis*/
-				llamadasApiOse(credencial,model,comprobante,request);
+				Integer status = llamadasApiOse(credencial,model,comprobante,request);
+				validarResultadoLlamadasApi(status,entidad.getCodigoCxCDocumento(),request);
 				/*Mostramos el comprobante registrado*/
 				Filtro datosFiltro = obtenerDatosComprobante(comprobante);
 				listarAlquilerServicio(model, datosFiltro, pageable, this.urlPaginado, request);
@@ -241,6 +250,14 @@ public class FacturaAction {
 		}
 		return path;
 		
+	}
+	private void validarResultadoLlamadasApi(Integer status, Integer codigoCxCDocumento, HttpServletRequest request) {
+		log.debug("[validarResultadoLlamadasApi] Inicio - status:"+status+" codigoCxCDocumento:"+codigoCxCDocumento );
+		if (status == 412) {
+			log.debug("[validarResultadoLlamadasApi] CxC Documento Limpieza Nro Factura" );
+			actualizarCxCDocumentoConNumeroComprobante(codigoCxCDocumento, null, "" , "",request);
+		}
+		log.debug("[validarResultadoLlamadasApi] Fin" );
 	}
 	@RequestMapping(value = "/facturas/consulta", method = RequestMethod.POST)
 	public String consultarClientes(Model model, FacturaBean facturaBean, HttpServletRequest request) {
@@ -445,7 +462,8 @@ public class FacturaAction {
 		try{
 			Specification<TblComprobanteSunat> filtro = Specifications.where(conNumero(entidad.getNumero()))
 					.and(conSerie(entidad.getSerie()))
-					.and(conTipoPago(entidad.getTipo())).and(conEstado("1"));
+					.and(conTipoPago(entidad.getTipo())).and(conEstado("1"))
+					.and(conTienda(entidad.getStrTienda()));
 			pageable.setSort(sort);
 			Page<TblComprobanteSunat> entidadPage = comprobanteOseDao.findAll(filtro, pageable);
 			PageWrapper<TblComprobanteSunat> page = new PageWrapper<TblComprobanteSunat>(entidadPage, url, pageable);
@@ -521,11 +539,12 @@ public class FacturaAction {
 		return true;
 	}
 	
-	private void llamadasApiOse(CredencialBean credencial,Model model,TblComprobanteSunat comprobante, HttpServletRequest request) {
+	private Integer llamadasApiOse(CredencialBean credencial,Model model,TblComprobanteSunat comprobante, HttpServletRequest request) {
+		Integer status = 0;
 		try {
 			String token = apiOseCSV.obtenerToken(credencial); 
 			credencial.setAccessToken(token);
-			Integer status = apiOseCSV.obtenerTicket(credencial);
+			status = apiOseCSV.obtenerTicket(credencial);
 			if (status.compareTo(200)==0) {
 				comprobante = actualizarTicketEnComprobanteSunat(credencial,comprobante,request);
 				status = apiOseCSV.obtenerCDRDocumento(credencial);
@@ -559,8 +578,9 @@ public class FacturaAction {
 			}
 		}catch(Exception e) {
 			model.addAttribute("respuesta", "Error obtener el token:"+e.getMessage());
+			status = 0;
 		}
-		
+		return status;
 	}
 	
 	private TblComprobanteSunat actualizarTicketEnComprobanteSunat(CredencialBean credencial, TblComprobanteSunat comprobante, HttpServletRequest request) {
@@ -616,35 +636,7 @@ public class FacturaAction {
 		crendencial.setXmlFileName(UtilSGT.getNombreFacturaXML(entidad));
 		crendencial.setPdfFileName(UtilSGT.getNombreFacturaPDF(entidad));
 	}
-	@SuppressWarnings("unchecked")
-	private CredencialBean obtenerCredenciales(HttpServletRequest request) {
-		CredencialBean credencialBean = new CredencialBean();
-		TblParametro parametro = null;
-		Map<String, TblParametro> mapParametro = (Map<String, TblParametro>)request.getSession().getAttribute("SessionMapParametros");
-		parametro = mapParametro.get(Constantes.RUTA_FILE_OSE);
-		credencialBean.setPath(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_TOKEN);
-		credencialBean.setResourceToken(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_DOCUMENTO);
-		credencialBean.setResourceDocumento(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_CDR);
-		credencialBean.setResourceCdr(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_XML);
-		credencialBean.setResourceXml(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_PDF);
-		credencialBean.setResourcePdf(parametro.getDato());
-		
-		parametro = mapParametro.get(Constantes.EFACT_CLIENT_SECRET);
-		credencialBean.setClientSecret(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_GRANT_TYPE);
-		credencialBean.setGrantType(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_USER_NAME);
-		credencialBean.setUserName(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_PASSWORD);
-		credencialBean.setPassword(parametro.getDato());
-		
-		return credencialBean;
-	}
+	
 	private void generarArchivoCSV(FacturaBean entidad, CredencialBean crendencial) {
 		List<TagUbl> listaHeader = null;
 		List<TagUbl> listaDetail = null;
@@ -1022,7 +1014,7 @@ public class FacturaAction {
 			lista = (List<ComprobanteSunatBean>)request.getSession().getAttribute("ListadoComprobante");
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
@@ -1061,7 +1053,7 @@ public class FacturaAction {
 			lista = (List<ComprobanteSunatBean>)request.getSession().getAttribute("ListadoComprobante");
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
@@ -1102,7 +1094,7 @@ public class FacturaAction {
 			lista = (List<ComprobanteSunatBean>)request.getSession().getAttribute("ListadoComprobante");
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String path = credencial.getPath() + credencial.getCdrFileName();
 			fileDownload(path, response, credencial.getCdrFileName());
@@ -1127,7 +1119,7 @@ public class FacturaAction {
 			lista = (List<ComprobanteSunatBean>)request.getSession().getAttribute("ListadoComprobante");
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
@@ -1168,7 +1160,7 @@ public class FacturaAction {
 			lista = (List<ComprobanteSunatBean>)request.getSession().getAttribute("ListadoComprobante");
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String path = credencial.getPath() + credencial.getXmlFileName();
 			fileDownload(path, response, credencial.getXmlFileName());
@@ -1192,7 +1184,7 @@ public class FacturaAction {
 			lista = (List<ComprobanteSunatBean>)request.getSession().getAttribute("ListadoComprobante");
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
@@ -1233,7 +1225,7 @@ public class FacturaAction {
 			lista = (List<ComprobanteSunatBean>)request.getSession().getAttribute("ListadoComprobante");
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String path = credencial.getPath() + credencial.getPdfFileName();
 			fileDownload(path, response, credencial.getPdfFileName());

@@ -73,6 +73,7 @@ import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.PageWrapper;
 import com.pe.lima.sg.presentacion.util.PageableSG;
+import com.pe.lima.sg.presentacion.util.UtilFacturacion;
 import com.pe.lima.sg.presentacion.util.UtilSGT;
 import com.pe.lima.sg.presentacion.util.UtilUBL;
 import com.pe.lima.sg.rs.ose.FacturaOseDao;
@@ -119,6 +120,9 @@ public class FacturaAlquilerAction {
 	private IDetalleFormaPagoOseDAO formaPagoOseDao;
 	@Autowired
 	private ServletContext context;
+	@Autowired
+	private UtilFacturacion utilFacturacion;
+	
 	
 	private String urlPaginado = "/masivo/facturas/alquiler/paginado/"; 
 	
@@ -214,7 +218,7 @@ public class FacturaAlquilerAction {
 			entidad.setNombreEdificio(mapEdificio.get(keyTienda));
 			List<TblTienda> listaTiendaActivo = tiendaDao.listarAllActivos(entidad.getCodigoEdificio());
 			List<TblContrato> listaContratoActivo = contratoDao.listAllContratoActivosxFecha(new Date());
-			List<TblCxcDocumento> listaCxCActivo = cxcDocumentoDao.listarCxCByAnioMes(Constantes.TIPO_PAGO_ALQUILER_CODIGO, entidad.getAnio(), new Integer(entidad.getMes()));
+			List<TblCxcDocumento> listaCxCActivo = cxcDocumentoDao.listarCxCByAnioMesSinComprobante(Constantes.TIPO_PAGO_ALQUILER_CODIGO, entidad.getAnio(), new Integer(entidad.getMes()));
 			obtenerListaTiendasAFacturar(listaTiendaActivo,listaContratoActivo,listaCxCActivo,entidad);
 			
 			model.addAttribute("entidad", entidad);
@@ -491,6 +495,8 @@ public class FacturaAlquilerAction {
 						for(ComprobanteReintentoBean reintento: listaComprobanteReintento) {
 							ComprobanteReintentoBean comprobanteReintento = this.reintentoLlamadasApiOse(reintento.getCredencial(), model, reintento.getTblComprobanteSunat(), request, reintento.getTblMasivoSunat());
 							if (comprobanteReintento != null) {
+								//Mantener el codigo de CxC para luego limpiar el comprobante asociado por tener error
+								comprobanteReintento.setCodigoCxCDocumento(reintento.getCodigoCxCDocumento());
 								listaComprobanteReintentoNuevo.add(comprobanteReintento);
 								log.info("[procesarMasivoFacturaTienda Error] --> Tienda:"+reintento.getTblComprobanteSunat().getNumeroTienda());
 							}else {
@@ -504,6 +510,7 @@ public class FacturaAlquilerAction {
 					}
 					
 				}
+				limpiarComprobanteEnCxCDocumento(listaComprobanteReintento,request);
 				actualizarEstadoMasivo(tblMasivoSunat,totalFacturasAGenerar);
 				model.addAttribute("respuesta", "Proceso finalizado.");
 				model.addAttribute("filtro", request.getSession().getAttribute("CriterioFiltroMasivoFacturaAlquiler"));
@@ -527,6 +534,18 @@ public class FacturaAlquilerAction {
 		return path;
 	}
 	
+	private void limpiarComprobanteEnCxCDocumento(List<ComprobanteReintentoBean> listaComprobanteReintento, HttpServletRequest request) {
+		if (listaComprobanteReintento != null && !listaComprobanteReintento.isEmpty()) {
+			for(ComprobanteReintentoBean comprobante:listaComprobanteReintento) {
+				if (comprobante.getTblComprobanteSunat().getEstadoOperacion().contains("412")) {
+					log.debug("[limpiarComprobanteEnCxCDocumento] CxC Codigo:"+comprobante.getCodigoCxCDocumento());
+					actualizarCxCDocumentoConNumeroComprobante(comprobante.getCodigoCxCDocumento(), null, "" , "",request);
+				}
+			}
+		}
+		
+	}
+
 	/*Validamos si existe alguna operacion con estado 202 para poder realizar una re-proceso*/
 	private boolean existeEstado202(List<ComprobanteReintentoBean> listaComprobanteReintento) {
 		boolean resultado = false;
@@ -542,7 +561,7 @@ public class FacturaAlquilerAction {
 	private boolean okTokenParaProceso(HttpServletRequest request, Model model) {
 		boolean resultado = false;
 		CredencialBean credencial 		= null;
-		credencial = obtenerCredenciales(request);
+		credencial = utilFacturacion.obtenerCredenciales(request);
 		try {
 			String token = apiOseCSV.obtenerToken(credencial); 
 			if (token != null && token.length()>0) { //Cualquier otro codigo es error
@@ -557,14 +576,7 @@ public class FacturaAlquilerAction {
 	}
 
 	private void actualizarEstadoMasivo(TblMasivoSunat tblMasivoSunat, Integer totalFacturasAGenerar) {
-		Integer xmlGenerado = tblMasivoSunat.getXmlGenerado();
-		Integer cdrGenerado = tblMasivoSunat.getCdrGenerado();
-		Integer pdfGenerado = tblMasivoSunat.getPdfGenerado();
-		if (xmlGenerado == cdrGenerado && cdrGenerado == pdfGenerado && pdfGenerado == totalFacturasAGenerar) {
-			tblMasivoSunat.setEstadoMasivo(Constantes.MASIVO_ESTADO_FINALIZADO);
-		}else {
-			tblMasivoSunat.setEstadoMasivo(Constantes.MASIVO_ESTADO_EN_PARCIAL);
-		}
+		tblMasivoSunat = utilFacturacion.actualizarEstadoMasivo(tblMasivoSunat, totalFacturasAGenerar);
 		masivoSunatDao.save(tblMasivoSunat);
 	}
 
@@ -589,10 +601,10 @@ public class FacturaAlquilerAction {
 			/*Incrementar el numero de la serie*/
 			incrementarNumeroSerie();
 			/*Generamos el archivo CSV para la factura*/
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,entidad);
 			/*Obtenemos el Ubigeo*/
-			UbigeoBean ubigeo = apiOseCSV.obtenerUbigeo(entidad.getFactura().getClienteNumero(), "708f63d6550fa89310e64c5a39591034e1ed36721cf30b7dfb2466222a82522c");
+			UbigeoBean ubigeo = apiOseCSV.obtenerUbigeo(entidad.getFactura().getClienteNumero().trim(), credencial.getTokenUbigeo(), credencial.getUrlUbigeo());
 			entidad.setUbigeo(ubigeo);
 			generarArchivoCSV(entidad, credencial);
 			/*Llamamos a los apis*/
@@ -601,6 +613,7 @@ public class FacturaAlquilerAction {
 			comprobanteReintentoBean.setCredencial(credencial);
 			comprobanteReintentoBean.setTblComprobanteSunat(comprobante);
 			comprobanteReintentoBean.setTblMasivoSunat(tblMasivoSunat);
+			comprobanteReintentoBean.setCodigoCxCDocumento(entidad.getCodigoCxCDocumento());
 			listaComprobanteReintento.add(comprobanteReintentoBean);
 			
 		}catch(Exception e) {
@@ -972,35 +985,7 @@ public class FacturaAlquilerAction {
 		crendencial.setXmlFileName(UtilSGT.getNombreFacturaXML(entidad));
 		crendencial.setPdfFileName(UtilSGT.getNombreFacturaPDF(entidad));
 	}
-	@SuppressWarnings("unchecked")
-	private CredencialBean obtenerCredenciales(HttpServletRequest request) {
-		CredencialBean credencialBean = new CredencialBean();
-		TblParametro parametro = null;
-		Map<String, TblParametro> mapParametro = (Map<String, TblParametro>)request.getSession().getAttribute("SessionMapParametros");
-		parametro = mapParametro.get(Constantes.RUTA_FILE_OSE);
-		credencialBean.setPath(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_TOKEN);
-		credencialBean.setResourceToken(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_DOCUMENTO);
-		credencialBean.setResourceDocumento(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_CDR);
-		credencialBean.setResourceCdr(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_XML);
-		credencialBean.setResourceXml(parametro.getDato());
-		parametro = mapParametro.get(Constantes.URL_EFACT_PDF);
-		credencialBean.setResourcePdf(parametro.getDato());
-		
-		parametro = mapParametro.get(Constantes.EFACT_CLIENT_SECRET);
-		credencialBean.setClientSecret(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_GRANT_TYPE);
-		credencialBean.setGrantType(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_USER_NAME);
-		credencialBean.setUserName(parametro.getDato());
-		parametro = mapParametro.get(Constantes.EFACT_PASSWORD);
-		credencialBean.setPassword(parametro.getDato());
-		
-		return credencialBean;
-	}
+	
 	private void incrementarNumeroSerie() {
 		TblSerie serie = null;
 		serie = serieDao.buscarOneByTipoComprobante(Constantes.SUNAT_CODIGO_COMPROBANTE_FACTURA);
@@ -1125,7 +1110,7 @@ public class FacturaAlquilerAction {
 			path = "masivo/alquiler/fac_proceso";
 			lista = (List<MasivoSunatBean>)request.getSession().getAttribute("ListadoMasivoFactura");
 			masivoSunatBean = lista.get(id.intValue());
-			List<TblComprobanteSunat> listaTblComprobante = comprobanteOseDao.listarComprobantexEdificioxPeriodoAlquiler(masivoSunatBean.getCodigoEdificio(), masivoSunatBean.getPeriodo());
+			List<TblComprobanteSunat> listaTblComprobante = comprobanteOseDao.listarComprobantexEdificioxPeriodoAlquiler(masivoSunatBean.getCodigoEdificio(), masivoSunatBean.getPeriodo(), masivoSunatBean.getCodigoMasivo());
 			List<ComprobanteSunatBean> listaComprobanteBean = this.procesarListaComprobante(listaTblComprobante, request);
 			masivoSunatBean.setTotalErrorEnData(obtenerErrorEnData(listaComprobanteBean));
 			masivoSunatBean.setTotalSinErrorEnData(masivoSunatBean.getCsvTotal()-masivoSunatBean.getTotalErrorEnData());
@@ -1311,6 +1296,7 @@ public class FacturaAlquilerAction {
 				masivoSunatBean.setPdfGenerado(tblMasivoSunat.getPdfGenerado());
 				masivoSunatBean.setPdfIntento(tblMasivoSunat.getPdfIntento());
 				masivoSunatBean.setPdfTotal(tblMasivoSunat.getPdfTotal());
+				masivoSunatBean.setFechaProceso(tblMasivoSunat.getFechaProceso());
 				lista.add(masivoSunatBean);
 			}
 		}
@@ -1479,10 +1465,13 @@ public class FacturaAlquilerAction {
 				model.addAttribute("respuesta", "Debe agregar tiendas a la lista para generar las facturas");
 				return false;
 			}
-			Integer totalRegistros = masivoSunatDao.existeMasivoxEmpresaxPeriodo(entidad.getPeriodo(), entidad.getCodigoEdificio());
-			if (totalRegistros > 0){
-				model.addAttribute("respuesta", "Se encontró registros para el periodo y edificio seleccionado. No se puede registrar. Elimine el antiguo para continuar.");
-				return false;
+			String flagMultiple = utilFacturacion.obtenerParametroMultiple(request);
+			if (flagMultiple.equals("N")) {
+				Integer totalRegistros = masivoSunatDao.existeMasivoxEmpresaxPeriodo(entidad.getPeriodo(), entidad.getCodigoEdificio());
+				if (totalRegistros > 0){
+					model.addAttribute("respuesta", "Se encontró registros para el periodo y edificio seleccionado. No se puede registrar. Elimine el antiguo para continuar.");
+					return false;
+				}
 			}
 			
 		}catch(Exception e){
@@ -1491,6 +1480,8 @@ public class FacturaAlquilerAction {
 		return exitoso;
 	}
 	
+
+
 	private List<TblMasivoTiendaSunat> setearDatosMasivoTienda(MasivoSunatBean entidad, TblMasivoSunat tblMasivoSunat,
 			HttpServletRequest request) {
 		List<TblMasivoTiendaSunat> listaMasivoTienda = new ArrayList<>();
@@ -1640,7 +1631,7 @@ public class FacturaAlquilerAction {
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String path = credencial.getPath() + credencial.getPdfFileName();
 			fileDownload(path, response, credencial.getPdfFileName());
@@ -1665,7 +1656,7 @@ public class FacturaAlquilerAction {
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String path = credencial.getPath() + credencial.getXmlFileName();
 			fileDownload(path, response, credencial.getXmlFileName());
@@ -1690,7 +1681,7 @@ public class FacturaAlquilerAction {
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String path = credencial.getPath() + credencial.getCdrFileName();
 			fileDownload(path, response, credencial.getCdrFileName());
@@ -1715,7 +1706,7 @@ public class FacturaAlquilerAction {
 			lista = masivoSunatBean.getListaComprobanteBean();
 			entidad = lista.get(id);
 			asignarDatosFacturaBeanDeComprobanteSunatBean(factura,entidad);
-			credencial = obtenerCredenciales(request);
+			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);

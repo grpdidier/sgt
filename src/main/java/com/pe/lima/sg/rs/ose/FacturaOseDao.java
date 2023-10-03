@@ -122,6 +122,7 @@ public class FacturaOseDao {
 					entidad.getFacturaDetalle().setPrecioVentaUnitario(entidad.getFactura().getTotal());
 					entidad.setNombreInmueble(rs.getString("nombre"));
 					entidad.setNumeroTienda(rs.getString("numero"));
+					log.info("[getConsultaAlquilerServicioOse] tienda:"+entidad.getNumeroTienda());
 					entidad.setFormaPago(new TblDetalleFormaPago());
 					entidad.getFormaPago().setMonto(entidad.getFactura().getTotal());
 					entidad.getFormaPago().setMoneda(entidad.getFacturaDetalle().getMoneda());

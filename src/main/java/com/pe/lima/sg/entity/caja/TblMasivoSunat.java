@@ -53,6 +53,7 @@ public class TblMasivoSunat implements java.io.Serializable {
 	private Date fechaModificacion;		
 	private String ipCreacion;	
 	private String ipModificacion;
+	private Date fechaProceso;	
 	
 	public TblMasivoSunat(int codigoMasivo, int codigoEdificio, String periodo, int xmlGenerado, int xmlError,
 			int xmlTotal, int xmlIntento, int cdrGenerado, int cdrError, int cdrTotal, int cdrIntento, int pdfGenerado,
@@ -472,6 +473,18 @@ public class TblMasivoSunat implements java.io.Serializable {
 
 	public void setCsvIntento(int csvIntento) {
 		this.csvIntento = csvIntento;
+	}
+
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "fecha_proceso", length = 29)
+	public Date getFechaProceso() {
+		return fechaProceso;
+	}
+
+
+	public void setFechaProceso(Date fechaProceso) {
+		this.fechaProceso = fechaProceso;
 	}
 	
 }

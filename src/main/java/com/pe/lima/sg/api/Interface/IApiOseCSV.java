@@ -18,5 +18,5 @@ public interface IApiOseCSV {
 	
 	public Integer obtenerTicketParaMasivo(CredencialBean credencialBean);
 	
-	public UbigeoBean obtenerUbigeo(String ruc, String token);
+	public UbigeoBean obtenerUbigeo(String ruc, String token, String urlUbigeo);
 }

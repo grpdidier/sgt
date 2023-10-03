@@ -499,6 +499,7 @@ public class Constantes {
 	public static String ESTADO_LIBRE 									= "LIBRE";
 	public static String ESTADO_ALQUILADO 								= "ALQUILADO";
 	public static String ESTADO_VENDIDO 								= "VENDIDO";
+	public static String ESTADO_FINALIZADO 								= "FINALIZADO";
 	
 	//Parametros para el modulo OSE
 	public static String PARAMETRO_DOMICILIO_FISCAL						= "LA_REYNA_DIRECCION_FISCAL";
@@ -550,6 +551,12 @@ public class Constantes {
 	public static String EFACT_GRANT_TYPE								= "GRANT_TYPE";
 	public static String EFACT_USER_NAME								= "USER_NAME";
 	public static String EFACT_PASSWORD									= "PASSWORD";
+	//API Ubigeo
+	public static String UBIGEO_URL										= "URL_UBIGEO";
+	public static String UBIGEO_TOKEN									= "TOKEN_UBIGEO";
+	//Flag para pruebas
+	public static String MULTIPLE_FACTURA								= "MULTIPLE_FACTURA";
+	
 	
 	public static String TIPO_OPERACION_NOTA_CREDITO_CODIGO					= "07";
 	public static String TIPO_OPERACION_NOTA_DEBITO_CODIGO					= "08";

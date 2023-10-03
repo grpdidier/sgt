@@ -308,21 +308,21 @@ public class ApiOseCSV implements IApiOseCSV {
 		return status;
 	}
 	@Override
-	public UbigeoBean obtenerUbigeo(String ruc, String token) {
+	public UbigeoBean obtenerUbigeo(String ruc, String token, String urlUbigeo) {
 		log.info("[obtenerUbigeo] Inicio");
 		CloseableHttpClient httpclient = HttpClients.createDefault();
-		int status = 0;
+		//int status = 0;
 		UbigeoBean ubigeo = new UbigeoBean();
 		/*Se establece el cliente GET para el servidor de autenticación*/
-		HttpGet httpget = new HttpGet("https://www.apisperu.net/api/ruc/" + ruc);
-		log.info("[obtenerUbigeo] ruc: "+ruc);
+		HttpGet httpget = new HttpGet(urlUbigeo + ruc);
+		log.info("[obtenerUbigeo] ruc: "+ruc+ " token:"+token+" urlUbigeo:"+urlUbigeo);
 		/*Se agrega un Header de autorización con el token recibido por el servidor de autenticación*/
 		httpget.setHeader(Constantes.HEADER_AUTORIZATION, Constantes.HEADER_BEARER + token);
 		/* Se envía la petición a la plataforma APIsPERU*/
 		try {
 			HttpResponse response = httpclient.execute(httpget);
-			status = response.getStatusLine().getStatusCode(); 
-			if (status == 200) {
+			//status = response.getStatusLine().getStatusCode(); 
+			//if (status == 200) {
 				HttpEntity entity2 = response.getEntity();
 				//Se obtiene el resultado del response 
 				String jsonResponse = entity2 != null ? EntityUtils.toString(entity2) : null;
@@ -330,22 +330,34 @@ public class ApiOseCSV implements IApiOseCSV {
 				// Se transforma el Json y se obtiene el ticket 
 				ObjectMapper mapper = new ObjectMapper(); 
 				JsonNode rootNodeResponse = mapper.readTree(jsonResponse); 
-				String ubigeoSunat = rootNodeResponse.get("data").get("ubigeo_sunat").asText();
-				String departamento = rootNodeResponse.get("data").get("departamento").asText();
-				String provincia = rootNodeResponse.get("data").get("provincia").asText();
-				String distrito = rootNodeResponse.get("data").get("distrito").asText();
-				String direccion = rootNodeResponse.get("data").get("direccion").asText();
-				ubigeo = new UbigeoBean();
-				ubigeo.setUbigeoSunat(ubigeoSunat);
-				ubigeo.setNombreDepartamento(departamento);
-				ubigeo.setNombreProvincia(provincia);
-				ubigeo.setNombreDistrito(distrito);
-				ubigeo.setDireccionCompleta(direccion);
-				log.info("[obtenerUbigeo] Ubigeo: " + ubigeo.getUbigeoSunat() );
-			}else {
+				if (rootNodeResponse != null && 
+					rootNodeResponse.get("success") !=null && rootNodeResponse.get("success").asBoolean()) {
+					if (rootNodeResponse.get("data") !=null && 
+						rootNodeResponse.get("data").get("ubigeo_sunat") !=null ) {
+						String ubigeoSunat = rootNodeResponse.get("data").get("ubigeo_sunat").asText();
+						String departamento = rootNodeResponse.get("data").get("departamento").asText();
+						String provincia = rootNodeResponse.get("data").get("provincia").asText();
+						String distrito = rootNodeResponse.get("data").get("distrito").asText();
+						String direccion = rootNodeResponse.get("data").get("direccion").asText();
+						ubigeo = new UbigeoBean();
+						ubigeo.setUbigeoSunat(ubigeoSunat);
+						ubigeo.setNombreDepartamento(departamento);
+						ubigeo.setNombreProvincia(provincia);
+						ubigeo.setNombreDistrito(distrito);
+						ubigeo.setDireccionCompleta(direccion);
+					}else {
+						ubigeo = inicializaUbigeo();
+						log.info("[obtenerUbigeo] Ubigeo: " + ubigeo.getUbigeoSunat() );
+					}
+					log.info("[obtenerUbigeo] Ubigeo: " + ubigeo.getUbigeoSunat() );
+				}else {
+					log.info("[obtenerUbigeo] status: " + rootNodeResponse.get("success").asBoolean() );
+					ubigeo = inicializaUbigeo();
+				}
+			/*}else {
 				log.info("[obtenerUbigeo] status: " + status );
 				ubigeo = inicializaUbigeo();
-			}
+			}*/
 
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block

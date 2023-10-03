@@ -15,4 +15,5 @@ public class ComprobanteReintentoBean {
 	private CredencialBean credencial;
 	private TblComprobanteSunat tblComprobanteSunat;
 	private TblMasivoSunat tblMasivoSunat;
+	private Integer codigoCxCDocumento;
 }

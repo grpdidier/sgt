@@ -138,15 +138,15 @@
 									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 										<thead>
 											<tr>
-												<th>Periodo</th>
-												<th>Empresa</th>
-												<th># Tiendas Excluidas</th>
-												<th>Estado</th>
-												<th># Tiendas Seleccionadas </th>
-												<th>Procesar</th>
-												<th>Eliminar</th>
-												<th>Ver Tiendas</th>
-												<th>Ver Proceso</th>
+												<th width="15%">Periodo</th>
+												<th width="20%">Empresa</th>
+												<th width="10%"># Tiendas Excluidas</th>
+												<th width="10%">Estado</th>
+												<th width="10%"># Tiendas Seleccionadas </th>
+												<th width="20%">Procesar</th>
+												<th width="5%">Eliminar</th>
+												<th width="5%">Ver Tiendas</th>
+												<th width="5%">Ver Proceso</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -160,17 +160,19 @@
 												<td align="center">
 													<div th:if="${masivo.flagProcesa} == 'S'">
 														<a th:href="${'/masivo/facturas/servicio/procesar/' + iterStat.index}">
-														<img th:src="@{/images/iconos/procesar.png}" alt="CDR" width="20px"
-														 	 onclick="if(!confirm('Desea Generar las facturas de todas las tiendas registradas')){ return false;}" /></a>
+														<img th:src="@{/images/iconos/procesar.png}" alt="CDR" width="25px"
+														 	 onclick="if(!confirm('Desea Generar las facturas de todas las tiendas registradas')){ return false;}else{ocultarIcono(this);}" /></a>
 													</div>
 													<div th:if="${masivo.flagProcesa} == 'N'">
-													-
+														<div th:unless="${masivo.fechaProceso == null}">
+															<label for="idNombre" th:text="${#dates.format(masivo.fechaProceso, 'dd/MM/yyyy hh:mm:ss')}">Fecha</label>
+														</div>
 													</div>
 												</td>
 												<td align="center">
 													<div th:if="${masivo.flagEliminar} == 'S'">
 														<a th:href="${'/masivo/facturas/servicio/eliminar/' + iterStat.index}">
-														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML" width="20px"
+														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML" width="20px" name="nameEliminar"
 														 	 onclick="if(!confirm('Desea Eliminar el periodo seleccionado')){ return false;}" /></a>
 													</div>
 													<div th:if="${masivo.flagEliminar} == 'N'">

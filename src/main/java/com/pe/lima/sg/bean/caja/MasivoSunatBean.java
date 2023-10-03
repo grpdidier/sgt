@@ -56,6 +56,7 @@ public class MasivoSunatBean implements Serializable {
 	private Integer codigoTienda;
 	private Integer totalErrorEnData;
 	private Integer totalSinErrorEnData;
+	private Date fechaProceso;	
 	//Lista de tiendas a generar factura
 	private List<MasivoTiendaSunatBean> listaTiendaSunat;
 	//Tiendas excluidas
