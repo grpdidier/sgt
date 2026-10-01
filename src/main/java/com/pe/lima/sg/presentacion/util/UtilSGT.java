@@ -29,6 +29,7 @@ import com.pe.lima.sg.bean.caja.CobroPrimerCobro;
 import com.pe.lima.sg.bean.caja.CobroServicioBean;
 import com.pe.lima.sg.bean.caja.FacturaBean;
 import com.pe.lima.sg.bean.caja.NotaBean;
+import com.pe.lima.sg.bean.caja.UbigeoBean;
 import com.pe.lima.sg.bean.cliente.PeriodoBean;
 import com.pe.lima.sg.entity.caja.TblCobro;
 import com.pe.lima.sg.entity.caja.TblSunatCabecera;
@@ -45,6 +46,13 @@ import com.pe.lima.sg.facturador.entity.TblTributoGeneralNota;
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UtilSGT {
+	
+	public static int obtenerAnioActual() {
+	    return java.time.Year.now().getValue();
+	}
+	public static int obtenerMesActual() {
+	    return java.time.LocalDate.now().getMonthValue();
+	}
 	/**
 	 * Adiciona a una fecha Date un numero de dias
 	 */
@@ -266,6 +274,31 @@ public class UtilSGT {
 		cal.setTime(datFecha);
 		mes = cal.get(Calendar.MONTH) + 1;
 		return mes;
+	}
+	
+	public static Integer[] obtenerMesActualYAnterior(Date fecha) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(fecha);
+
+	    // Calendar.MONTH es base 0 (enero = 0), por eso se suma 1
+	    int mesActual = calendar.get(Calendar.MONTH) + 1;
+
+	    calendar.add(Calendar.MONTH, -1);
+	    int mesAnterior = calendar.get(Calendar.MONTH) + 1;
+
+	    return new Integer[] { mesActual, mesAnterior };
+	}
+	public static String obtenerNombreMes(int mes) {
+	    String[] nombresMeses = {
+	        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+	        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+	    };
+
+	    if (mes < 1 || mes > 12) {
+	        throw new IllegalArgumentException("El mes debe estar entre 1 y 12");
+	    }
+
+	    return nombresMeses[mes - 1];
 	}
 	public static String getMesDateFormateado(Date datFecha){
 		Integer mes = null;
@@ -1390,6 +1423,45 @@ public class UtilSGT {
 		
 		return lista;
 	}
+	/*
+	 * Obtener una lista con el año;mes de un rango de fecha
+	 */
+	public static List<PeriodoBean> mGetListAnioMesServicio(Date fecInicio, Date fecFin){
+		List<PeriodoBean> lista = new ArrayList<>();
+		PeriodoBean periodo = null;
+		boolean fin = false;
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(fecInicio);
+		
+		int anioInicio = cal.get(Calendar.YEAR);
+		int mesInicio = cal.get(Calendar.MONTH);
+		cal.setTime(fecFin);
+		
+		int anioFin = cal.get(Calendar.YEAR);
+		int mesFin = cal.get(Calendar.MONTH);
+		
+		int mes = 0;
+		int anio = 0;
+		anio = anioInicio;
+		mes = mesInicio;
+		while (!fin){
+			
+			if (anio > anioFin || (anio == anioFin && mes>mesFin)){
+				fin = true;
+			}else{
+				periodo = new PeriodoBean(anio, mes+1);
+				lista.add(periodo);
+			}
+			mes = mes + 1;
+			if (mes == 12){
+				mes = 0;
+				anio = anio +1;
+			}
+		}
+		
+		
+		return lista;
+	}
 	public static List<PeriodoBean> mGetListAnioMesRefinanciacion(Date fecInicio, Date fecFin){
 		List<PeriodoBean> lista = new ArrayList<>();
 		PeriodoBean periodo = null;
@@ -2082,5 +2154,40 @@ public class UtilSGT {
 	}
 	public static String getNombreNotaXML(NotaBean entidad) {
 		return getNombreArchivoNotaOSE(entidad)+"-XML.xml";
+	}
+	public static void obtenerUbigeoPorCodigo(String codigoUbigeo, Map<String, String> mapaUbigeos, UbigeoBean ubigeoBean) {
+	    try {
+	        log.debug("[obtenerUbigeoPorCodigo] inicio - codigo: " + codigoUbigeo);
+
+	        if (codigoUbigeo != null && codigoUbigeo.trim().length() == 6
+	                && mapaUbigeos != null && !mapaUbigeos.isEmpty()) {
+
+	            String codigoDistrito     = codigoUbigeo;                    // "010504"
+	            String codigoProvincia    = codigoUbigeo.substring(0, 4);    // "0105"
+	            String codigoDepartamento = codigoUbigeo.substring(0, 2);    // "01"
+
+	            String nombreDistrito     = mapaUbigeos.get(codigoDistrito);
+	            String nombreProvincia    = mapaUbigeos.get(codigoProvincia);
+	            String nombreDepartamento = mapaUbigeos.get(codigoDepartamento);
+
+	            if (nombreDistrito != null) {
+	                ubigeoBean.setNombreDistrito(nombreDistrito);
+	            }
+	            if (nombreProvincia != null) {
+	                ubigeoBean.setNombreProvincia(nombreProvincia);
+	            }
+	            if (nombreDepartamento != null) {
+	                ubigeoBean.setNombreDepartamento(nombreDepartamento);
+	            }
+
+	        } else {
+	            log.debug("[obtenerUbigeoPorCodigo] parametros invalidos - codigo:" 
+	                    + codigoUbigeo + ", mapa vacio o nulo:" + (mapaUbigeos == null || mapaUbigeos.isEmpty()));
+	        }
+
+	        log.debug("[obtenerUbigeoPorCodigo] fin");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 }

@@ -158,6 +158,7 @@ public class LocalDao {
 					//Adicion de datos en el reporte - 2023.02.22
 					localBean.setRucCliente(rs.getString("ruc"));
 					localBean.setFechaInicioContrato(rs.getString("fecha_inicio"));
+					localBean.setFechaInicioCliente(rs.getString("fecha_inicio_cliente"));
 					localBean.setFechaFinContrato(rs.getString("fecha_fin"));
 					localBean.setMontoGarantia(getBigDecimal("monto_garantia",rs));
 					
@@ -226,7 +227,7 @@ public class LocalDao {
 		        "            else  per.razon_social "+
 			    "       end as nombre,  "+
 		        "       cxc.monto_contrato as total, "+
-		        "       con.monto_alquiler, "+
+		        "       con.monto_alquiler, TO_CHAR(con.fecha_inicio_cliente,'dd/mm/yyyy') AS fecha_inicio_cliente, "+
 			    "       cxc.saldo,   "+
 			    "       cxc.tipo_moneda, "+
 		        "       cxc.tipo_referencia, "+

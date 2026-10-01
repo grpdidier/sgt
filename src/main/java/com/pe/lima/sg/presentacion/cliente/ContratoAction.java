@@ -642,6 +642,8 @@ public class ContratoAction extends BaseOperacionPresentacion<TblContrato> {
 		try{
 			log.debug("[guardarEntidad] Inicio" );
 			if (this.validarNegocio(model, entidad, request)){
+				//Asignamos el inicio del contrato del cliente [Req 2024-Oct]
+				entidad.setFechaInicioCliente(entidad.getFechaInicio());
 				log.debug("[guardarEntidad] Pre Guardar..." );
 				//Generar Primeros Cobros
 				this.generarPrimerosCobros(entidad, request);
@@ -2560,6 +2562,8 @@ public class ContratoAction extends BaseOperacionPresentacion<TblContrato> {
 	 * Carga en session las listas y beans necesarios para la operacion del contrato
 	 */
 	private void cargarListasRequestBeanContrato(Model model, BeanRequest beanRequest){
+		//Adicionamos la fecha de inicio del servicio
+		adicionarFechaInicioFinServicio(beanRequest.getListaServicio(),beanRequest.getContrato());
 		model.addAttribute("contrato", beanRequest.getContrato());
 		model.addAttribute("contratoServicio", beanRequest.getContratoServicio());
 		model.addAttribute("listaServicio", beanRequest.getListaServicio());
@@ -2574,6 +2578,20 @@ public class ContratoAction extends BaseOperacionPresentacion<TblContrato> {
 		
 	}
 	
+	private void adicionarFechaInicioFinServicio(List<TblContratoServicio> listaServicio, TblContrato contrato) {
+		if (listaServicio!= null && ! listaServicio.isEmpty()) {
+			for(TblContratoServicio servicio : listaServicio) {
+				if (servicio.getFechaInicio() == null) {
+					servicio.setFechaInicio(contrato.getFechaInicio());
+				}
+				if (servicio.getFechaFin() == null) {
+					servicio.setFechaFin(contrato.getFechaFin());
+				}
+			}
+		}
+		
+	}
+
 	/**
 	 * Se encarga de adicionar los primeros cobros
 	 * 
@@ -2923,4 +2941,223 @@ public class ContratoAction extends BaseOperacionPresentacion<TblContrato> {
 		return path;
 	}
 	
+	@RequestMapping(value = "/contrato/servicio/agregar/nuevo", method = RequestMethod.GET)
+	public String nuevoServicioAgregar(Model model, HttpServletRequest request) {
+		BeanRequest beanRequest				= null;
+		TblContratoServicio servicio 		= new TblContratoServicio();
+		try{
+
+			//Se mantiene en Session el contrato hasta retornar
+			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
+			servicio.setTblContrato(beanRequest.getContrato());
+			servicio.setTblTipoServicio(new TblTipoServicio());
+			servicio.getTblTipoServicio().setCodigoTipoServicio(Constantes.CODIGO_SERVICIO_MANTENIMIENTO);
+			servicio.setTipoMonedaServicio(Constantes.MONEDA_SOL);
+			servicio.setTipoDocumentoServicio(Constantes.TIPO_DOC_INTERNO);
+			servicio.setFechaInicio(beanRequest.getContrato().getFechaInicio());
+			servicio.setFechaFin(beanRequest.getContrato().getFechaFin());
+			model.addAttribute("servicioAgregar", servicio);
+			
+			this.cargarListaOperacionContrato(model);
+
+			//request.getSession().setAttribute("beanRequest", beanRequest);
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			beanRequest = null;
+		}
+		return "cliente/contrato/con_edicion_servicio_previo";
+	}
+	@RequestMapping(value = "/contrato/servicio/agregar/regresar", method = RequestMethod.GET)
+	public String regresarEditarContratoDesdeAgregarServicio(Model model, String path, HttpServletRequest request) {
+		BeanRequest beanRequest				= null;
+		try{
+			log.debug("[regresarEditarContratoDesdeAgregarServicio] Inicio");
+			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
+			this.cargarListasRequestBeanContrato(model, beanRequest);
+			this.cargarListaOperacionContrato(model);
+			
+			log.debug("[regresarEditarContratoDesdeAgregarServicio] Fin");
+		}catch(Exception e){
+			log.debug("[regresarEditarContratoDesdeAgregarServicio] Error:"+e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return "cliente/contrato/con_edicion";
+	}
+	
+	@RequestMapping(value = "/contrato/servicio/agregar/guardar", method = RequestMethod.POST)
+	public String guardarNuevoServicio(Model model, TblContratoServicio servicio, HttpServletRequest request, String path) {
+		path 											= "cliente/contrato/con_edicion";
+		BeanRequest beanRequest							= null;
+		List<TblContratoServicio> listaServicio	= null;
+		try{
+			log.debug("[guardarNuevoServicio] Inicio" );
+			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
+			if (validacionDatosServicioOk(servicio, model)) {
+				log.debug("[guardarNuevoServicio] Registrando" );
+				registrarServicioGenerarCobros(servicio,beanRequest,request,model);
+				log.debug("[guardarNuevoServicio] Listando" );
+				listaServicio = contratoServicioDao.listarAllActivosXContrato(beanRequest.getContrato().getCodigoContrato());
+				validarNombreTipoServicio(listaServicio);
+				beanRequest.setListaServicio(listaServicio);
+				this.cargarListasRequestBeanContrato(model, beanRequest);
+				model.addAttribute("resultadoContrato", "Se registro un nuevo servicio y se generó las cuentas por cobrar");
+			}else {
+				log.debug("[guardarNuevoServicio] Error en los datos" );
+				model.addAttribute("servicioAgregar",servicio);
+				path = "cliente/contrato/con_edicion_servicio_previo";
+			}
+			
+			this.cargarListaOperacionContrato(model);
+			
+			log.debug("[guardarNuevoServicio] Fin" );
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			beanRequest		= null;
+			
+		}
+		return path;
+
+	}
+
+	private void validarNombreTipoServicio(List<TblContratoServicio> listaServicio) {
+		if (listaServicio != null && !listaServicio.isEmpty()) {
+			for(TblContratoServicio servicio:listaServicio ) {
+				if (servicio.getTblTipoServicio()!= null && servicio.getTblTipoServicio().getNombre() == null) {
+					servicio.setTblTipoServicio(tipoServicioDao.findOne(servicio.getTblTipoServicio().getCodigoTipoServicio()));
+				}
+			}
+		}
+		
+	}
+
+	private void registrarServicioGenerarCobros(TblContratoServicio servicio, BeanRequest beanRequest, HttpServletRequest request, Model model) {
+		/*Registramos el servicio*/
+		servicio.setTblContrato(beanRequest.getContrato());
+		servicio.setAuditoriaCreacion(request);
+		servicio.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
+		servicio = contratoServicioDao.save(servicio);
+		/*Registramos los cobros*/
+		this.generarDocumentoAgregarServicio(model, beanRequest.getContrato(), servicio, request);
+		
+	}
+
+	private boolean validacionDatosServicioOk(TblContratoServicio entidad, Model model) {
+		boolean exitoso = true;
+		if (entidad.getTblTipoServicio().getCodigoTipoServicio() <=0){
+			exitoso = false;
+			model.addAttribute("resultadoContrato", "Debe seleccionar el tipo de servicio");
+			return exitoso;
+		}
+		if (entidad.getMonto() == null || entidad.getMonto().compareTo(new BigDecimal("0")) <=0){
+			exitoso = false;
+			model.addAttribute("resultadoContrato", "Debe ingresar un valor mayor a cero");
+			return exitoso;
+		}
+		if (entidad.getTipoMonedaServicio() == null || entidad.getTipoMonedaServicio().equals("-1")){
+			exitoso = false;
+			model.addAttribute("resultadoContrato", "Debe seleccionar la moneda");
+			return exitoso;
+		}
+		if (entidad.getTipoDocumentoServicio() == null || entidad.getTipoDocumentoServicio().equals("-1")){
+			exitoso = false;
+			model.addAttribute("resultadoContrato", "Debe seleccionar el documento");
+			return exitoso;
+		}
+		if (entidad.getFechaInicio() == null){
+			exitoso = false;
+			model.addAttribute("resultadoContrato", "Debe ingresar la fecha de inicio");
+			return exitoso;
+		}
+		if (entidad.getFechaFin() == null){
+			exitoso = false;
+			model.addAttribute("resultadoContrato", "Debe ingresar la fecha de fin");
+			return exitoso;
+		}
+		return exitoso;
+	}
+	
+	private boolean generarDocumentoAgregarServicio(Model model, TblContrato entidad, TblContratoServicio servicio, HttpServletRequest request){
+		TblSerie serieFactura					= null;
+		TblSerie serieBoleta					= null;
+		TblSerie serieInterno					= null;
+		List<PeriodoBean> lista					= null;
+		BitacoraBean bitacoraBean				= null;
+		Specification<TblCxcBitacora> criterio	= null;
+		TblCxcBitacora bitacora					= null;
+		TblCxcDocumento documento				= null;
+		//TblSunatCabecera cabecera				= null;
+		//TblSunatDetalle detalle					= null;
+		boolean resultado 						= false;
+		String strMensaje						= "";
+		try{
+			//Obtenemos Prefijo, Secuencia y Numero para generar los siguiente
+			serieFactura = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_FACTURA);
+			serieBoleta = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_BOLETA);
+			serieInterno = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_INTERNO);
+			
+			//Lista de los meses a cobrar con base a la fecha del servicio (se ingresó como un nuevo dato)
+			lista = UtilSGT.mGetListAnioMesServicio(servicio.getFechaInicio(), servicio.getFechaFin());
+			if (lista !=null && lista.size()>0){
+				//cxcBitacoraAction = new CxcBitacoraAction();
+				bitacoraBean = new BitacoraBean();
+				bitacoraBean.setAnio(UtilSGT.getAnioDate(servicio.getFechaInicio()));
+				bitacoraBean.setMes(UtilSGT.getMesDate(servicio.getFechaInicio()).toString());
+				
+				//Registramos la Bitacora del CxC del servicio
+				bitacoraBean.setCodigoContrato(entidad.getCodigoContrato());
+				boolean exitoso =  this.registrarBitacora(model, bitacoraBean, Constantes.TIPO_COBRO_SERVICIO, Constantes.SERIE_TIPO_OPERACION_CONTRATO, request);
+				if (exitoso) {
+					criterio = Specifications.where(conAnio(bitacoraBean.getAnio()))
+							.and(conMes(new Integer(bitacoraBean.getMes())))
+							.and(conTipoCobro(Constantes.TIPO_COBRO_SERVICIO))
+							.and(conCodigoContrato(entidad.getCodigoContrato()))
+							.and((conTipoOperacion(Constantes.SERIE_TIPO_OPERACION_CONTRATO)));
+					
+					//bitacora = cxcBitacoraDao.findOne(criterio);
+					List<TblCxcBitacora> listaBitacora = cxcBitacoraDao.findAll(criterio);
+					bitacora = listaBitacora.get(0);
+					for(PeriodoBean periodo: lista){
+						documento = this.registrarCxCDocumentoServicio(model, servicio, request, entidad, periodo, bitacora, serieFactura, serieBoleta, serieInterno);
+						//Actualizamos el numero del documento del primer cobro
+						//contratoPrimerCobroDao.save(primerCobro);
+						/**AF20181214:No generamos aun el documento sino cuando se cobra el total del saldo*/
+						
+						if (documento!=null){
+							//Se genera el documento de la sunat
+							//this.generarDocumentoPrimerCobroSunat(documento, entidad, request);
+							
+						}else{
+							//model.addAttribute("respuesta", "No se pudo registrar la Cuenta por Cobrar del Alquiler para el contrato ["+contrato.getNumero()+"]");
+							strMensaje = strMensaje + "No se pudo registrar la Cuenta del Alquiler para el contrato ["+entidad.getNumero()+"]\n";
+							model.addAttribute("respuesta", strMensaje);
+							resultado = false;
+							break;
+						}
+						
+					}
+					
+				}
+			}
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			serieFactura		= null;
+			serieBoleta			= null;
+			serieInterno		= null;
+			lista				= null;
+			bitacoraBean		= null;
+			criterio			= null;
+			bitacora			= null;
+			//documento			= null;
+			//cabecera			= null;
+			//detalle				= null;
+			//strMensaje			= null;
+		}
+		return resultado;
+	}
 }

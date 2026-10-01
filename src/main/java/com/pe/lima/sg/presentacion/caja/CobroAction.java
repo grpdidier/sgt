@@ -20,6 +20,7 @@ import static com.pe.lima.sg.dao.cliente.ArbitriosSpecifications.conSaldoPositiv
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -57,6 +58,7 @@ import com.pe.lima.sg.bean.caja.DesembolsoBean;
 import com.pe.lima.sg.dao.BaseOperacionDAO;
 import com.pe.lima.sg.dao.caja.ICobroArbitrioDAO;
 import com.pe.lima.sg.dao.caja.ICobroDAO;
+import com.pe.lima.sg.dao.caja.IComprobanteOseDAO;
 import com.pe.lima.sg.dao.caja.ICxCDocumentoDAO;
 import com.pe.lima.sg.dao.caja.IDesembolsoArbitrioDAO;
 import com.pe.lima.sg.dao.caja.IDesembolsoDAO;
@@ -72,6 +74,7 @@ import com.pe.lima.sg.dao.cliente.IObservacionDAO;
 import com.pe.lima.sg.dao.mantenimiento.ITipoCambioDAO;
 import com.pe.lima.sg.entity.caja.TblCobro;
 import com.pe.lima.sg.entity.caja.TblCobroArbitrio;
+import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
 import com.pe.lima.sg.entity.caja.TblCxcDocumento;
 import com.pe.lima.sg.entity.caja.TblDesembolso;
 import com.pe.lima.sg.entity.caja.TblDesembolsoArbitrio;
@@ -196,6 +199,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	@Autowired
 	private IDetalleComprobanteDAO detalleComprobanteDao;
 	
+	@Autowired
+	private IComprobanteOseDAO comprobanteOseDao;
+	
 	private String urlPaginado = "/cobro/paginado/"; 
 
 	@SuppressWarnings("rawtypes")
@@ -310,13 +316,14 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	 * Listado de Alquiler
 	 */ 
 	public List<TblCxcDocumento> mListarAlquiler( CobroBean cobroAlquiler, List<TblTipoCambio> listaTipoCambio, Integer intCodigoContrato){
-		Sort sort = new Sort(new Sort.Order(Direction.ASC, "codigoCxcDoc"));
+		Sort sort = new Sort(new Sort.Order(Direction.ASC, "anio"), new Sort.Order(Direction.ASC, "mes"));
 		Specification<TblCxcDocumento> criterio	= null;
 		List<TblCxcDocumento> listaCxcAlquiler;
 		//conSaldoPositivo
 		criterio = Specifications.where(conCodigoContrato(intCodigoContrato))
 				  .and(conSaldoPositivo(new BigDecimal("0")))
 				  //.and(conAnioActual(UtilSGT.getAnioMesString(new Date())))
+				  .and(conEstadoDocumento(Constantes.ESTADO_REGISTRO_ACTIVO))
 				  .and(conTipoReferencia(Constantes.TIPO_COBRO_ALQUILER));
 		listaCxcAlquiler = cxcDocumentoDao.findAll(criterio,sort);
 		if (listaTipoCambio!=null && listaTipoCambio.size()>0){
@@ -351,7 +358,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	 * Listado de Servicio
 	 */
 	private List<TblCxcDocumento>  mListarServicio(CobroServicioBean cobroServicio, List<TblTipoCambio> listaTipoCambio, Integer intCodigoContrato){
-		Sort sort = new Sort(new Sort.Order(Direction.ASC, "codigoCxcDoc"));
+		Sort sort = new Sort(new Sort.Order(Direction.ASC, "anio"), new Sort.Order(Direction.ASC, "mes"));
 		Specification<TblCxcDocumento> criterio	= null;
 		List<TblCxcDocumento> listaCxcServicio;
 		
@@ -524,7 +531,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		List<TblLuzxtienda> listaLuzxtienda		= null;
 		List<TblObservacion> listaObservacion	= null;
 		List<TblCxcDocumento> listaCxcAlquiler	= null;
-		List<TblCxcDocumento> listaCxcSinSaldo	= null;
+		//List<TblCxcDocumento> listaCxcSinSaldo	= null;
 		List<TblCxcDocumento> listaCxcAlquilerAux	= null;
 		List<TblCxcDocumento> listaCxcServicio	= null;
 		List<TblCxcDocumento> listaCxcServicioAux	= null;
@@ -547,6 +554,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		List<TblAdelanto> listaAdelanto			= null;
 		Map<String, Object> mapPrimerosCobros	= null;
 		CobroGeneralBean cobroGeneralBean 		= new CobroGeneralBean(); /*Contendrá todos los beans para el registro el cobro*/
+		List<TblComprobanteSunat> listaComprobante = null;
 		try{
 			contrato = contratoDao.findOne(id);
 			//Tipo de Cambio
@@ -558,7 +566,8 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			listaCxcAlquiler= this.mListarAlquiler(cobroAlquiler, listaTipoCambio, contrato.getCodigoContrato());
 			//TODO:219-09-19: Se comenta porque no se esta generando el documento de los comprobantes con saldo CERO: pendiente excluir las que son tiendas vendidas
 			//listaCxcSinSaldo = this.mListarAlquilerSaldoCero(cobroAlquiler, listaTipoCambio, contrato.getCodigoContrato());
-			listaCxcSinSaldo = null;
+			//listaCxcSinSaldo = null;
+			//Se reemplaza por que es la lista de comprobante
 			//CxC Servicio
 			cobroServicio  = new CobroServicioBean();
 			listaCxcServicio= this.mListarServicio(cobroServicio, listaTipoCambio, contrato.getCodigoContrato());
@@ -597,6 +606,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			/*cobroGarantia = new CobroGarantia();
 			listaCxcGarantia = this.mListarGarantia(cobroGarantia, listaTipoCambio, contrato.getCodigoContrato());**/
 			
+			//Listamos las facturas (comprobantes)
+			listaComprobante = comprobanteOseDao.findByCodigoContrato(id);
+			
 			//Lista los datos del contrato
 			listaServicio = contratoServicioDao.listarAllActivosXContrato(contrato.getCodigoContrato());
 			if (listaServicio != null && listaServicio.size() >0){
@@ -614,7 +626,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			beanRequest = new BeanRequest();
 			
 			beanRequest.setListaCxcAlquiler(listaCxcAlquiler);	
-			beanRequest.setListaCxcSinSaldo(listaCxcSinSaldo);
+			//beanRequest.setListaCxcSinSaldo(listaCxcSinSaldo);
 			beanRequest.setListaCxcPrimerCobro(listaCxcPrimerCobro);
 			beanRequest.setListaCxcGarantia(listaCxcGarantia);
 			beanRequest.setMapPrimerosCobros(mapPrimerosCobros);
@@ -644,6 +656,9 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			beanRequest.setCobroServicio(cobroServicio);
 			beanRequest.setCobroLuz(cobroLuz);
 			beanRequest.setCobroArbitrio(cobroArbitrio);
+			
+			//Comprobante
+			beanRequest.setListaComprobante(listaComprobante);
 			//Validacion de adelantos
 			listaAdelanto = adelantoDao.listarAllActivosxContrato(id);
 			if (listaAdelanto!=null && listaAdelanto.size()>0){
@@ -1014,6 +1029,7 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 				//desembolso.setIdentificacion(UtilSGT.getFecha(" yyyy-MM-dd kk:mm:ss").concat(intCodigoContrato.toString()));
 				desembolso.setIdentificacion(UUID.randomUUID().toString());
 				desembolso.setTipoCobro(strTipoCobro);
+				desembolso.setNumeroComprobante(obtenerNumeroComprobante(request));
 				//Bancarizado
 				this.validateDatosBancarizado(desembolso, request, strTipoCobro);
 				this.preGuardarDesembolso(desembolso, request);
@@ -1027,6 +1043,14 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 			throw e;
 		}
 	}
+	private String obtenerNumeroComprobante(HttpServletRequest request) {
+		BeanRequest beanRequest			= null;
+		String numeroComprobante		= null;
+		beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
+		numeroComprobante = beanRequest.getCobroGeneralBean().getNumeroFactura();
+		return numeroComprobante;
+	}
+
 	/*
 	 * Registra los desembolsos del cliente
 	 */
@@ -1287,12 +1311,13 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 	public List<TblCxcDocumento> mListarDeuda(TblContrato contrato, HttpServletRequest request, String strTipoCobro){
 		List<TblCxcDocumento> listaDeuda	 		= null;
 		//List<TblCxcDocumento> listaDeudaGarantia 	= null;
-		Sort sort 									= new Sort(new Sort.Order(Direction.ASC, "codigoCxcDoc"));
+		Sort sort 									= new Sort(new Sort.Order(Direction.ASC, "anio"), new Sort.Order(Direction.ASC, "mes"));
 		Specification<TblCxcDocumento> criterio		= null;
 		
 		criterio = Specifications.where(conCodigoContrato(contrato.getCodigoContrato()))
 				  .and(conTipoReferencia(strTipoCobro))
-				  .and(conSaldoPositivo(new BigDecimal("0")));
+				  .and(conSaldoPositivo(new BigDecimal("0")))
+				  .and (conEstadoDocumento("1"));
 		listaDeuda = cxcDocumentoDao.findAll(criterio,sort);
 		/*
 		if (strTipoCobro.equals(Constantes.TIPO_COBRO_PRIMER_COBRO)){
@@ -1851,7 +1876,8 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		model.addAttribute("observacion", beanRequest.getObservacion());
 		model.addAttribute("listaObservacion", beanRequest.getListaObservacion());
 		model.addAttribute("listaCxcAlquiler", beanRequest.getListaCxcAlquiler());
-		model.addAttribute("listaCxcSinSaldo", beanRequest.getListaCxcSinSaldo());
+		//model.addAttribute("listaCxcSinSaldo", beanRequest.getListaCxcSinSaldo());
+		model.addAttribute("listaComprobante", beanRequest.getListaComprobante());
 		model.addAttribute("listaCxcPrimerCobro", beanRequest.getListaCxcPrimerCobro());
 		model.addAttribute("listaCxcGarantia", beanRequest.getListaCxcGarantia());
 		model.addAttribute("listaCxcServicio", beanRequest.getListaCxcServicio());
@@ -3920,6 +3946,8 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 						this.cargarListasRequestBeanContrato(model, beanRequest);
 						this.cargarListaOperacionContrato(model);
 						request.getSession().setAttribute("beanRequest", beanRequest);
+						
+						this.cargarComprobanteParaCobro(cobroGeneralBean,beanRequest);
 					}
 				}
 			}
@@ -3936,6 +3964,71 @@ public class CobroAction extends BaseOperacionPresentacion<TblCobro> {
 		}
 
 		return path;
+	}
+	
+	private void cargarComprobanteParaCobro(CobroGeneralBean cobroGeneralBean, BeanRequest beanRequest) {
+		List<TblComprobanteSunat> resultado 
+		= buscarPorMesYAnio(cobroGeneralBean.getCobroAlquiler().getMensajeCobro(), beanRequest.getListaComprobante());
+		if (resultado != null && !resultado.isEmpty()) {
+			TblComprobanteSunat tblComprobanteSunat = resultado.get(0);
+			cobroGeneralBean.setNumeroFactura(tblComprobanteSunat.getSerie()+"-"+tblComprobanteSunat.getNumero());
+		}
+		
+	}
+
+	public List<TblComprobanteSunat> buscarPorMesYAnio(String mensaje, List<TblComprobanteSunat> lista) {
+	    // Extraer mes y año del mensaje "Adelanto del mes MAYO-2026"
+	    String[] partes = mensaje.split(" ");
+	    String mesAnio = partes[partes.length - 1]; // "MAYO-2026"
+	    String[] mesYAnio = mesAnio.split("-");
+	    String mesTexto = mesYAnio[0]; // "MAYO"
+	    String anioTexto = mesYAnio[1]; // "2026"
+	    
+	    // Convertir mes texto a número
+	    int mes = convertirMesTextoANumero(mesTexto);
+	    int anio = Integer.parseInt(anioTexto);
+	    
+	    // Filtrar la lista
+	    List<TblComprobanteSunat> resultado = new ArrayList<>();
+	    
+	    for (TblComprobanteSunat comprobante : lista) {
+	        if (comprobante.getFechaEmision() != null && !comprobante.getFechaEmision().isEmpty()) {
+	            try {
+	                // Parsear la fecha (asumiendo formato "yyyy-MM-dd" o similar)
+	                LocalDate fecha = LocalDate.parse(comprobante.getFechaEmision());
+	                
+	                // Comparar mes y año
+	                if (fecha.getMonthValue() == mes && fecha.getYear() == anio) {
+	                    resultado.add(comprobante);
+	                }
+	            } catch (Exception e) {
+	                // Manejar error de parseo de fecha
+	            	log.error("[buscarPorMesYAnio] Error:"+e.getMessage());
+	                System.err.println("Error al parsear fecha: " + comprobante.getFechaEmision());
+	            }
+	        }
+	    }
+	    
+	    return resultado;
+	}
+
+	// Método auxiliar para convertir texto del mes a número
+	private int convertirMesTextoANumero(String mesTexto) {
+	    switch (mesTexto.toUpperCase()) {
+	        case "ENERO": return 1;
+	        case "FEBRERO": return 2;
+	        case "MARZO": return 3;
+	        case "ABRIL": return 4;
+	        case "MAYO": return 5;
+	        case "JUNIO": return 6;
+	        case "JULIO": return 7;
+	        case "AGOSTO": return 8;
+	        case "SEPTIEMBRE": return 9;
+	        case "OCTUBRE": return 10;
+	        case "NOVIEMBRE": return 11;
+	        case "DICIEMBRE": return 12;
+	        default: return -1; // Mes no válido
+	    }
 	}
 	/*Asigna los datos en sesion*/
 	private void asignarDatosSesion(HttpServletRequest request, Model model, CobroGeneralBean cobroGeneralBean){

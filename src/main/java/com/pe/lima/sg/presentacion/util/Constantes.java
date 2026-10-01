@@ -55,7 +55,8 @@ public class Constantes {
 	public static String MAP_ESTADO_ASIGNACION				= "mapEstadoAsignacion";
 	public static String MAP_MESES							= "mapMeses";
 	public static String MAP_TIPO_COBRO_CXC					= "mapTipoCobroCxC";
-
+	public static String MAP_ESTADO_REGISTRO				= "mapEstadoRegistro";
+	public static String MAP_ESTADO_TIENDA					= "mapEstadoTienda";
 	//Variables para la operacion
 	public static String OPERACION_NUEVO					= "NUEVO";
 	public static String OPERACION_EDITAR					= "EDITAR";
@@ -140,8 +141,10 @@ public class Constantes {
 	//Variables para el estado de la tienda
 	public static String ESTADO_TIENDA_OCUPADO				= "CPD";
 	public static String ESTADO_TIENDA_DESOCUPADO			= "DSC";
+	public static String ESTADO_TIENDA_VENDIDO				= "VND";
 	public static String DESC_ESTADO_TIENDA_OCUPADO			= "OCUPADO";
 	public static String DESC_ESTADO_TIENDA_DESOCUPADO		= "DESCUPADO";
+	public static String DESC_ESTADO_TIENDA_VENDIDO			= "VENDIDO";
 
 	//Variables para el tipo de moneda
 	public static String MONEDA_SOL							= "SO";

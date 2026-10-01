@@ -233,7 +233,11 @@
 										
 									</div>
 								</div>
-								
+								<div class="row">
+					  				<div class="col-md-12 mb-3">
+					  					<p style="color: red" th:text="${respuesta}" />
+					  				</div>
+					  			</div>
 								
 									<div class="row">
 								
@@ -245,7 +249,7 @@
 											<li><a href="#tabs-6">Contratos Anteriores</a></li>
 											<li><a href="#tabs-7">Alquiler - Cobro</a></li>
 											<li><a href="#tabs-8">Servicio - Cobro</a></li>
-											<!--  li><a href="#tabs-9">Luz - Cobro</a></li-->
+											<li><a href="#tabs-9">Fecha Contrato</a></li>
 										  </ul>
 										  <div id="tabs-1"  style="background-color:#FEEF8B;">
 											<fieldset >
@@ -651,7 +655,7 @@
 																<label for="idNombre" class="title10pt">Nuevo monto: </label>
 															</div>
 															<div class="col-md-4 mb-1" align="left">
-																<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${dataCambio.nuevoMontoAlquiler}" />
+																<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${contratoCambios.nuevoMontoAlquiler}" />
 															</div>
 															<div class="col-md-3 mb-1" align="right">
 																
@@ -662,7 +666,7 @@
 																<label for="idNombre" class="title10pt">Fecha: </label>
 															</div>
 															<div class="col-md-4 mb-1" align="left">
-																<input type="text" class="form-control_v2 "  style="background-color: #ECECEC;" placeholder="dd/MM/yyyy" th:field="${dataCambio.fechaAlquiler}" autocomplete="off"/>
+																<input type="text" class="form-control_v2 "  style="background-color: #ECECEC;" placeholder="dd/MM/yyyy" th:field="${contratoCambios.fechaAlquiler}" autocomplete="off"/>
 															</div>
 															<div class="col-md-3 mb-1" align="right">
 																
@@ -734,7 +738,7 @@
 																<label for="idNombre" class="title10pt">Nuevo monto: </label>
 															</div>
 															<div class="col-md-4 mb-1" align="left">
-																<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${dataCambio.nuevoMontoServicio}" />
+																<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${contratoCambios.nuevoMontoServicio}" />
 															</div>
 															<div class="col-md-3 mb-1" align="right">
 																
@@ -745,7 +749,7 @@
 																<label for="idNombre" class="title10pt">Fecha: </label>
 															</div>
 															<div class="col-md-4 mb-1" align="left">
-																<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" placeholder="dd/MM/yyyy" th:field="${dataCambio.fechaServicio}" />
+																<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" placeholder="dd/MM/yyyy" th:field="${contratoCambios.fechaServicio}"  autocomplete="off"/>
 															</div>
 															<div class="col-md-3 mb-1" align="right">
 																
@@ -763,61 +767,26 @@
 											
 										  </div>
 										  
-										  <!--div id="tabs-9"  style="background-color:#FEEF8B;">
+										  <div id="tabs-9"  style="background-color:#FEEF8B;">
 											<fieldset>
 												<div class="row">
-													<div class="col-md-7 mb-3">
-														<div id="c_tablas" th:if="${not #lists.isEmpty(listaCxcLuz)}">
-															<div class="tableFixHeadCobro">
-																<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
-																	<thead>
-																		<tr>
-																			<th>Fecha Vencimiento</th>
-																			<th>Monto Generado</th>
-																			<th>Saldo</th>
-																			<th>Tipo Moneda</th>
-																			<th>Descripci&oacute;n</th>
-																		</tr>
-																	</thead>
-																	<tbody>
-																			<tr th:each="luz : ${listaCxcLuz}" class="campos2" onMouseOver="this.className='camposF'"		onMouseOut="this.className='camposFi'">
-																				<td ><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(luz.fechaFin)}"></font></td>
-																				<td th:text="${luz.montoGenerado}">generado</td>
-																				<td th:text="${luz.saldo}">saldo</td>
-																				<td align="center">
-																					<div th:replace="fragments/util :: tipoMoneda(tipo=${luz.tipoMoneda})"></div>
-																				</td>
-																				<td th:text="${luz.nombre}">nombre</td>
-																			</tr>
-																		</tbody>
-																</table>
-															</div>
+													<div class="col-md-4 mb-3">
+														<div class="col-md-1 mb-3"> </div>
+														<div class="col-md-10 mb-3"> 
+														AVISO:<br/> El cambio de la Fecha Fin del contrato afectar&aacute; la informaci&oacute;n de los cobros de Alquiler y Servicio. <br/> Los cambios se realiza solo con el boton "Modificar Fecha de Fin del Contrato". No necesita presionar el boton "Actualizar Contrato".
 														</div>
-														<div id="c_tablas" th:if="${#lists.isEmpty(listaCxcLuz)}">
-															<table id="t02"
-																class="table   table-bordered table-active tabla_cabecera_general">
-																<tr>
-																	<td width="10%" align="center">Fecha Vencimiento</td>
-																	<td width="10%" height="17">Monto Generado</td>
-																	<td width="10%" height="17">Saldo</td>
-																	<td width="10%" height="17">Tipo Moneda</td>
-																	<td width="10%" align="center">Descripci&oacute;n</td>
-																</tr>
-																<tr class="campos2" onMouseOver="this.className='camposF'"
-																	onMouseOut="this.className='camposFi'">
-																	<td colspan="5" align="center">No se encontr&oacute;
-																		elementos</td>
-																</tr>
-															</table>
-														</div>
+														<div class="col-md-1 mb-3"> </div>
 													</div>
-													<div class="col-md-5 mb-1">
+													<div class="col-md-4 mb-1">
+														
 														<div class="row">
 															<div class="col-md-5 mb-1" align="right">
-																<label for="idNombre" class="title10pt">Nuevo monto: </label>
+																<label for="idNombre" class="title10pt">Fecha Inicio: </label>
 															</div>
 															<div class="col-md-4 mb-1" align="left">
-																<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${dataCambio.montoLuz}" />
+																<span th:text="${contratoCambios.fecha_inicio}"></span>
+																<input type="hidden" class="form-control_v2 is-valid" placeholder="dd/MM/yyyy" th:field="${contratoCambios.fecha_inicio}"  readonly="readonly" style="background-color:#ECECEC;" />
+																
 															</div>
 															<div class="col-md-3 mb-1" align="right">
 																
@@ -825,26 +794,29 @@
 														</div>
 														<div class="row">
 															<div class="col-md-5 mb-1" align="right">
-																<label for="idNombre" class="title10pt">Fecha: </label>
+																<label for="idNombre" class="title10pt">Fecha Fin: </label>
 															</div>
 															<div class="col-md-4 mb-1" align="left">
-																<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" placeholder="dd/MM/yyyy" th:field="${dataCambio.fechaLuz}" />
+																<input type="text" class="form-control_v2 " style="background-color: #FFFFFF;" placeholder="dd/MM/yyyy" th:field="${contratoCambios.fecha_fin}"  autocomplete="off"/>
 															</div>
 															<div class="col-md-3 mb-1" align="right">
 																
 															</div>
 														</div>
-														<div class="row" th:if="${not #lists.isEmpty(listaCxcLuz)}">
-												  		 	<div class="col-md-12 mb-3" align="center">
-												  		 		<br></br><br></br>
-																<button class="btn btn-danger" id="idActualizarLuz" type="button" onclick="if(confirm('Esta seguro de actualizar la Luz?')){ jsActualizarServicio();}">Actualizar Luz</button>
-															</div>
+														
+											  		 	<div class="col-md-12 mb-3" align="center">
+											  		 		<br></br><br></br>
+															<button class="btn btn-danger" id="idActualizarFechaContrato" type="button" onclick="if(confirm('Esta seguro de actualizar la fecha de fin del contrato?')){ jsModificarFechaFinContrato();}">Modificar Fecha Fin del Contrato</button>
 														</div>
+														
+													</div>
+													<div class="col-md-4 mb-3">
+														
 													</div>
 												</div>
 											</fieldset>
 											
-										  </div-->
+										  </div>
 										  <div class="row">
 											<div class="col-md-12 mb-0" align="center">
 												 <br/><br/>

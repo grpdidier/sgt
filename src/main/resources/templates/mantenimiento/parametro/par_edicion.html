@@ -35,15 +35,19 @@
 												<label for="idNombre" class="textBold9pt">Nombre</label>
 												<label for="idNombre" class="form-control_v2 " th:text="${entidad.nombre}">Nombre</label>
 											</div>
-											<div class="col-md-3 mb-3">
+											<div class="col-md-9 mb-3">
 												<label for="idNombre" class="textBold9pt">Dato</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="Dato" th:field="${entidad.dato}" required="required"/>
 											</div>
+											
+										</div>
+										<div class="row">
+											
 											<div class="col-md-3 mb-3">
 												<label for="idNombre" class="textBold9pt">Cantidad</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="Cantidad" th:field="${entidad.cantidad}"/>
 											</div>
-											<div class="col-md-3 mb-3">
+											<div class="col-md-9 mb-3">
 												<label for="idNombre" class="textBold9pt">Valor</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="Valor" th:field="${entidad.valor}"/>
 											</div>

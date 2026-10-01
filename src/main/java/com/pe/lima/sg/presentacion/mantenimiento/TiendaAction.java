@@ -94,6 +94,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			model.addAttribute("mapEstadoTienda", obtenerValoresEstadoTienda());
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
+			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_REGISTRO);
 			request.getSession().setAttribute("sessionFiltroCriterio", filtro);
 			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
@@ -125,6 +126,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			model.addAttribute("edificio", edificio);
 			this.listarTiendas(model, filtro, pageable, urlPaginado);
 			campos = configurarCamposConsulta();
+			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_REGISTRO);
 			model.addAttribute("mapEstadoTienda", obtenerValoresEstadoTienda());
 			model.addAttribute("contenido", campos);
 			model.addAttribute("filtro", filtro);
@@ -150,7 +152,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			Specification<TblTienda> criterio = Specifications.where(conNumero(filtro.getNumero().trim()))
 					.and(conCodigoEdificio(filtro.getCodigo()))
 					.and(conEstadoTienda(filtro.getEstadoTienda()))
-					.and(conEstado(Constantes.ESTADO_REGISTRO_ACTIVO));
+					.and(conEstado(filtro.getEstado()));
 			pageable.setSort(sort);
 			Page<TblTienda> entidadPage = tiendaDao.findAll(criterio, pageable);
 			PageWrapper<TblTienda> page = new PageWrapper<TblTienda>(entidadPage, url, pageable);
@@ -181,6 +183,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			model.addAttribute("entidad", entidad);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_TIENDA);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PISO);
+			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_REGISTRO);
 			listaSuministro = suministroDao.listarAllActivos();
 			model.addAttribute("mapListaSuministro", ListaUtilAction.obtenerValoresListaSuministroActivo(listaSuministro));
 		}catch(Exception e){
@@ -213,6 +216,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			model.addAttribute("entidad",entidad);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_TIENDA);
 			listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PISO);
+			listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_REGISTRO);
 			listaSuministro = suministroDao.listarAllActivos();
 			model.addAttribute("mapListaSuministro", ListaUtilAction.obtenerValoresListaSuministroActivo(listaSuministro));
 			log.debug("[crearTienda] Fin");
@@ -317,6 +321,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			}else{
 				listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_TIENDA);
 				listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PISO);
+				listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_REGISTRO);
 				listaSuministro = suministroDao.listarAllActivos();
 				model.addAttribute("mapListaSuministro", ListaUtilAction.obtenerValoresListaSuministroActivo(listaSuministro));
 				path = "mantenimiento/tienda/tie_nuevo";
@@ -361,6 +366,8 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 			entidadEnBd.setArea(entidad.getArea());
 			entidadEnBd.setNumero(entidad.getNumero());
 			entidadEnBd.setObservacion(entidad.getObservacion());
+			entidadEnBd.setEstadoTienda(entidad.getEstadoTienda());
+			entidadEnBd.setEstado(entidad.getEstado());
 			//Suministro
 			suministro = suministroDao.findOne(entidad.getTblSuministro().getCodigoSuministro());
 			entidadEnBd.setTblSuministro(suministro);
@@ -382,6 +389,7 @@ public class TiendaAction extends BasePresentacion<TblTienda> {
 				//model.addAttribute("registros", entidades);
 				campos = configurarCamposConsulta();
 				model.addAttribute("mapEstadoTienda", obtenerValoresEstadoTienda());
+				listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_REGISTRO);
 				model.addAttribute("contenido", campos);
 				model.addAttribute("filtro", filtro);
 			}else{

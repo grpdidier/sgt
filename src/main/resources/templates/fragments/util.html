@@ -385,10 +385,10 @@
 				</div>
 				<div th:if="${entry.value.tipo} == 'combo_estado_tienda'"> 
 					<span class="textBold9pt" th:if="${entry.value.required} == false">
-						<!--/*/ <th:block th:include="fragments/util :: combo" th:with="campo=${entry.value.valor},map=${mapEstadoTienda}"></th:block> /*/-->
+						<!--/*/ <th:block th:include="fragments/util :: combo" th:with="campo=${entry.value.valor},map=${session.SessionMapEstadoTienda}"></th:block> /*/-->
 					</span>
 					<span class="textBold9pt" th:if="${entry.value.required} == true">
-						<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo=${entry.value.valor},map=${mapEstadoTienda}"></th:block> /*/-->
+						<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo=${entry.value.valor},map=${session.SessionMapEstadoTienda}"></th:block> /*/-->
 					</span>
 					
 				</div>

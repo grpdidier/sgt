@@ -1,6 +1,8 @@
 package com.pe.lima.sg.dao.caja;
 
 
+import javax.persistence.criteria.Expression;
+
 import org.springframework.data.jpa.domain.Specification;
 
 import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
@@ -56,5 +58,35 @@ public final class ComprobanteOseSpecifications {
 		} else {
 			return "%" + valor + "%";
 		}
+	}
+	
+	/**
+	 * Filtra por año y mes sobre fecha_emision (formato yyyy-MM-dd).
+	 * Si anio o mes vienen vacíos, se ignora ese criterio.
+	 */
+	public static Specification<TblComprobanteSunat> conAnioMes(String anio, String mes) {
+		return (root, query, cb) -> {
+			boolean tieneAnio = anio != null && !anio.trim().isEmpty() && !anio.trim().equals("-1");
+			boolean tieneMes  = mes  != null && !mes.trim().isEmpty()  && !mes.trim().equals("-1");
+
+			if (!tieneAnio && !tieneMes) {
+				return cb.conjunction(); // sin filtro
+			}
+
+			Expression<String> fecha = root.<String> get("fechaEmision");
+
+			if (tieneAnio && tieneMes) {
+				String mesFmt = String.format("%02d", Integer.parseInt(mes.trim()));
+				// yyyy-MM-%
+				return cb.like(fecha, anio.trim() + "-" + mesFmt + "-%");
+			}
+			if (tieneAnio) {
+				// yyyy-%
+				return cb.like(fecha, anio.trim() + "-%");
+			}
+			// solo mes: ____-MM-%
+			String mesFmt = String.format("%02d", Integer.parseInt(mes.trim()));
+			return cb.like(fecha, "____-" + mesFmt + "-%");
+		};
 	}
 }

@@ -31,20 +31,20 @@
 										
 										<div class="row">
 											<div class="col-md-3 mb-3">
-												<label for="idTipoPersona" class="textBold9pt">Tipo</label>
+												<label for="idTipoPersona" class="textBold9pt">Tipo (*)</label>
 												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoPersona',map=${mapTipoPersona}"></th:block> /*/-->
 												
 											</div>
 											<div class="col-md-3 mb-3">
-												<label for="idNombre" class="textBold9pt">Nombre</label>
+												<label for="idNombre" class="textBold9pt">Nombre (*)</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="Nombre" th:field="${entidad.nombre}" required="required"/>
 											</div>
 											<div class="col-md-3 mb-3">
-												<label for="idNombre" class="textBold9pt">Paterno</label>
+												<label for="idNombre" class="textBold9pt">Paterno (*)</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="Paterno" th:field="${entidad.paterno}" required="required"/>
 											</div>
 											<div class="col-md-3 mb-3">
-												<label for="idDireccion" class="textBold9pt">Materno</label>
+												<label for="idDireccion" class="textBold9pt">Materno (*)</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="Materno" th:field="${entidad.materno}" required="required"/>
 											</div>
 										</div>
@@ -55,26 +55,26 @@
 												
 											</div>
 											<div class="col-md-2 mb-3">
-												<label for="idNombre" class="textBold9pt">DNI</label>
+												<label for="idNombre" class="textBold9pt">DNI (*)</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="DNI" th:field="${entidad.numeroDni}" required="required"/>
 											</div>
 											<div class="col-md-2 mb-3">
-												<label for="idNombre" class="textBold9pt">RUC</label>
+												<label for="idNombre" class="textBold9pt">RUC (*)</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="RUC" th:field="${entidad.numeroRuc}" required="required"/>
 											</div>
 											<div class="col-md-5 mb-3">
-												<label for="idDireccion" class="textBold9pt">Raz&oacute;n Social</label>
+												<label for="idDireccion" class="textBold9pt">Raz&oacute;n Social (*)</label>
 												<input type="text" class="form-control_v2 is-valid" placeholder="Razon Social" th:field="${entidad.razonSocial}" required="required"/>
 											</div>
 										</div>
 										<div class="row">
 											<div class="col-md-2 mb-3">
-												<label for="idTipoPersona" class="textBold9pt">Es Cliente</label>
+												<label for="idTipoPersona" class="textBold9pt">Es Cliente (*)</label>
 												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoCliente',map=${mapSiNo}"></th:block> /*/-->
 												
 											</div>
 											<div class="col-md-2 mb-3">
-												<label for="idNombre" class="textBold9pt">Es Proveedor</label>
+												<label for="idNombre" class="textBold9pt">Es Proveedor (*)</label>
 												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tipoProveedor',map=${mapSiNo}"></th:block> /*/-->
 											</div>
 											<div class="col-md-2 mb-3">
@@ -109,6 +109,29 @@
 											</div>
 										</div>
 										<div class="row">
+											<div class="col-md-2 mb-3">
+												<label for="idTipoPersona" class="textBold9pt">Ubigeo</label>
+												<input type="text" class="form-control_v2 is-valid" placeholder="Ubigeo" th:field="${entidad.ubigeo}" id="idUbigeo"/>
+												
+											</div>
+											<div class="col-md-2 mb-3" >
+												<br></br>
+												<button class="btn btn-success" onclick="jsCalcularUbicacionNuevo()" >Calcular Ubicaci&oacute;n</button>
+											</div>
+											<div class="col-md-2 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												
+											</div>
+										</div>
+										<div class="row">
 											<div class="col-md-4 mb-3">
 												<label for="idNombre" class="textBold9pt">Departamento</label>
 												<select th:field="${entidad.departamento}" class="form-control_v2 is-valid" required="required" onchange="jsCargarProvinciaInei(this);" >
@@ -124,8 +147,8 @@
 												</select>
 											</div>
 											<div class="col-md-4 mb-3">
-												<label for="idDireccion" class="textBold9pt">Distrito</label>
-												<select th:field="${entidad.distrito}" class="form-control_v2 is-valid" required="required" >
+												<label for="idDireccion" class="textBold9pt">Distrito (*)</label>
+												<select th:field="${entidad.distrito}" class="form-control_v2 is-valid" required="required" onchange="jsCargarUbigeoInei(this);">
 													<option value="-1">--Seleccionar--</option>
 													<option th:each="entry : ${session.SessionPersonaMapDistritoInei}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
 												</select>

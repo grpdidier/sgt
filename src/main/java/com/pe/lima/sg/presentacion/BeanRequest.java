@@ -11,7 +11,9 @@ import com.pe.lima.sg.bean.caja.CobroLuzBean;
 import com.pe.lima.sg.bean.caja.CobroPrimerCobro;
 import com.pe.lima.sg.bean.caja.CobroServicioBean;
 import com.pe.lima.sg.bean.caja.DesembolsoBean;
+import com.pe.lima.sg.bean.cliente.ContratoBean;
 import com.pe.lima.sg.entity.caja.TblCobro;
+import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
 import com.pe.lima.sg.entity.caja.TblCxcDocumento;
 import com.pe.lima.sg.entity.cliente.TblArbitrio;
 import com.pe.lima.sg.entity.cliente.TblContrato;
@@ -88,7 +90,10 @@ public class BeanRequest {
 	/*Combo Primeros cobros*/
 	private Map<String, Object> mapPrimerosCobros;
 	private CobroGeneralBean cobroGeneralBean;
-	
+	//Datos para el modulo de Cambios - Fechas
+	private ContratoBean contratoBean;
+	//Datos para el comprobante
+	private List<TblComprobanteSunat> listaComprobante;
 	
 
 }

@@ -276,6 +276,13 @@ function jsActualizarContratoCambioContrato(){
 	document.forms[0].method = 'POST';
 	document.forms[0].submit();
 }
+//Actualizamos la fecha de fin de contrato
+function jsModificarFechaFinContrato(){
+	document.getElementById('idActualizarFechaContrato').disabled = true;
+	document.forms[0].action = '/cambiocontrato/editar/guardar/fecha' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
 //Actualizar los datos del alquiler
 function jsActualizarAlquiler(){
 	document.getElementById('idActualizarAlquiler').disabled = true;
@@ -868,6 +875,8 @@ function jsRegistrarCobroCxC(){
 
 function jsRegistrarCobroLocal(){
 	if (confirm('Esta seguro de registrar')){
+		var objDiv = document.getElementById('idBtnRegistrarCobro');
+		objDiv.style.display = 'none';
 		document.forms[0].action = '/cobro/editar/guardar' ;
 		document.forms[0].method = 'GET';
 		document.forms[0].submit();
@@ -1480,6 +1489,27 @@ function jsCargarDistritoInei(obj){
 	document.forms[0].method = 'POST';
 	document.forms[0].submit();
 }
+function jsCargarUbigeoInei(obj){
+	var valor = obj.value;
+
+	// Si no se seleccionó un distrito válido, limpiar el campo
+	if (valor === '-1' || valor === '') {
+		document.getElementById('idUbigeo').value = '';
+		return;
+	}
+
+	document.getElementById('idUbigeo').value = valor;
+}
+function jsCalcularUbicacionEdicion(){
+	document.forms[0].action = '/persona/calcularubicacion' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
+function jsCalcularUbicacionNuevo(){
+	document.forms[0].action = '/persona/calcularubicacion' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
 /* *********************************************************************************************************************************
  * Modulo de Notas de Credito
  ********************************************************************************************************************************* */
@@ -1516,5 +1546,47 @@ function ocultarIcono(obj){
 	for (var i = 0; i < objsEliminar.length; i++) {
 	  var elemento = objsEliminar[i];
 	  elemento.style.display = 'none';
+	}
+}
+function quitarTiendaParaFacturar(){
+	document.getElementById('idEliminarTiendaFactura').style.display = 'none';
+	document.forms[0].action = '/masivotienda/facturas/alquiler/nuevo/tiendas/eliminar/seleccion' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
+function quitarServicioParaFacturar(){
+	document.getElementById('idEliminarTiendaFactura').style.display = 'none';
+	document.forms[0].action = '/masivotienda/facturas/servicio/nuevo/tiendas/eliminar/seleccion' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
+
+function listarTiendaParaFacturar(){
+	document.getElementById('idListarTiendaFactura').style.display = 'none';
+	document.forms[0].action = '/masivo/facturas/alquiler/nuevo/tiendas' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
+function listarTiendaParaFacturarServicio(){
+	document.getElementById('idListarTiendaFacturaServicio').style.display = 'none';
+	document.forms[0].action = '/masivo/facturas/servicio/nuevo/tiendas' ;
+	document.forms[0].method = 'POST';
+	document.forms[0].submit();
+}
+/* *********************************************************************************************************************************
+ * Modulo de Edición de Contrato - Adicion de un nuevo servicio
+ ********************************************************************************************************************************* */
+function jsAdicionarServicios(idContrato){
+
+		document.forms[0].action = '/contrato/servicio/agregar/nuevo' ;
+		document.forms[0].method = 'GET';
+		document.forms[0].submit();
+}
+
+function jsRegistrarAgregarServicio(){
+	if (confirm('Esta seguro de grabar los registros del Servicio')){
+		document.forms[0].action = '/contrato/servicio/agregar/guardar' ;
+		document.forms[0].method = 'POST';
+		document.forms[0].submit();
 	}
 }

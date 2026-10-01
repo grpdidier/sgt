@@ -1104,52 +1104,50 @@
 											<fieldset>
 												<div class="row">
 													<div class="col-md-12 mb-3">
-														<div id="c_tablas" th:if="${not #lists.isEmpty(listaCxcSinSaldo)}">
+														<div id="c_tablas" th:if="${not #lists.isEmpty(listaComprobante)}">
 															<div class="tableFixHeadCobro">
 																<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 																	<thead>
 																		<tr>
-																			<th>Fecha Vencimiento</th>
-																			<th>Monto Generado</th>
-																			<th>Saldo</th>
-																			<th>Tipo Moneda</th>
-																			<th>Descripci&oacute;n</th>
-																			<th>Fecha Cobro</th>
-																			<th>Nro Comprobante</th>
+																			<th>Serie</th>
+																			<th>N&uacute;mero</th>
+																			<th>Fecha Emisi&oacute;n</th>
+																			<th>Moneda</th>
+																			<th>Monto Gravado</th>
+																			<th>IGV</th>
+																			<th>Importe Total</th>
 																			<th>PDF</th>
 																		</tr>
 																	</thead>
 																	<tbody>
-																		<tr th:each="alquiler : ${listaCxcSinSaldo}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
-																			<td ><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(alquiler.fechaFin)}"></font></td>
-																			<td th:text="${alquiler.montoGenerado}">generado</td>
-																			<td th:text="${alquiler.saldo}">saldo</td>
-																			<td align="center">
-																				<div th:replace="fragments/util :: tipoMoneda(tipo=${alquiler.tipoMoneda})"></div>
-																			</td>
-																			<td th:text="${alquiler.nombre}">nombre</td>
-																			<td th:text="${alquiler.fechaModificacion}">fechaModificacion</td>
-																			<td th:text="${alquiler.serieComprobante + '-' + alquiler.numeroComprobante}">nombre</td>
+																		<tr th:each="alquiler : ${listaComprobante}" class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+																			<td th:text="${alquiler.serie}">serie</td>
+																			<td th:text="${alquiler.numero}">numero</td>
+																			<td th:text="${alquiler.fechaEmision}">fechaEmision</td>
+																			<td th:text="${alquiler.moneda}">moneda</td>
+																			<td th:text="${alquiler.totalGravados}">total</td>
+																			<td th:text="${alquiler.totalIgv}">total</td>
+																			<td th:text="${alquiler.total}">total</td>
 																			<td >
-																				<a	th:href="${'/cobro/editar/pdf/' + alquiler.codigoComprobante}">
-																					<img th:src="@{/images/iconos/doc_pdf.png}" alt="pdf" width="35px"/>
-																				</a>
+																				<!-- a	th:href="${'/cobro/editar/pdf/' + alquiler.codigoComprobante}"-->
+																					<img th:src="@{/images/iconos/doc_pdf.png}" alt="pdf" width="25px"/>
+																				<!--/a-->
 																			</td>
 																		</tr>
 																	</tbody>
 																</table>
 															</div>
 														</div>
-														<div id="c_tablas" th:if="${#lists.isEmpty(listaCxcSinSaldo)}">
+														<div id="c_tablas" th:if="${#lists.isEmpty(listaComprobante)}">
 															<table id="t02" class="table   table-bordered table-active tabla_cabecera_general">
 																<tr>
-																	<th>Fecha Vencimiento</th>
-																	<th>Monto Generado</th>
-																	<th>Saldo</th>
-																	<th>Tipo Moneda</th>
-																	<th>Descripci&oacute;n</th>
-																	<th>Fecha Cobro</th>
-																	<th>Nro Comprobante</th>
+																	<th>Serie</th>
+																	<th>N&uacute;mero</th>
+																	<th>Fecha Emisi&oacute;n</th>
+																	<th>Moneda</th>
+																	<th>Monto Gravado</th>
+																	<th>IGV</th>
+																	<th>Importe Total</th>
 																	<th>PDF</th>
 																</tr>
 																<tr class="campos2" onMouseOver="this.className='camposF'"

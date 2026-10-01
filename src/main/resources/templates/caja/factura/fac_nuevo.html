@@ -100,6 +100,8 @@
 												<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" th:field="${entidad.factura.clienteNombre}" readonly="readonly"   />
 											</div>
 											<div class="col-md-6 mb-0">
+												<label for="idNombre" class="title10pt">Ubigeo: </label>
+												<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" th:field="${entidad.ubigeo.ubigeoSunat}" readonly="readonly"   />
 											</div>
 										</div>
 								</fieldset>
@@ -143,7 +145,7 @@
 											</div>
 											<div class="col-md-8 mb-0">
 												<label for="idNombre" class="title10pt">Descripci&oacute;n del concepto: </label>
-												<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" th:field="${entidad.facturaDetalle.descripcionConcepto}" readonly="readonly"   />
+												<input type="text" class="form-control_v2 " style="background-color: #FFFFCC;" th:field="${entidad.facturaDetalle.descripcionConcepto}"   />
 											</div>
 										</div>
 								</fieldset>

@@ -60,7 +60,28 @@
 											
 											
 										</div>
+										<div class="row">
 										
+											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<label for="idNombre" class="title10pt">Periodo: </label>
+													<select th:field="${filtro.numeroMes}" class="form-control_v2 is-valid">
+														<option value="-1">--Seleccionar--</option>
+														<option th:each="entry : ${session.SessionMapMesesFactura}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+											</div>
+											<div class="col-md-3 mb-3">
+											</div>
+											<div class="col-md-1 mb-3"> </div>
+											<div class="col-md-2 mb-3" align="center">
+												
+											</div>
+											
+											
+										</div>
 			
 											
 								</fieldset>

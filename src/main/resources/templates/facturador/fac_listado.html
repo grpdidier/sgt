@@ -22,18 +22,73 @@
 							<div class="col-md-4 mb-3">
 								<a href="#"	th:href="@{/}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
 							</div>
-							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Listado de Alquileres con Saldo CERO Por Generar FACTURA SUNAT</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left" ><br/> Listado de Alquileres Por Generar FACTURA SUNAT</div>
 						</div>
-						<div class="row">
-							<div class="col-md-12 mb-3" align="center">
-			
-								<button class="btn btn-primary" type="button" onclick="jsGenerarComprobante();">Generar Factura</button>
-								
-							</div>
-						</div>
-						<form id="form"  th:action="@{/comprobante/generar}" method="Post">
+						
+						<form id="form"  th:action="@{/comprobante/busqueda}" method="Post">
 							<div id="informacion" class="container_v3">
-								
+								<fieldset class="scheduler-border" style="background-color:#FEEF8B;">
+									
+										<br></br>
+										<div class="row">
+											<div class="col-md-1 mb-3">
+											</div>
+											
+											<div class="col-md-2 mb-3">
+												<label for="idInmueble" class="textBold9pt">A&ntilde;o</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.anio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapAnioFactura}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idInmueble" class="textBold9pt">Mes</label>
+												<div th:fragment="combo">
+													<label> <select th:field="${filtro.mes}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Seleccionar--</option>
+															<option th:each="entry : ${session.SessionMapMeses}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+													</label>
+												</div>
+											</div>
+											<div class="col-md-2 mb-3">
+												<div th:fragment="combo">
+													<label for="idNombre" class="textBold9pt">Inmueble </label>
+													<select th:field="${filtro.codigoEdificacion}" class="form-control_v2 is-valid">
+														<option value="-1">--Seleccionar--</option>
+														<option th:each="entry : ${session.SessionMapEdificacion}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<label for="idNombre" class="textBold9pt">Tienda</label>
+												<input type="text" class="form-control_v2 is-valid " style="width: 120px;"  placeholder="Numero tienda" th:field="${filtro.numero}"/>
+											</div>
+											<div class="col-md-1 mb-3">
+												<br/><button class="btn btn-success" type="submit">Buscar</button>
+											</div>
+											
+											<div class="col-md-1 mb-3">
+												<br/>
+											</div>
+										</div>
+										
+								</fieldset>
+								<br></br>
+								<div class="container_v4" align="center">
+									<div class="row">
+						  				<div class="col-md-12 mb-3">
+						  					<p style="color: red" th:text="${respuesta}" />
+						  				</div>
+						  			</div>
+						  		</div>
 								<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">				
 									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 										<tr>
@@ -41,16 +96,16 @@
 											<th width="25%">Nombre Cliente</th>
 											<th width="15%">Periodo</th>
 											<th width="25%">Descripci&oacute;n</th>
-											<th width="10%">Monto Cobrado</th>
-											<th width="15%">Fecha Cobro</th>
+											<th width="10%">Monto (USD)</th>
+											<th width="15%">Fecha Fin Contrato</th>
 										</tr>
 										<tr th:each="comprobante : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
 											<td th:text="${comprobante.numeroTienda}">numeroTienda</td>
 											<td th:text="${comprobante.nombreCliente}">nombreCliente</td>
 											<td><font th:text="${T(com.pe.lima.sg.presentacion.util.UtilSGT).formatFechaSGT(comprobante.fechaFin)}"></font></td>
 											<td th:text="${comprobante.descripcion}">descripcion</td>
-											<td th:text="${comprobante.montoCobrado}">montoCobrado</td>
-											<td th:text="${comprobante.fechaModificacion}">fechaModificacion</td>
+											<td th:text="${comprobante.montoGenerado}">monto</td>
+											<td th:text="${comprobante.fechaFinContrato}">fechaModificacion</td>
 										</tr>
 									</table>
 								</div>
@@ -61,8 +116,8 @@
 											<th width="25%">Nombre Cliente</th>
 											<th width="10%">Periodo</th>
 											<th width="30%">Descripci&oacute;n</th>
-											<th width="10%">Monto Cobrado</th>
-											<th width="15%">Fecha Cobro</th>
+											<th width="10%">Monto (USD)</th>
+											<th width="15%">Fecha Fin Contrato</th>
 										</tr>
 										<tr  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
 											<td colspan="6" align="center">No se encontr&oacute; elementos</td>

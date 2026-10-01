@@ -49,6 +49,7 @@ public class TblPersona implements java.io.Serializable {
 	private String departamento;
 	private String provincia;
 	private String distrito;
+	private String ubigeo;
 	
 	public TblPersona() {
 	}
@@ -354,6 +355,14 @@ public class TblPersona implements java.io.Serializable {
 
 	public void setProvincia(String provincia) {
 		this.provincia = provincia;
+	}
+
+	public String getUbigeo() {
+		return ubigeo;
+	}
+
+	public void setUbigeo(String ubigeo) {
+		this.ubigeo = ubigeo;
 	}
 
 }

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body >
+<div class='dashboard'>
+    <div class="dashboard-nav">
+        <!--/*/ <th:block th:include="fragments/util :: menu"></th:block> /*/-->
+    </div>
+    <div class='dashboard-app'>
+        <header class='dashboard-toolbar'>
+        <!--/*/ <th:block th:include="fragments/util :: cabecera2022"></th:block> /*/-->
+        </header>
+        <div class='dashboard-content' style="overflow-y: scroll;">
+            <div class='container'>
+                <div class='card'>
+                
+					<div id="container">
+						<div id="actionbar" class="row">
+							<div class="col-md-4 mb-3">
+								<a href="#" th:href="@{/contrato/servicio/agregar/regresar}"><img
+									th:src="@{/images/iconos/regresar.png}" alt="Regresar" /></a>
+							</div>
+							<div class="col-md-8 mb-3 tituloPrincipal" align="left">
+								<br /> Modulo de Contrato - Edici&oacute;n - Agregar Servicio
+							</div>
+						</div>
+						<form id="form" th:object="${servicioAgregar}" th:action="@{/contrato/servicio/agregar/guardar}" method="post">
+							<div id="informacion" class="container_v3">
+								<p style="color: red" th:text="${resultadoContrato}" />
+								<div class="row">
+								
+									<div class="col-md-1 mb-3">
+										
+									</div>
+									
+									<div class="col-md-10 mb-3">
+										<fieldset class="scheduler-border" style="background-color: #FEEF8B;">
+												<br></br>
+												<!-- Rubro -->
+												<div class="row" >
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Rubro: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<select th:field="${servicioAgregar.tblTipoServicio.codigoTipoServicio}" class="form-control_v2 is-valid">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${session.SessionMapServicio}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																</select>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Monto -->
+												<div class="row" >
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Monto: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2  is-valid" placeholder="Valor" th:field="${servicioAgregar.monto}" />
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Moneda -->
+												<div class="row" >
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Moneda: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<select th:field="${servicioAgregar.tipoMonedaServicio}" class="form-control_v2 is-valid">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${mapTipoMoneda}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																</select>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Documento -->
+												<div class="row" >
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Documento: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<select th:field="${servicioAgregar.tipoDocumentoServicio}" class="form-control_v2 is-valid">
+																	<option value="-1">--Seleccionar--</option>
+																	<option th:each="entry : ${mapTipoDocumento}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+																</select>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Fecha de Inicio -->
+												<div class="row" >
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Fecha Inicio: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2 is-valid" placeholder="dd/MM/yyyy" th:field="${servicioAgregar.fechaInicio}"  autocomplete="off"/>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+												<!-- Fecha de Fin -->
+												<div class="row" >
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													<div class="col-md-10 mb-1">
+														<div class="row" >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">Fecha Fin: </label>
+															</div>
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2 is-valid" placeholder="dd/MM/yyyy" th:field="${servicioAgregar.fechaFin}"  autocomplete="off"/>
+															</div>
+															<div class="col-md-5 mb-1" align="center">
+															</div>
+														</div>
+													</div>							
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>							
+												</div>
+											
+											
+											
+										</fieldset>
+									</div>
+									<div class="col-md-1 mb-3">
+										
+									</div>
+								</div>
+				
+								<div class="col-md-12 mb-3" align="center">
+									<p style="color: red" th:text="${resultadoOperacion}" />
+								</div>
+				
+								
+								
+								<div class="row">
+									<div class="col-md-12 mb-3" align="center">
+										<br />
+										<br />
+										
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12 mb-3" align="center">
+				
+										<button class="btn btn-primary" type="button"
+											onclick="jsRegistrarAgregarServicio();">Registrar Servicio</button>
+									</div>
+								</div>
+							</div>
+				
+						</form>
+				
+				
+				
+					</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

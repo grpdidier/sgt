@@ -61,7 +61,37 @@
 											
 											
 										</div>
-										
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<select th:field="${filtro.anio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapAnioFactura}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<select th:field="${filtro.mesFiltro}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapMeses}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												
+											</div>
+											<div class="col-md-3 mb-3">
+												
+											</div>
+											
+											
+											
+										</div>
 			
 											
 								</fieldset>
@@ -163,7 +193,9 @@
 														 	 onclick="if(!confirm('Desea Obtener el Ticket')){ return false;}" /></a>
 													</div>
 													<div th:if="${comprobante.numeroTicket} != null">
-														OK
+													    <span th:title="'Número de ticket: ' + ${comprobante.numeroTicket}">
+													        OK
+													    </span>
 													</div>
 												</td>
 												<td align="center">

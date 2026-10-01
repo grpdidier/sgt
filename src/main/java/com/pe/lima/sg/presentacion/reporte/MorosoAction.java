@@ -299,8 +299,14 @@ public class MorosoAction {
 		for (Map.Entry<String, MorosoSubTotalBean> entry : mapMoroso.entrySet()) {
 		    //System.out.println(entry.getKey() + "/" + entry.getValue());
 		    MorosoSubTotalBean morosoSubTotalBean = entry.getValue();
-		    morosoTotalBean.setTotal(morosoTotalBean.getTotal().add(morosoSubTotalBean.getSubTotal()));
-		    morosoTotalBean.setSaldo(morosoTotalBean.getSaldo().add(morosoSubTotalBean.getSubSaldo()));
+		    String tipoMoneda = obtenerTipoMoneda (morosoSubTotalBean);
+		    if (tipoMoneda.equals(Constantes.MONEDA_DOLAR)) {
+		    	morosoTotalBean.setTotalDolares(morosoTotalBean.getTotalDolares().add(morosoSubTotalBean.getSubTotal()));
+			    morosoTotalBean.setSaldoDolares(morosoTotalBean.getSaldoDolares().add(morosoSubTotalBean.getSubSaldo()));
+		    }else {
+		    	morosoTotalBean.setTotalSoles(morosoTotalBean.getTotalSoles().add(morosoSubTotalBean.getSubTotal()));
+			    morosoTotalBean.setSaldoSoles(morosoTotalBean.getSaldoSoles().add(morosoSubTotalBean.getSubSaldo()));
+		    }
 		    morosoTotalBean.getListaMorosoSubTotal().add(morosoSubTotalBean);
 		}
 		listaDataReporte = new ArrayList<MorosoTotalBean>();
@@ -308,6 +314,10 @@ public class MorosoAction {
 		log.debug("[preparaDataMoroso] Fin");
 		return listaDataReporte;
 	}
+	private String obtenerTipoMoneda(MorosoSubTotalBean morosoSubTotalBean) {
+		return morosoSubTotalBean.getListaMoroso().get(0).getTipoMoneda();
+	}
+
 	/*Adiciona un elemento*/
 	private void setDataMoroso(Map<String, MorosoSubTotalBean> mapMoroso, MorosoBean moroso){
 		MorosoSubTotalBean morosoSubTotalBean = new MorosoSubTotalBean();

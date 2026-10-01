@@ -32,6 +32,8 @@ public class CobroGeneralBean implements Serializable{
 	private List<TblDesembolso> listaCobroPrimerCobro;
 	private Integer indiceTab = 1;
 	private Map<Integer, String> mapUsuario;
+	//Datos del comprobante - factura
+	private String numeroFactura;
 	
 	
 	

@@ -1358,6 +1358,8 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 				contrato = new TblContrato();
 				contrato.setCodigoPadreContrato(entidad.getCodigoContrato());
 				this.mAsignarDatosContratoNuevo(entidad, contrato, request);
+				//Asignamos la fecha de inicio del cliente [Req 2024-Oct]
+				mAsignarFechaInicioCliente(contrato,entidad);
 				contratoDao.save(contrato);
 				contrato = contratoDao.findByNumeroContrato(contrato.getNumero());
 				model.addAttribute("respuesta", "El contrato ["+entidad.getNumero()+"] fue renovado por ["+contrato.getNumero()+"]  - Tienda "+contrato.getTblTienda().getNumero()+" satisfactoriamente.");
@@ -1453,6 +1455,17 @@ public class RenovadoContratoAction extends BaseOperacionPresentacion<TblContrat
 		}
 		return path;
 
+	}
+	//Asignamos la fecha de inicio del cliente [Req 2024-Oct]
+	private void mAsignarFechaInicioCliente(TblContrato contrato, TblContrato entidad) {
+		log.debug("[mAsignarFechaInicioCliente] Inicio" );
+		TblContrato contratoPadre = contratoDao.findByCodigoContrato(entidad.getCodigoContrato());
+		if (contratoPadre.getTblPersona().getCodigoPersona() == contrato.getTblPersona().getCodigoPersona()) {
+			contrato.setFechaInicioCliente(contratoPadre.getFechaInicioCliente());
+		}else {
+			contrato.setFechaInicioCliente(contrato.getFechaInicio());
+		}
+		log.debug("[mAsignarFechaInicioCliente] Fin:"+contrato.getFechaInicioCliente() );
 	}
 	/*
 	 * Preguardar: Campos de auditoria

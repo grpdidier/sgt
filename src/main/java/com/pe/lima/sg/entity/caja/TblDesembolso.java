@@ -52,6 +52,8 @@ public class TblDesembolso implements java.io.Serializable {
 	private String tipoBancarizado;
 	private String numeroOperacion;
 	private Date fechaOperacion;
+	//Numero de factura
+	private String numeroComprobante;
 	
 	public TblDesembolso() {
 	}
@@ -306,6 +308,16 @@ public class TblDesembolso implements java.io.Serializable {
 
 	public void setFechaOperacion(Date fechaOperacion) {
 		this.fechaOperacion = fechaOperacion;
+	}
+
+	
+	@Column(name = "numero_comprobante", length = 64)
+	public String getNumeroComprobante() {
+		return numeroComprobante;
+	}
+
+	public void setNumeroComprobante(String numeroComprobante) {
+		this.numeroComprobante = numeroComprobante;
 	}
 
 }

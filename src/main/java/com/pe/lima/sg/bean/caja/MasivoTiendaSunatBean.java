@@ -32,6 +32,7 @@ public class MasivoTiendaSunatBean implements Serializable {
 	//Campos adicionales
 	private String nombreEdificio;
 	private String nombrePeriodo;
+	private String ubigeo;
 	
 	
 

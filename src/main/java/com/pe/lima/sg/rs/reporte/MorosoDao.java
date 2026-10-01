@@ -116,6 +116,7 @@ public class MorosoDao {
 			    "        AND tie.codigo_edificio = edi.codigo_edificio "+
 				"	    AND con.codigo_persona = per.codigo_persona   "+
 				"	    AND con.estado = '1'   "+
+				"	    AND cxc.estado = '1'   "+
 				"	    AND con.estado_contrato in ('PND', 'VGN')  "+
 				"	    AND cxc.saldo > 0   "+
 			    "        AND cxc.tipo_referencia = ?   "+

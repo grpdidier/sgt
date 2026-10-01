@@ -269,6 +269,10 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 				exitoso = false;
 				model.addAttribute("respuesta", "El Persona existe, debe modificarlo para continuar...");
 			}
+			if (entidad.getTipoPersona().equals("-1")) {
+				exitoso = false;
+				model.addAttribute("respuesta", "Debe seleccionar el Tipo");
+			}
 			if (entidad.getTipoCliente().equals("-1")) {
 				exitoso = false;
 				model.addAttribute("respuesta", "Debe seleccionar si es Cliente");
@@ -276,6 +280,54 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 			if (entidad.getTipoProveedor().equals("-1")) {
 				exitoso = false;
 				model.addAttribute("respuesta", "Debe seleccionar si es Proveedor");
+			}
+			if (entidad.getDistrito().equals("-1")) {
+				model.addAttribute("respuesta", "Debe seleccionar el Distrito");
+				exitoso = false;
+				
+			}
+			
+			if (entidad.getUbigeo()==null || entidad.getUbigeo().trim().equals("")) {
+				if (entidad.getDistrito().trim().length()==6) {
+					entidad.setUbigeo(entidad.getDistrito());
+				}
+			}
+			
+		}catch(Exception e){
+			exitoso = false;
+		}finally{
+			total = null;
+		}
+		return exitoso;
+	}
+	
+	public boolean validarEdicion(Model model,TblPersona entidad, HttpServletRequest request){
+		boolean exitoso = true;
+		Integer total 	= null;
+		try{
+			
+			if (entidad.getTipoPersona().equals("-1")) {
+				exitoso = false;
+				model.addAttribute("respuesta", "Debe seleccionar el Tipo");
+			}
+			if (entidad.getTipoCliente().equals("-1")) {
+				exitoso = false;
+				model.addAttribute("respuesta", "Debe seleccionar si es Cliente");
+			}
+			if (entidad.getTipoProveedor().equals("-1")) {
+				exitoso = false;
+				model.addAttribute("respuesta", "Debe seleccionar si es Proveedor");
+			}
+			if (entidad.getDistrito().equals("-1")) {
+				model.addAttribute("respuesta", "Debe seleccionar el Distrito");
+				exitoso = false;
+				
+			}
+			
+			if (entidad.getUbigeo()==null || entidad.getUbigeo().trim().equals("")) {
+				if (entidad.getDistrito().trim().length()==6) {
+					entidad.setUbigeo(entidad.getDistrito());
+				}
 			}
 			
 		}catch(Exception e){
@@ -432,7 +484,7 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		TblPersona entidadEnBd 		= null;
 		Filtro filtro				= new Filtro();
 		try{
-			if (validarCamposOK(entidad, model)) {
+			if (this.validarEdicion(model, entidad, request)){
 				// Se actualizan solo los campos del formulario
 				entidadEnBd = personaDao.findOne(entidad.getCodigoPersona());
 				entidadEnBd.setNombre(entidad.getNombre());
@@ -456,6 +508,13 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 				entidadEnBd.setDepartamento(entidad.getDepartamento());
 				entidadEnBd.setProvincia(entidad.getProvincia());
 				entidadEnBd.setDistrito(entidad.getDistrito());
+				if (entidad.getUbigeo()==null || entidad.getUbigeo().trim().equals("")) {
+					if (entidad.getDistrito().trim().length()==6) {
+						entidadEnBd.setUbigeo(entidad.getDistrito());
+					}
+				}else {
+					entidadEnBd.setUbigeo(entidad.getUbigeo());
+				}
 				this.preEditar(entidadEnBd, request);
 				boolean exitoso = super.guardar(entidadEnBd, model);
 				log.debug("[guardarEntidad] Guardado..." );
@@ -620,4 +679,47 @@ public class PersonaAction extends BasePresentacion<TblPersona> {
 		}
 		return path;
 	}	
+	@RequestMapping(value = "persona/calcularubicacion", method = RequestMethod.POST)
+	public String calcularUbicacion(Model model, TblPersona entidad, HttpServletRequest request) {
+		if (entidad.getUbigeo()!= null && entidad.getUbigeo().trim().length()==6) {
+			entidad.setDepartamento(obtenerDepartamento(entidad.getUbigeo()));
+			entidad.setProvincia(obtenerProvincia(entidad.getUbigeo(),request));
+			entidad.setDistrito(obtenerDistrito(entidad.getUbigeo(),request));
+		}else {
+			model.addAttribute("respuesta", "Error en el código de ubigeo");
+		}
+		asignarMapCargarDistrito(request,entidad);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
+		listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
+		model.addAttribute("entidad", entidad);
+		if (entidad.getCodigoPersona()<=0) {
+			return "mantenimiento/persona/per_nuevo";
+		}else {
+			return "mantenimiento/persona/per_edicion";
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private String obtenerDistrito(String ubigeo, HttpServletRequest request) {
+		Map<String,List<TblUbigeo>> distritoMap = (Map<String,List<TblUbigeo>>)request.getSession().getAttribute("SessionMapDistritoInei");
+		List<TblUbigeo> lista = distritoMap.get(ubigeo.substring(0, 4));
+		request.getSession().setAttribute("SessionPersonaMapDistritoInei", obtenerDatosUbigeo(lista));
+		return ubigeo;
+	}
+
+	@SuppressWarnings("unchecked")
+	private String obtenerProvincia(String ubigeo, HttpServletRequest request) {
+		log.debug("[obtenerProvincia] codigo provincia:"+ubigeo.substring(0, 4));
+		Map<String,List<TblUbigeo>> provinciaMap = (Map<String,List<TblUbigeo>>)request.getSession().getAttribute("SessionMapProvinciaInei");
+		List<TblUbigeo> lista = provinciaMap.get(ubigeo.substring(0, 2));
+		request.getSession().setAttribute("SessionPersonaMapProvinciaInei", obtenerDatosUbigeo(lista));
+
+		return ubigeo.substring(0, 4);
+	}
+
+	private String obtenerDepartamento(String ubigeo) {
+		log.debug("[obtenerDepartamento] codigo departamento:"+ubigeo.substring(0, 2));
+		return ubigeo.substring(0, 2);
+	}
 }

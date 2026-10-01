@@ -61,6 +61,15 @@
 											<div class="col-md-2 mb-3" align="center">
 											</div>
 										</div>
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												<a th:href="${'/masivotienda/facturas/alquiler/persona/actualizar/ubigeo'}">Obtener Ubigeos:</a>
+												
+											</div>
+											<div class="col-md-9 mb-3">	
+												
+											</div>
+										</div>
 								</fieldset>
 								
 								<div class="container_v4" align="center">
@@ -72,10 +81,13 @@
 						  			</div>
 						  		</div>
 						  		<div class="row">
-						  				<div class="col-md-12 mb-3" align="center">
-						  					<button class="btn btn-success" id="idGrabarTiendaFactura"  onclick="grabarTiendaParaFacturar()">Grabar</button> 
-						  				</div>
-						  			</div>
+					  				<div class="col-md-9 mb-3" align="center">
+					  					<button class="btn btn-success" id="idGrabarTiendaFactura"  onclick="grabarTiendaParaFacturar()">Grabar</button> 
+					  				</div>
+					  				<div class="col-md-3 mb-3" align="center">
+					  					<button class="btn btn-info" id="idEliminarTiendaFactura"  onclick="quitarTiendaParaFacturar()">Eliminar</button> 
+					  				</div>
+						  		</div>
 						  		<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">	
 							  		<div class="tableFixHead">		
 										<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
@@ -85,7 +97,9 @@
 													<th>Tienda</th>
 													<th>Alquiler $</th>
 													<th>Periodo</th>
+													<th>Ubigeo</th>
 													<th>Eliminar</th>
+													<th><label for="select-all-checkbox">Seleccionar todos</label> <input type="checkbox" id="select-all-checkbox"/></th>
 												</tr>
 											</thead>
 											<tbody>
@@ -94,18 +108,29 @@
 													<td th:text="${masivotienda.numeroTienda}">numeroTienda</td>
 													<td th:text="${masivotienda.monto}">monto</td>
 													<td th:text="${masivotienda.nombrePeriodo}">nombrePeriodo</td>
+													<td th:text="${masivotienda.ubigeo}">Ubigeo</td>
 													<td align="center">
 														<a th:href="${'/masivotienda/facturas/alquiler/tienda/eliminar/' + iterStat.index}">
 														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML" width="20px"/>
 														 	<!-- onclick="if(!confirm('Desea Eliminar la tienda seleccionado')){ return false;}" /-->
 														</a>
 													</td>
-													
+													<td align="center">
+											            <input type="checkbox" name="checkbox" th:value="${iterStat.index}" />
+											        </td>
 												</tr>
 											</tbody>
 										</table>
 									</div>
-									
+									 <script>
+									    // Función para seleccionar todos los checkboxes cuando el checkbox "Seleccionar todos" se marca/desmarca
+									    document.getElementById('select-all-checkbox').addEventListener('change', function () {
+									        var checkboxes = document.querySelectorAll('input[name="checkbox"]');
+									        checkboxes.forEach(function (checkbox) {
+									            checkbox.checked = this.checked;
+									        }, this);
+									    });
+									</script>
 								</div>
 								<div id="c_tablas" th:if="${#lists.isEmpty(registros)}">				
 									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
@@ -115,11 +140,13 @@
 												<th>Tienda</th>
 												<th>Alquiler $</th>
 												<th>Periodo</th>
+												<th>Ubigeo</th>
 												<th>Eliminar</th>
+												<th>Seleccionar todos</th>
 											</tr>
 										</thead>
 										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
-											<td colspan="5" align="center">No se encontr&oacute; elementos</td>
+											<td colspan="7" align="center">No se encontr&oacute; elementos</td>
 										</tr>
 									</table>
 								</div>

@@ -391,9 +391,9 @@
 																<td width="12%" height="17">Monto</td>
 																<td width="15%" height="17">Tipo de Moneda</td>	    
 																<td width="15%" height="17">Tipo de Documento</td>
-																<td width="12%" height="17">Total Acumulado</td>
-																<td width="12%" align="center">Total Cobrado</td>              
-																<td width="12%" align="center">Total Saldo</td>
+																
+																<td width="12%" align="center">Fecha Inicio</td>              
+																<td width="12%" align="center">Fecha Fin</td>
 																
 															</tr>
 															<tr th:each="servicio : ${listaServicio}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
@@ -405,9 +405,9 @@
 																<td align="center">
 																	<div th:replace="fragments/util :: tipoDocumento(tipo=${servicio.tipoDocumentoServicio})"></div>
 																</td>
-																<td th:text="${servicio.totalAcumulado}">total</td>
-																<td th:text="${servicio.totalCobrado}">total</td>
-																<td th:text="${servicio.totalSaldo}">total</td>
+																
+																<td th:text="${#dates.format(servicio.fechaInicio, 'dd/MM/yyyy')}">fecha inicio</td>
+																<td th:text="${#dates.format(servicio.fechaFin, 'dd/MM/yyyy')}">fecha fin</td>
 																
 															</tr>
 															
@@ -420,18 +420,21 @@
 																<td width="12%" height="17">Monto</td>
 																<td width="15%" height="17">Tipo de Moneda</td>	    
 																<td width="15%" height="17">Tipo de Documento</td>
-																<td width="12%" height="17">Total Acumulado</td>
-																<td width="12%" align="center">Total Cobrado</td>              
-																<td width="12%" align="center">Total Saldo</td>
 																
+																<td width="12%" align="center">Fecha Inicio</td>              
+																<td width="12%" align="center">Fecha Fin</td>
 																
 															</tr>
 															<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
-																<td colspan="7" align="center">No se encontr&oacute; elementos</td>
+																<td colspan="6" align="center">No se encontr&oacute; elementos</td>
 															</tr>
 														</table>
 													</div>
-													<br></br><br></br><br></br>
+													<br></br>
+													<div th:if="${!contrato.estadoContrato.equals('FNL')} ">
+														<button class="btn btn-danger" style="cursor: pointer" id="idAdicionarServicioContratoEdicion" type="button" th:onclick="'jsAdicionarServicios(\'' + ${contrato.codigoContrato} + '\');'">Agregar Servicio</button>
+													</div>
+													<br></br><br></br>
 												</div>
 											</fieldset>
 										  </div>

@@ -67,6 +67,7 @@ public class TblComprobanteSunat implements Serializable {
 	private Integer codigoNota;
 	private String serieNota;
 	private String numeroNota;
+	private String ubigeo;
 
 	public TblComprobanteSunat() {
 	}
@@ -474,6 +475,15 @@ public class TblComprobanteSunat implements Serializable {
 			idUsuario 		= null;
 			strIdUsuario	= null;
 		}
+	}
+
+	@Column(name="ubigeo", length = 16)
+	public String getUbigeo() {
+		return ubigeo;
+	}
+
+	public void setUbigeo(String ubigeo) {
+		this.ubigeo = ubigeo;
 	}
 	
 }

@@ -1,8 +1,14 @@
 package com.pe.lima.sg.api;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -13,10 +19,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -27,8 +35,11 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.pe.lima.sg.api.Interface.IApiOseCSV;
 import com.pe.lima.sg.api.bean.CredencialBean;
+import com.pe.lima.sg.api.bean.MensajeErrorBean;
 import com.pe.lima.sg.bean.caja.UbigeoBean;
 import com.pe.lima.sg.presentacion.util.Constantes;
 
@@ -125,9 +136,53 @@ public class ApiOseCSV implements IApiOseCSV {
 		log.info("[obtenerTicket] Fin");
 		return status;
 	}
-
+	
 	@Override
 	public Integer obtenerCDRDocumento(CredencialBean credencialBean) {
+		log.info("[obtenerCDRDocumento] Inicio");
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		int status = 0;
+		//Se establece el cliente GET para el servidor de autenticación
+		HttpGet httpget = new HttpGet(credencialBean.getResourceCdr() + credencialBean.getTicket());
+		log.info("[obtenerCDRDocumento] Resource: "+credencialBean.getResourceCdr());
+		log.info("[obtenerCDRDocumento] Ticket: "+credencialBean.getTicket());
+		//Se agrega un Header de autorización con el token recibido por el servidor de autenticación
+		httpget.setHeader(Constantes.HEADER_AUTORIZATION, Constantes.HEADER_BEARER + credencialBean.getAccessToken());
+		// Se envía la petición a la plataforma Efact OSE
+		try {
+			HttpResponse response = httpclient.execute(httpget);
+			status = response.getStatusLine().getStatusCode(); 
+			credencialBean.setStatus(status);
+			log.info("[obtenerCDRDocumento] STATUS CODE: " + status );
+			//Si el código de estado es 200 (OK) entonces la respuesta contiene el CDR en formato XML 
+			if (status == 200) { 
+				String FILENAME = credencialBean.getPath() + credencialBean.getCdrFileName();
+				log.info("[obtenerCDRDocumento] FILENAME: " + FILENAME );
+				File myFile = new File(FILENAME); 
+				HttpEntity entity = response.getEntity(); 
+				if (entity != null) { 
+					try (FileOutputStream outstream = new FileOutputStream(myFile)) { 
+						entity.writeTo(outstream); 
+					} 
+				} 
+			} 
+
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.error("[obtenerCDRDocumento] ClientProtocolException Error:"+e.getMessage());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.error("[obtenerCDRDocumento] IOException Error:"+e.getMessage());
+		} 
+		//Se valida el código de estado de la petición
+		log.info("[obtenerCDRDocumento] Fin");
+		return status;
+	}
+
+	@Override
+	public Integer obtenerCDRDocumentoDetallado(CredencialBean credencialBean, MensajeErrorBean mensajeError ) {
 		log.info("[obtenerCDRDocumento] Inicio");
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		int status = 0;
@@ -140,21 +195,42 @@ public class ApiOseCSV implements IApiOseCSV {
 		/* Se envía la petición a la plataforma Efact OSE*/
 		try {
 			HttpResponse response = httpclient.execute(httpget);
-			status = response.getStatusLine().getStatusCode(); 
+			status = response.getStatusLine().getStatusCode();
 			credencialBean.setStatus(status);
-			log.info("[obtenerCDRDocumento] STATUS CODE: " + status );
-			/*Si el código de estado es 200 (OK) entonces la respuesta contiene el CDR en formato XML */
-			if (status == 200) { 
-				String FILENAME = credencialBean.getPath() + credencialBean.getCdrFileName();
-				log.info("[obtenerCDRDocumento] FILENAME: " + FILENAME );
-				File myFile = new File(FILENAME); 
-				HttpEntity entity = response.getEntity(); 
-				if (entity != null) { 
-					try (FileOutputStream outstream = new FileOutputStream(myFile)) { 
-						entity.writeTo(outstream); 
-					} 
-				} 
-			} 
+			log.info("[obtenerCDRDocumento] STATUS CODE: " + status);
+			HttpEntity entity = response.getEntity();
+			if (entity != null) {
+			    if (status == 200) {
+			        String FILENAME = credencialBean.getPath()
+			                + credencialBean.getCdrFileName();
+			        log.info("[obtenerCDRDocumento] FILENAME: " + FILENAME);
+			        File myFile = new File(FILENAME);
+			        try (FileOutputStream outstream = new FileOutputStream(myFile)) {
+			            entity.writeTo(outstream);
+			        }
+
+			    } else {
+			        String responseBody = EntityUtils.toString(entity, "UTF-8");
+
+			        /*
+	                 * Convertimos el JSON técnico
+	                 * en un mensaje amigable.
+	                 */
+	                String mensaje =
+	                        obtenerMensajeErrorOSE(responseBody);
+
+	                log.error(
+	                        "[obtenerCDRDocumento] ERROR OSE: "
+	                        + mensaje
+	                );
+
+	                /*
+	                 * Guardamos el mensaje para mostrarlo
+	                 * posteriormente en pantalla.
+	                 */
+	                mensajeError.setMensaje(mensaje);
+			    }
+			}
 
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
@@ -383,5 +459,134 @@ public class ApiOseCSV implements IApiOseCSV {
 		ubigeo.setDireccionCompleta("");
 		return ubigeo;
 	}
+	@Override
+	public UbigeoBean obtenerUbigeoRuc(String ruc, String token, String urlUbigeo)  {
+		log.info("[obtenerUbigeoRuc] Inicio");
+		String requestBody = "{\"token\": \""+token+"\", \"ruc\": \""+ruc+"\"}";
+		log.info("[obtenerUbigeoRuc] requestBody:"+requestBody);
+		log.info("[obtenerUbigeoRuc] urlUbigeo:"+urlUbigeo);
+		UbigeoBean ubigeo = new UbigeoBean();
+		try {
 	
+			HttpClient httpclient = HttpClients.createDefault();
+			HttpPost httppost = new HttpPost(urlUbigeo);
+			
+			 // Configuración del cuerpo de la solicitud como JSON
+	        StringEntity stringEntity = new StringEntity(requestBody);
+	        httppost.setEntity(stringEntity);
+	        httppost.setHeader("Content-Type", "application/json");
+
+			//Execute and get the response.
+			HttpResponse response = httpclient.execute(httppost);
+			HttpEntity entity = response.getEntity();
+
+			if (entity != null) {
+				String responseBody = EntityUtils.toString(entity);
+	            log.info("[obtenerUbigeoRuc] Resultado: " + responseBody);
+	            
+	            // Convertir la respuesta JSON a objeto Java usando Gson
+	            Gson gson = new Gson();
+	            JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
+	            try {
+	            	String error = jsonResponse.get("error").getAsString();
+	            	log.info("[obtenerUbigeoRuc] error: " + error);
+	            	return ubigeo;
+	            }catch(Exception e) {
+	            	log.info("[obtenerUbigeoRuc] No hay errores");
+	            }
+	            // Acceder a los campos de la respuesta
+	            boolean success = jsonResponse.get("success").getAsBoolean();
+	            if (success) {
+		            String strUbigeo = jsonResponse.get("ubigeo").getAsString();
+		            String strDtp = jsonResponse.get("departamento").getAsString();
+		            String strPrv = jsonResponse.get("provincia").getAsString();
+		            String strDtt = jsonResponse.get("distrito").getAsString();
+		            String strDir = jsonResponse.get("direccion_completa").getAsString();
+		            
+		            
+		            log.info("[obtenerUbigeoRuc] strUbigeo: " + strUbigeo);
+		            log.info("[obtenerUbigeoRuc] strDtp: " + strDtp);
+		            ubigeo.setUbigeoSunat(strUbigeo);
+		            ubigeo.setNombreDepartamento(strDtp);
+		            ubigeo.setNombreDistrito(strDtt);
+		            ubigeo.setNombreProvincia(strPrv);
+		            ubigeo.setDireccionCompleta(strDir);
+	            }else {
+	            	log.info("[obtenerUbigeoRuc] No hay data");
+	            	return ubigeo;
+	            }
+			}
+
+	        
+		}catch(IOException io) {
+			log.info("[obtenerUbigeoRuc] Error:"+io.getMessage());
+			io.printStackTrace();
+		}
+        //Gson gson = new Gson();
+        //return gson.fromJson(response.toString(), JsonObject.class);
+        log.info("[obtenerUbigeoRuc] Fin");
+    	return ubigeo;
+    	
+	}
+	
+	public static String obtenerMensajeErrorOSE(String responseBody) {
+
+	    try {
+
+	        ObjectMapper mapper = new ObjectMapper();
+
+	        JsonNode root = mapper.readTree(responseBody);
+
+	        // El OSE puede devolver:
+	        // {"code":"2108",...}
+	        // o
+	        // [{"code":"2108",...}]
+	        JsonNode errorNode;
+
+	        if (root.isArray()) {
+	            errorNode = root.size() > 0 ? root.get(0) : null;
+	        } else {
+	            errorNode = root;
+	        }
+
+	        if (errorNode == null) {
+	            return "Error desconocido del OSE";
+	        }
+
+	        String code = errorNode.has("code")
+	                ? errorNode.get("code").asText()
+	                : "";
+
+	        String description = errorNode.has("description")
+	                ? errorNode.get("description").asText()
+	                : "Error no especificado";
+
+	        // Limpiar caracteres especiales enviados por el OSE
+	        description = description
+	                .replace("[0xc2][0xa0]", " ")
+	                .replace("\\n", " ")
+	                .replace("\n", " ")
+	                .replace("\r", " ")
+	                .replaceAll("\\s+", " ")
+	                .trim();
+
+	        // Eliminar "Error (2108):" si viene dentro de description
+	        description = description.replaceFirst(
+	                "(?i)^Error\\s*\\(" + code + "\\)\\s*:\\s*", ""
+	        );
+
+	        // Eliminar "Error Expr Regular FACTURA (codigo: 2108)"
+	        description = description.replaceAll(
+	                "(?i)Error\\s+Expr\\s+Regular.*$",
+	                ""
+	        ).trim();
+
+	        return "Código " + code + ": " + description;
+
+	    } catch (Exception e) {
+
+	        return "Error al interpretar respuesta del OSE";
+
+	    }
+	}
 }

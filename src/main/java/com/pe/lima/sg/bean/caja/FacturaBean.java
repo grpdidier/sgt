@@ -31,5 +31,8 @@ public class FacturaBean {
 	private Integer codigoCxCDocumento;
 	//Para mostrar el tipo de cambio en la pantalla
 	private String tipoCambio;
+	/*2026.09.20: Factura retroactiva*/
+	//Mes de Factura
+	private String numeroMes;
 	
 }

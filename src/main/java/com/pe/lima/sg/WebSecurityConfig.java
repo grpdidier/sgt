@@ -11,7 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,11 +49,6 @@ import com.pe.lima.sg.entity.mantenimiento.TblUbigeo;
 import com.pe.lima.sg.entity.seguridad.TblOpcion;
 import com.pe.lima.sg.entity.seguridad.TblUsuario;
 import com.pe.lima.sg.entity.seguridad.TblUsuarioPermiso;
-import com.pe.lima.sg.facturador.bean.FiltroPdf;
-import com.pe.lima.sg.facturador.bean.ParametroFacturadorBean;
-import com.pe.lima.sg.facturador.db.util.IOperacionFacturador;
-import com.pe.lima.sg.facturador.entity.TblComprobante;
-import com.pe.lima.sg.facturador.entity.TblDetalleComprobante;
 import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
 
@@ -153,10 +147,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 					Authentication authentication) throws IOException, ServletException {
 				log.debug("[onAuthenticationSuccess] Inicio");
-				FiltroPdf filtro = null;
-				IOperacionFacturador operacionFacturador		= null;
+				
 				Map<String, TblParametro> mapParametro			= null;
-				List<ParametroFacturadorBean> listaParametro 	= null;
 				List<TblParametro> listaParametroSistema		= null;
 				if (authentication.isAuthenticated()) {
 					String login = authentication.getName();
@@ -223,12 +215,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						request.getSession().setAttribute("SessionMapDepartamentoInei", obtenerDepartamento());
 						request.getSession().setAttribute("SessionMapProvinciaInei", obtenerTodasLasProvincias());
 						request.getSession().setAttribute("SessionMapDistritoInei", obtenerTodosLosDistritos());
+						request.getSession().setAttribute("SessionMapTodosUbigeos", obtenerTodosUbigeos());
+						/*Lista Meses habiles para la factura*/
+						request.getSession().setAttribute("SessionMapMesesFactura",ListaUtilAction.obtenerListaMesesHabilesFactura());
 						
 						//Tipo Comprobante
 						request.getSession().setAttribute("SessionMapTipoComprobante",ListaUtilAction.obtenerTipoComprobanteNota());
 						//Tipo Nota de credito
 						request.getSession().setAttribute("SessionMapNotaCredito",ListaUtilAction.obtenerTipoNotaCredito());
 						request.getSession().setAttribute("SessionMapNotaCreditoMotivo",ListaUtilAction.obtenerTipoNotaCreditoMemoria());
+						//Estado de la tienda
+						
+						request.getSession().setAttribute("SessionMapEstadoTienda",ListaUtilAction.obtenerValoresEstadoTienda());
 						
 						/*Cargamos el menu asociado al usuario*/
 						List<TblOpcion> listaOpciones 	= null;
@@ -314,33 +312,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				log.debug("[generarArbol] Fin - strResultado: "+strResultado);
 				return strResultado;
 			}
-			public void asignarParametros(FiltroPdf entidad, Map<String, TblParametro> mapParametro){
-				TblParametro parametro =null;
-				try{
-					entidad.setComprobante(new TblComprobante());
-					entidad.setDetalleComprobante(new TblDetalleComprobante());
-					if (mapParametro!=null){
-						
-						//Ruta del repositorio Data
-						parametro = mapParametro.get(Constantes.PARAMETRO_SUNAT_DATA);
-						if (parametro!=null){
-							entidad.setSunatData(parametro.getDato());
-						}else{
-							entidad.setSunatData(Constantes.SUNAT_FACTURADOR_RUTA_PRUEBA);
-						}
-						//Ruta de la Base de Datos
-						parametro = mapParametro.get(Constantes.PARAMETRO_SUNAT_BD);
-						if (parametro!=null){
-							entidad.setSunatBD(parametro.getDato());
-						}else{
-							entidad.setSunatBD(Constantes.SUNAT_FACTURADOR_DB_LOCAL);
-						}
-					}
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-			
 			private String getOpcionesRecursivo(Integer intModulo, List<TblOpcion> listaOpciones, AccesoDirectoBean accesoDirectoBean){
 				String strResultado = "";
 				log.debug("[getOpcionesRecursivo] Inicio - Modulo: "+intModulo);
@@ -387,18 +358,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		};
 	}
     
+
     
-    /*@Bean
-    public JasperReportsViewResolver getJasperReportsViewResolver() {
-        JasperReportsViewResolver resolver = new JasperReportsViewResolver();
-        resolver.setPrefix("classpath:/jasperreports/");
-        resolver.setSuffix(".jasper");
-        resolver.setReportDataKey("datasource");
-        resolver.setViewNames("*_report");
-        resolver.setViewClass(JasperReportsMultiFormatView.class);
-        resolver.setOrder(1);
-        return resolver;
-    }*/
     @Bean
     public ViewResolver beanNameViewResolver() {
         BeanNameViewResolver resolver = new BeanNameViewResolver();
@@ -629,7 +590,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		return resultados;
 	}
-	
+	public Map<String, String> obtenerTodosUbigeos() {
+		Map<String, String> resultados = new HashMap<String, String>();
+		List<TblUbigeo> listaAll = null;
+		try{
+			log.debug("[obtenerTodosUbigeos] inicio");
+			listaAll = ubigeoDao.obtenerAllUbigeos();
+			if (listaAll!=null){
+				for(TblUbigeo entidad: listaAll){
+					//log.debug("[obtenerDepartamento] departamento:"+entidad.getNombre());
+					resultados.put(entidad.getCodigoInei(), entidad.getNombre());
+				}
+				
+			}
+			log.debug("[obtenerTodosUbigeos] Fin");
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			listaAll = null;
+		}
+		
+		return resultados;
+	}
 	public Map<String, Object> obtenerDepartamento() {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		List<TblUbigeo> listaDepartamento = null;
@@ -638,7 +620,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			listaDepartamento = ubigeoDao.obtenerDepartamento();
 			if (listaDepartamento!=null){
 				for(TblUbigeo entidad: listaDepartamento){
-					log.debug("[obtenerDepartamento] departamento:"+entidad.getNombre());
+					//log.debug("[obtenerDepartamento] departamento:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoInei());
 				}
 				

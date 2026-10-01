@@ -40,6 +40,7 @@ public class Filtro {
 	private String 	strTienda		= ""; //Local
 	private String strOperacion		= "";
 	private Integer anio			= null;
+	private Integer mes				= null;
 	private String descripcion		= null;
 	private Integer codigoContrato	= null;
 	private Integer codigoDesembolso	= null;
@@ -79,6 +80,7 @@ public class Filtro {
 	private String nombreCobro					= null;
 	private String mesFin						= null;
 	private String nombreMes					= null;
+	private String numeroMes					= null;
 	private BigDecimal nuevoMontoAlquiler;
 	private String fechaAlquiler;
 	private BigDecimal nuevoMontoServicio;

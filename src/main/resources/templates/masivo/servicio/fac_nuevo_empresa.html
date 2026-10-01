@@ -43,15 +43,38 @@
 												</div>
 											</div>
 											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<label>A&ntilde;o:</label>
+													<select th:field="${entidad.anio}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapAnioFactura}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-3 mb-3">
+												<div th:fragment="combo">
+													<label>Mes:</label>
+													<select th:field="${entidad.mes}" 
+														class="form-control_v2 is-valid">
+															<option value="-1">--Todos--</option>
+															<option th:each="entry : ${session.SessionMapMeses}" th:value="${entry.value}"
+																th:text="${entry.key}">opcion</option>
+													</select>
+												</div>
+											</div>
+											<!--  div class="col-md-3 mb-3">
 												<label>Periodo:</label>
 												<input type="text" class="form-control_v2 " style="background-color: #ECECEC;" th:field="${entidad.periodo}" readonly="readonly"   />
 												<input type="hidden" th:field="${entidad.anio}"/>
 												<input type="hidden" th:field="${entidad.mes}"/>
-											</div>
+											</div-->
 											<div class="col-md-3 mb-3">
 											</div>
 											<div class="col-md-1 mb-3">
-												<button class="btn btn-success" type="submit">Listar Tiendas</button> 
+												<!--  button class="btn btn-success" type="submit">Listar Tiendas</button--> 
+												<button class="btn btn-success" id="idListarTiendaFacturaServicio"  onclick="listarTiendaParaFacturarServicio()">Listar Tiendas</button> 
 											</div>
 											<div class="col-md-2 mb-3" align="center">
 											</div>

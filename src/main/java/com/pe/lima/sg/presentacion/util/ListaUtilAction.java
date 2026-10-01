@@ -112,6 +112,10 @@ public class ListaUtilAction {
 				model.addAttribute("mapMeses", obtenerValoresMeses());
 			}else if (nombreListado.equals(Constantes.MAP_TIPO_COBRO_CXC)){
 				model.addAttribute("mapTipoCobroCxC", obtenerValoresTipoCobro());
+			}else if (nombreListado.equals(Constantes.MAP_ESTADO_REGISTRO)){
+				model.addAttribute("mapEstadoRegistro", obtenerValoresEstadoRegistro());
+			}else if (nombreListado.equals(Constantes.MAP_ESTADO_TIENDA)){
+				model.addAttribute("mapEstadoTienda", obtenerValoresEstadoTienda());
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -163,14 +167,21 @@ public class ListaUtilAction {
 		resultados.put(Constantes.DESC_ESTADO_USUARIO_INACTIVO, Constantes.ESTADO_USUARIO_INACTIVO);
 		return resultados;
 	}
+	public Map<String, Object> obtenerValoresEstadoRegistro() {
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		resultados.put(Constantes.DESC_ESTADO_USUARIO_ACTIVO, Constantes.ESTADO_REGISTRO_ACTIVO);
+		resultados.put(Constantes.DESC_ESTADO_USUARIO_INACTIVO, Constantes.ESTADO_REGISTRO_INACTIVO);
+		return resultados;
+	}
 	/**
 	 * Listado de estado tienda
 	 * 
 	 */
-	public Map<String, Object> obtenerValoresEstadoTienda() {
+	public static Map<String, Object> obtenerValoresEstadoTienda() {
 		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
 		resultados.put(Constantes.DESC_ESTADO_TIENDA_OCUPADO, Constantes.ESTADO_TIENDA_OCUPADO);
 		resultados.put(Constantes.DESC_ESTADO_TIENDA_DESOCUPADO, Constantes.ESTADO_TIENDA_DESOCUPADO);
+		resultados.put(Constantes.DESC_ESTADO_TIENDA_VENDIDO, Constantes.ESTADO_TIENDA_VENDIDO);
 		return resultados;
 	}
 	/**
@@ -436,7 +447,7 @@ public class ListaUtilAction {
 		Integer anio = null;
 		strFecha = UtilSGT.getFecha("yyyy-MM-dd");
 		anio = new Integer(strFecha.substring(0,4));
-		for (Integer i=2023; i<=anio; i++){
+		for (Integer i=2025; i<=anio; i++){
 			resultados.put(i, i);
 		}
 		return resultados;
@@ -889,6 +900,16 @@ public class ListaUtilAction {
 		Map<String, String> resultados = new LinkedHashMap<String, String>();
 		resultados.put(Constantes.DESC_TIPO_COBRO_ALQUILER, Constantes.TIPO_COBRO_ALQUILER);
 		resultados.put(Constantes.DESC_TIPO_COBRO_SERVICIO, Constantes.TIPO_COBRO_SERVICIO);
+		
+		return resultados;
+	}
+	
+	public static Map<String, String> obtenerListaMesesHabilesFactura() {
+		Integer[] arrMeses = UtilSGT.obtenerMesActualYAnterior(new Date());
+		
+		Map<String, String> resultados = new LinkedHashMap<String, String>();
+		resultados.put(UtilSGT.obtenerNombreMes(arrMeses[1]), arrMeses[1].toString());
+		resultados.put(UtilSGT.obtenerNombreMes(arrMeses[0]), arrMeses[0].toString());
 		
 		return resultados;
 	}

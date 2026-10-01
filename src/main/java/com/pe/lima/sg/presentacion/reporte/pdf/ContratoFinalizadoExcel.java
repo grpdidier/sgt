@@ -35,7 +35,7 @@ public class ContratoFinalizadoExcel {
 	
 	public void reporteContratoFinalizado(List<LocalTotalBean> listaDataReporte, Filtro criterio, ServletContext context,HttpServletRequest request, HttpServletResponse response, String nameFile) throws IOException{
 		//String[] columns = {"LOCAL", "DETALLE", "ESTADO", "ALQUILER $", "SERVICIOS S/"};
-		String[] columns = {"Nro","INMUEBLE", "LOCAL", "RUC", "ARRENDATARIO", "ESTADO","INICIO CONTRATO","FIN CONTRATO", "ALQUILER $", "SERVICIOS S/", "GARANTIA $", "FECHA FINALIZACION"};
+		String[] columns = {"Nro","INMUEBLE", "LOCAL", "RUC", "ARRENDATARIO", "ESTADO", "FECHA FINALIZACION","INICIO CONTRATO","FIN CONTRATO", "ALQUILER $", "SERVICIOS S/", "GARANTIA $"};
 		
 		String filePath = context.getRealPath("/resources/reports");
 		File file = new File(filePath);
@@ -108,17 +108,18 @@ public class ContratoFinalizadoExcel {
 			    	row.createCell(4).setCellValue(localBean.getNombreCliente());
 			    	row.createCell(5).setCellValue(localBean.getEstado());
 			    	Cell cell = row.createCell(6);
-			    	cell.setCellValue(localBean.getFechaInicioContrato());
-			    	CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, HorizontalAlignment.CENTER); 
-			    	cell = row.createCell(7);
-			    	cell.setCellValue(localBean.getFechaFinContrato());
-			    	CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, HorizontalAlignment.CENTER); 
-			    	row.createCell(8).setCellValue(localBean.getMontoAlquiler().doubleValue());
-			    	row.createCell(9).setCellValue(localBean.getMontoServicio().doubleValue());
-			    	row.createCell(10).setCellValue(localBean.getMontoGarantia().doubleValue());
-			    	cell = row.createCell(11);
 			    	cell.setCellValue(localBean.getFechaFinalizacion());
 			    	CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, HorizontalAlignment.CENTER); 
+			    	
+			    	cell = row.createCell(7);
+			    	cell.setCellValue(localBean.getFechaInicioContrato());
+			    	CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, HorizontalAlignment.CENTER); 
+			    	cell = row.createCell(8);
+			    	cell.setCellValue(localBean.getFechaFinContrato());
+			    	CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, HorizontalAlignment.CENTER); 
+			    	row.createCell(9).setCellValue(localBean.getMontoAlquiler().doubleValue());
+			    	row.createCell(10).setCellValue(localBean.getMontoServicio().doubleValue());
+			    	row.createCell(11).setCellValue(localBean.getMontoGarantia().doubleValue());
 			    	
 				}
 				Row row = sheet.createRow(rowNum++);

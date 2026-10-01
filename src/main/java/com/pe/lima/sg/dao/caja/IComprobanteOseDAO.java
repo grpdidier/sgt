@@ -16,6 +16,8 @@ public interface IComprobanteOseDAO extends BaseOperacionDAO<TblComprobanteSunat
 
 	@Query(value = "select com.* from caj.tbl_comprobante_sunat com, caj.tbl_masivo_sunat mas, caj.tbl_masivo_tienda_sunat mti where com.codigo_comprobante = mti.codigo_comprobante and mti.codigo_masivo = mas.codigo_masivo and mas.codigo_edificio = :codigoEdificio and mas.periodo = :periodo and mas.tipo_masivo = 'SERVICIO'  AND com.estado = '1' and mas.codigo_masivo = :codigoMasivo ORDER BY 1 ", nativeQuery = true)
 	List<TblComprobanteSunat> listarComprobantexEdificioxPeriodoServicio(@Param("codigoEdificio") int intCodigoEdificio, @Param("periodo") String strPeriodo, @Param("codigoMasivo") int intCodigoMasiv);
-
+	
+	@Query(value = "select com.* from caj.tbl_comprobante_sunat com where com.codigo_contrato = :codigoContrato and  com.estado = '1' ORDER BY 1 ", nativeQuery = true)
+	List<TblComprobanteSunat> findByCodigoContrato(@Param("codigoContrato") int codigoContrato);
 	
 }

@@ -26,6 +26,7 @@ public class LocalBean implements Serializable, Comparable<LocalBean>{
 	private String fechaFinContrato;
 	private BigDecimal montoGarantia;
 	private String fechaFinalizacion;
+	private String fechaInicioCliente;
 	
 	@Override
     public int compareTo(LocalBean bean) {

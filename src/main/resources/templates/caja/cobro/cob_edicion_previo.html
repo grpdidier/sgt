@@ -52,7 +52,7 @@
 															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroAlquiler.tipoMoneda == 'DO'}">
 																<label for="idNombre" class="textBold9pt">Monto Alquiler (Dolares $): </label>
 															</div>
-															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroAlquiler.tipoMoneda == 'SO'}">
+															<div class="col-md-4 mb-0" th:if="${cobroGeneralBean.cobroAlquiler.tipoMoneda == 'SO'}">
 																<label for="idNombre" class="textBold9pt">Monto Alquiler (Soles S/): </label>
 															</div>
 															<div class="col-md-3 mb-0" th:if="${cobroGeneralBean.cobroAlquiler.tipoMoneda == 'DO'}">
@@ -69,12 +69,46 @@
 															</div>
 														</div>
 													</div>
+													
 													<div class="col-md-1 mb-1">
 														<div class="col-md-12 mb-1" align="center">
 															
 														</div>
 													</div>
 												</div>
+												
+												<div class="row">
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+													
+													<div class="col-md-10 mb-1">
+														<div class="row"  >
+															
+															<div class="col-md-4 mb-0">
+																<label for="idNombre" class="textBold9pt">N&uacute;mero Comprobate: </label>
+															</div>
+															
+															<div class="col-md-3 mb-0">
+																<input type="text" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.numeroFactura}" readonly="readonly" style="background-color: #ECECEC;" />
+																<input type="hidden" class="form-control_v2" placeholder="nombre" th:field="${cobroGeneralBean.numeroFactura}" readonly="readonly" style="background-color: #ECECEC;" />
+															</div>
+															
+															<div class="col-md-5 mb-1" align="left">
+																
+															
+															</div>
+														</div>
+													</div>
+													<div class="col-md-1 mb-1">
+														<div class="col-md-12 mb-1" align="center">
+															
+														</div>
+													</div>
+												</div>
+												
 												<!-- Tipo Operacion -->
 												<div class="row" th:if="${cobroGeneralBean.cobroAlquiler.tipoPago == 'BAN'}">
 													<div class="col-md-1 mb-1">
@@ -576,7 +610,7 @@
 									<div class="col-md-12 mb-3" align="center">
 				
 										<button class="btn btn-primary" type="button"
-											onclick="jsRegistrarCobroLocal();">Registrar Cobro</button>
+											onclick="jsRegistrarCobroLocal();" id="idBtnRegistrarCobro">Registrar Cobro</button>
 									</div>
 								</div>
 							</div>

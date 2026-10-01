@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.pe.lima.sg.bean.facturador.DocumentoBean;
+import com.pe.lima.sg.presentacion.Filtro;
 import com.pe.lima.sg.presentacion.util.Constantes;
 
 @Component
@@ -31,7 +32,7 @@ public class ComprobanteDao {
 	private String url;
 	
 
-	public List<DocumentoBean> getDocumentoSinComprobante(){
+	public List<DocumentoBean> getDocumentoSinComprobante(Filtro filtro){
 
 		DocumentoBean documentoBean 		= null;
 		List<DocumentoBean> listaDocumento 	= null;
@@ -48,7 +49,7 @@ public class ComprobanteDao {
 					"	    per.razon_social, "+
 					"       doc.mes, "+
 					"       doc.anio, "+
-					"       doc.monto_cobrado, "+
+					"       doc.monto_generado, "+
 					"       doc.nombre, "+
 					"       doc.fecha_modificacion, "+
 					"       tie.codigo_edificio, "+
@@ -56,23 +57,34 @@ public class ComprobanteDao {
 					"       per.numero_dni, "+
 					"       per.numero_ruc, "+
 					"       doc.codigo_cxc_doc, "+
-					"       doc.fecha_fin "+
+					"       doc.fecha_fin, "+
+					"       con.fecha_fin as fin_contrato"+
 					" FROM  "+
 					"	 caj.tbl_cxc_documento doc, "+
 					"    cli.tbl_contrato con, "+
 					"    mae.tbl_tienda tie, "+
 					"    mae.tbl_persona per "+
 					" WHERE  "+
-					"    doc.saldo <= 0 "+
-					"    and doc.numero_comprobante is NULL "+
+					"    doc.numero_comprobante is NULL "+
 					"    and doc.tipo_documento = 'FAC' "+
 					"    and doc.codigo_contrato = con.codigo_contrato " + 
-					"    and con.codigo_tienda = tie.codigo_tienda "+
-					"    and con.codigo_persona = per.codigo_persona "+
-					"    and doc.monto_cobrado > 0 "+
+					"    and con.codigo_tienda = tie.codigo_tienda " +
+					"    and con.codigo_persona = per.codigo_persona " +
+					"    and con.estado_contrato in ('VGN') "+
+					"    and con.monto_alquiler > 0 " +
+					"	 and tie.estado_tienda not in ('VND') " +
+					"    and doc.tipo_referencia = 'ALQ' " +
+					"    and doc.anio = ? "+
+					"    and doc.mes = ? "+
+					"    and UPPER(tie.numero) like ? " +
+					"    and tie.codigo_edificio = ? " +
 					" order by tie.numero, doc.fecha_fin  ASC "; 
 
 			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, filtro.getAnio());			
+			pstmt.setInt(2, filtro.getMes());
+			pstmt.setString(3, filtro.getNumeroFiltro());
+			pstmt.setInt(4, filtro.getCodigoEdificacion());
 			rs = pstmt.executeQuery();
 
 			if (rs !=null){
@@ -86,10 +98,11 @@ public class ComprobanteDao {
 					documentoBean.setNombreCliente(nombre);
 					documentoBean.setNumeroTienda(rs.getString("numero"));
 					documentoBean.setMes(rs.getString("mes"));
-					documentoBean.setMontoCobrado(rs.getBigDecimal("monto_cobrado"));
+					documentoBean.setMontoGenerado(rs.getBigDecimal("monto_generado"));
 					documentoBean.setAnio(rs.getString("anio"));
 					documentoBean.setDescripcion(rs.getString("nombre"));
 					documentoBean.setFechaFin(rs.getDate("fecha_fin"));
+					documentoBean.setFechaFinContrato(rs.getDate("fin_contrato"));
 					documentoBean.setFechaModificacion(rs.getDate("fecha_modificacion"));
 					documentoBean.setTipoPersona(rs.getString("tipo_persona"));
 					if (documentoBean.getTipoPersona().equals(Constantes.PERSONA_NATURAL)){

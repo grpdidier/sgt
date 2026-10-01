@@ -74,13 +74,20 @@ public class MorosoPdf {
 					contador = contador +1;
 					table = this.setDataDeuda(morosoSubTotalBean.getListaMoroso(), contador); 
 					document.add(table);
+					monedaSubTotal = getSubTotalMonedaDescripcionxMoneda(obtenerTipoMoneda(morosoSubTotalBean.getListaMoroso()));
 					table = this.setSubTotales(morosoSubTotalBean.getSubTotal(), morosoSubTotalBean.getSubSaldo(),monedaSubTotal);
 					document.add(table);
 				}
 				
-				//Total General
-				table = this.setTotales(morosoTotalBean.getTotal(), morosoTotalBean.getSaldo(), monedaTotal);
+				//Total General Dolares
+				monedaTotal = getTotalMonedaDescripcionxMoneda("DO");
+				table = this.setTotales(morosoTotalBean.getTotalDolares(), morosoTotalBean.getSaldoDolares(), monedaTotal);
 				document.add(table);
+				//Total General Soles
+				monedaTotal = getTotalMonedaDescripcionxMoneda("SO");
+				table = this.setTotales(morosoTotalBean.getTotalSoles(), morosoTotalBean.getSaldoSoles(), monedaTotal);
+				document.add(table);
+				
 			}
 			document.close();
 			pdf.close();
@@ -88,6 +95,9 @@ public class MorosoPdf {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	private String obtenerTipoMoneda(List<MorosoBean> listaMoroso) {
+		return listaMoroso.get(0).getTipoMoneda();
 	}
 	/*Obtener la moneda*/
 	
@@ -101,6 +111,22 @@ public class MorosoPdf {
 	}
 	private String getSTotalMoneda(Filtro filtro){
 		if(filtro.getTipoCobro().equals(Constantes.TIPO_COBRO_ALQUILER)){
+			return " TOTAL DOLARES ($) ";
+		}else{
+			return " TOTAL SOLES (S/) ";
+		}
+	
+	}
+	private String getSubTotalMonedaDescripcionxMoneda(String tipoMoneda){
+		if(tipoMoneda.equals(Constantes.MONEDA_DOLAR)){
+			return " SUB TOTAL DOLARES ($) ";
+		}else{
+			return " SUB TOTAL SOLES (S/) ";
+		}
+	
+	}
+	private String getTotalMonedaDescripcionxMoneda(String tipoMoneda){
+		if(tipoMoneda.equals(Constantes.MONEDA_DOLAR)){
 			return " TOTAL DOLARES ($) ";
 		}else{
 			return " TOTAL SOLES (S/) ";

@@ -29,6 +29,9 @@ public interface IContratoDAO extends BaseOperacionDAO<TblContrato, Integer> {
 	@Query(value = "select * from cli.tbl_contrato where fecha_inicio<= :fecha AND fecha_fin >= :fecha AND estado = '1' AND estado_contrato IN ('VGN', 'RNV', 'PND') and monto_alquiler > 0", nativeQuery = true)
 	List<TblContrato> listAllContratoActivosxFecha( @Param("fecha") Date datFecha);
 	
+	@Query(value = "select * from cli.tbl_contrato where to_char(fecha_inicio,'YYYYMM')<= :fecha AND to_char(fecha_fin,'YYYYMM') >= :fecha AND estado = '1' AND estado_contrato IN ('VGN', 'RNV', 'PND') and monto_alquiler > 0", nativeQuery = true)
+	List<TblContrato> listAllContratoActivosxAnioMes( @Param("fecha") String datFecha);
+	
 	@Query(value = "select * from cli.tbl_contrato where codigo_tienda = :codigoTienda AND estado = '1' AND estado_contrato IN ('VGN', 'RNV', 'PND') order by codigo_tienda , codigo_contrato desc, estado_contrato desc LIMIT 1", nativeQuery = true)
 	TblContrato findByNumeroTiendaParaFacturar( @Param("codigoTienda") Integer intCodigoTienda);
 	

@@ -21,4 +21,7 @@ public interface IUbigeoDAO extends BaseOperacionDAO<TblUbigeo, Integer> {
 	@Query(value = "select * from mae.tbl_ubigeo where length(codigo_padre_inei) = 4 order by codigo_padre_inei, nombre asc ", nativeQuery = true)
 	List<TblUbigeo> obtenerDistrito();
 	
+	@Query(value = "select * from mae.tbl_ubigeo", nativeQuery = true)
+	List<TblUbigeo> obtenerAllUbigeos();
+	
 }

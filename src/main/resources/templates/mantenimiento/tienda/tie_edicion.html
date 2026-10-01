@@ -54,10 +54,15 @@
 												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='tblSuministro.codigoSuministro',map=${mapListaSuministro}"></th:block> /*/-->
 											</div>
 											<div class="col-md-3 mb-3">
-												
+												<label for="idNombre" class="textBold9pt">Estado Registro </label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='estado',map=${mapEstadoRegistro}"></th:block> /*/-->
 											</div>
 											<div class="col-md-3 mb-3">
-												
+												<label for="idNombre" class="textBold9pt">Estado Tienda </label>
+												<select th:field="${entidad.estadoTienda}" class="form-control_v2 is-valid">
+													<option value="-1">--Seleccionar--</option>
+													<option th:each="entry : ${session.SessionMapEstadoTienda}" th:value="${entry.value}" th:text="${entry.key}">opcion</option>
+												</select>
 											</div>
 											<div class="col-md-3 mb-3">
 												

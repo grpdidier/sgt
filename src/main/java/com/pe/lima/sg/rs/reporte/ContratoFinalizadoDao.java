@@ -136,7 +136,7 @@ public class ContratoFinalizadoDao {
 				"        LIMIT 1), 0" + 
 				"    ) as servicio,   " + 
 				"    con.monto_garantia," + 
-				"    con.fecha_finalizacion   " + 
+				"    TO_CHAR(con.fecha_finalizacion,'dd/mm/yyyy') as fecha_finalizacion  " + 
 				" FROM cli.tbl_contrato con,     " + 
 				"  mae.tbl_persona per,     " + 
 				"  mae.tbl_tienda tie,   " + 

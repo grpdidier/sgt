@@ -46,7 +46,20 @@
 										</div>
 										
 											<!--/*/ <th:block th:include="fragments/util :: formulario" th:with="map=${contenido}"></th:block> /*/-->
-										
+										<div class="row">
+											<div class="col-md-3 mb-3">
+												
+											</div>
+											<div class="col-md-2 mb-3">
+												<label for="idNombre" class="textBold9pt">Estado Registros</label>
+												<!--/*/ <th:block th:include="fragments/util :: comboRequired" th:with="campo='estado',map=${mapEstadoRegistro}"></th:block> /*/-->
+												
+											</div>
+											
+											<div class="col-md-7 mb-3">
+												
+											</div>
+										</div>
 								</fieldset>
 								<br></br>
 								<div class="container_v4" align="center">
@@ -112,10 +125,11 @@
 									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 										<tr>
 											<th>C&oacute;digo</th>
-											<th>Estado</th>
+											<th>Estado Tienda</th>
 											<th>Piso</th>
 											<th>Suministro</th>
 											<th>Observaci&oacute;n</th>
+											<th>Estado Registro</th>
 											<th>Editar</th>
 											<th>Eliminar</th>
 										</tr>
@@ -132,6 +146,10 @@
 											
 											<td th:text="${tienda.tblSuministro.numero}">suministro</td>
 											<td th:text="${tienda.observacion}">observacion</td>
+											<td align="center">
+												<div
+													th:replace="fragments/util :: estadoRegistro(tipo=${tienda.estado})"></div>
+											</td>
 											<td align="center"><a
 												th:href="${'/tienda/editar/' + tienda.codigoTienda}"><img
 													th:src="@{/images/iconos/editar.png}" alt="Editar" /></a></td>

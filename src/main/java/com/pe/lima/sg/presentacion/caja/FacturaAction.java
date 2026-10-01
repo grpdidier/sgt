@@ -5,6 +5,8 @@ import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conNumero;
 import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conSerie;
 import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conTipoPago;
 import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conTienda;
+import static com.pe.lima.sg.dao.caja.ComprobanteOseSpecifications.conAnioMes;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,9 +14,14 @@ import java.io.FileWriter;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,14 +43,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pe.lima.sg.api.Interface.IApiOseCSV;
 import com.pe.lima.sg.api.bean.CredencialBean;
+import com.pe.lima.sg.api.bean.MensajeErrorBean;
 import com.pe.lima.sg.bean.Ubl.TagUbl;
 import com.pe.lima.sg.bean.caja.ComprobanteSunatBean;
 import com.pe.lima.sg.bean.caja.FacturaBean;
-import com.pe.lima.sg.bean.caja.UbigeoBean;
 import com.pe.lima.sg.dao.caja.IComprobanteOseDAO;
 import com.pe.lima.sg.dao.caja.ICxCDocumentoDAO;
 import com.pe.lima.sg.dao.caja.IDetalleComprobanteOseDAO;
 import com.pe.lima.sg.dao.caja.IDetalleFormaPagoOseDAO;
+import com.pe.lima.sg.dao.mantenimiento.IParametroDAO;
 import com.pe.lima.sg.dao.mantenimiento.ITipoCambioDAO;
 import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
 import com.pe.lima.sg.entity.caja.TblCxcDocumento;
@@ -98,11 +106,14 @@ public class FacturaAction {
 	@Autowired
 	private UtilFacturacion utilFacturacion;
 	
+	@Autowired
+	IParametroDAO parametroDao;
+	
 	private String urlPaginado = "/facturas/paginado/"; 
 	
 	
 	@RequestMapping(value = "/facturas", method = RequestMethod.GET)
-	public String traerRegistros(Model model, String path) {
+	public String traerRegistros(Model model, String path, HttpServletRequest request) {
 		Filtro filtro = new Filtro();
 		try{
 			log.debug("[traerRegistros] Inicio");
@@ -110,6 +121,10 @@ public class FacturaAction {
 			model.addAttribute("filtro", filtro);
 			model.addAttribute("registros", new ArrayList<TblComprobanteSunat>());
 			model.addAttribute("page", null);
+			filtro.setAnio(java.time.Year.now().getValue());
+			filtro.setMesFiltro(java.time.LocalDate.now()
+								.format(java.time.format.DateTimeFormatter.ofPattern("MM")));
+			cargarParametros(request);
 			log.debug("[traerRegistros] Fin");
 		}catch(Exception e){
 			log.debug("[traerRegistros] Error:"+e.getMessage());
@@ -121,6 +136,21 @@ public class FacturaAction {
 		return path;
 
 	}
+	
+	private void cargarParametros(HttpServletRequest request) {
+		List<TblParametro> listaParametroSistema		= null;
+		Map<String, TblParametro> mapParametro			= null;
+		listaParametroSistema = parametroDao.listarAllActivos();
+		if (listaParametroSistema!=null){
+			mapParametro = new HashMap<String, TblParametro>();
+			for(TblParametro parametro:listaParametroSistema){
+				mapParametro.put(parametro.getNombre(), parametro);
+			}
+			request.getSession().setAttribute("SessionMapParametros", mapParametro);
+		}
+		
+	}
+
 	@RequestMapping(value = "/facturas/q", method = RequestMethod.POST)
 	public String traerRegistros(Model model, Filtro filtro, String path ,  PageableSG pageable,HttpServletRequest request) {
 		path = "caja/factura/fac_listado";
@@ -150,8 +180,8 @@ public class FacturaAction {
 		FacturaBean facturaBean = new FacturaBean();
 		try{
 			log.debug("[crearFactura] Inicio");
-			obtenerDatosFactura(facturaSunat,request);
 			facturaBean.setFactura(facturaSunat);
+			obtenerDatosFactura(facturaBean,request);			
 			facturaBean.setFacturaDetalle(detalleFacturaSunat);
 			facturaBean.setFormaPago(formaPago);
 			model.addAttribute("entidad", facturaBean);
@@ -195,6 +225,7 @@ public class FacturaAction {
 		String path = "caja/factura/fac_listado";
 		FacturaBean entidad = null;
 		CredencialBean credencial = null;
+		MensajeErrorBean mensajeError = new MensajeErrorBean();
 		try{
 			log.debug("[guardarFactura] Inicio" );
 			entidad = (FacturaBean)request.getSession().getAttribute("DatosFacturaBean");
@@ -222,18 +253,24 @@ public class FacturaAction {
 				credencial = utilFacturacion.obtenerCredenciales(request);
 				obtenerNombreArchivos(credencial,entidad);
 				/*Obtenemos el Ubigeo*/
-				UbigeoBean ubigeo = apiOseCSV.obtenerUbigeo(entidad.getFactura().getClienteNumero().trim(), credencial.getTokenUbigeo(), credencial.getUrlUbigeo());
-				entidad.setUbigeo(ubigeo);
-				generarArchivoCSV(entidad, credencial);
+				//Greg: No se busca el codigo ubigeo si no lo tiene
+				//2026.07.07
+				/*if (entidad.getUbigeo().getUbigeoSunat().trim().length()!=6) {
+					UbigeoBean ubigeo = apiOseCSV.obtenerUbigeoRuc(entidad.getFactura().getClienteNumero().trim(), credencial.getTokenUbigeo(), credencial.getUrlUbigeo());
+					entidad.setUbigeo(ubigeo);
+				}*/
+				@SuppressWarnings("unchecked")
+				Map<String, String> mapaUbigeos = (Map<String, String>) request.getSession().getAttribute("SessionMapTodosUbigeos");
+				generarArchivoCSV(entidad, credencial, mapaUbigeos);
 				/*Llamamos a los apis*/
-				Integer status = llamadasApiOse(credencial,model,comprobante,request);
-				validarResultadoLlamadasApi(status,entidad.getCodigoCxCDocumento(),request);
+				Integer status = llamadasApiOse(credencial,comprobante,request, mensajeError);
+				validarResultadoLlamadasApi(status,entidad.getCodigoCxCDocumento(),request, model, mensajeError);
 				/*Mostramos el comprobante registrado*/
 				Filtro datosFiltro = obtenerDatosComprobante(comprobante);
 				listarAlquilerServicio(model, datosFiltro, pageable, this.urlPaginado, request);
 				model.addAttribute("filtro", datosFiltro);
 				log.debug("[guardarEntidad] Guardado..." );
-				model.addAttribute("respuesta", "Guardado exitoso");
+				
 				
 			}else{
 				path = "caja/factura/fac_nuevo";
@@ -251,11 +288,15 @@ public class FacturaAction {
 		return path;
 		
 	}
-	private void validarResultadoLlamadasApi(Integer status, Integer codigoCxCDocumento, HttpServletRequest request) {
+	private void validarResultadoLlamadasApi(Integer status, Integer codigoCxCDocumento, HttpServletRequest request,
+											 Model model, MensajeErrorBean mensajeError) {
 		log.debug("[validarResultadoLlamadasApi] Inicio - status:"+status+" codigoCxCDocumento:"+codigoCxCDocumento );
 		if (status == 412) {
 			log.debug("[validarResultadoLlamadasApi] CxC Documento Limpieza Nro Factura" );
 			actualizarCxCDocumentoConNumeroComprobante(codigoCxCDocumento, null, "" , "",request);
+			model.addAttribute("respuesta", mensajeError.getMensaje());
+		} else {
+			model.addAttribute("respuesta", "Guardado exitoso");
 		}
 		log.debug("[validarResultadoLlamadasApi] Fin" );
 	}
@@ -268,6 +309,7 @@ public class FacturaAction {
 			request.getSession().setAttribute("DatosFacturaBean",facturaBean);
 			filtro.setCodigoEdificacion(Constantes.CODIGO_LA_REYNA);
 			filtro.setTipo(Constantes.TIPO_COBRO_ALQUILER);
+			filtro.setNumeroMes(UtilSGT.getMesDate(new Date()).toString());
 			model.addAttribute("filtro", filtro);
 			model.addAttribute("registros", null);
 			model.addAttribute("page", null);
@@ -314,7 +356,7 @@ public class FacturaAction {
 			path = "caja/factura/fac_nuevo";
 			lista = (List<FacturaBean>)request.getSession().getAttribute("ListadoConsultaAlquilerServicio");
 			entidad = lista.get(id);
-			this.obtenerDatosFactura(entidad.getFactura(), request);
+			this.obtenerDatosFactura(entidad, request);
 			actualizarTipoOperacion(entidad,request);
 			request.getSession().setAttribute("DatosFacturaBean",entidad);
 			model.addAttribute("entidad", entidad);
@@ -463,7 +505,8 @@ public class FacturaAction {
 			Specification<TblComprobanteSunat> filtro = Specifications.where(conNumero(entidad.getNumero()))
 					.and(conSerie(entidad.getSerie()))
 					.and(conTipoPago(entidad.getTipo())).and(conEstado("1"))
-					.and(conTienda(entidad.getStrTienda()));
+					.and(conTienda(entidad.getStrTienda()))
+					.and(conAnioMes(String.valueOf(entidad.getAnio()), entidad.getMesFiltro()));   // <-- NUEVO
 			pageable.setSort(sort);
 			Page<TblComprobanteSunat> entidadPage = comprobanteOseDao.findAll(filtro, pageable);
 			PageWrapper<TblComprobanteSunat> page = new PageWrapper<TblComprobanteSunat>(entidadPage, url, pageable);
@@ -539,7 +582,8 @@ public class FacturaAction {
 		return true;
 	}
 	
-	private Integer llamadasApiOse(CredencialBean credencial,Model model,TblComprobanteSunat comprobante, HttpServletRequest request) {
+	private Integer llamadasApiOse(CredencialBean credencial, TblComprobanteSunat comprobante,
+								   HttpServletRequest request, MensajeErrorBean mensajeError) {
 		Integer status = 0;
 		try {
 			String token = apiOseCSV.obtenerToken(credencial); 
@@ -547,7 +591,7 @@ public class FacturaAction {
 			status = apiOseCSV.obtenerTicket(credencial);
 			if (status.compareTo(200)==0) {
 				comprobante = actualizarTicketEnComprobanteSunat(credencial,comprobante,request);
-				status = apiOseCSV.obtenerCDRDocumento(credencial);
+				status = apiOseCSV.obtenerCDRDocumentoDetallado(credencial, mensajeError);
 				if (status.compareTo(200)==0) {
 					comprobante = actualizarCdrEnComprobanteSunat(credencial,comprobante,request);
 					status = apiOseCSV.obtenerXMLDocumento(credencial);
@@ -559,25 +603,26 @@ public class FacturaAction {
 						}else {
 							actualizarStatusPdfEnComprobanteSunat(credencial, comprobante, request);
 							log.info("[llamadasApiOse] Con error en PDF:"+status);
-							model.addAttribute("respuesta", "Con error en PDF:"+status);
+							mensajeError.setMensaje(mensajeError.getMensaje() +":"+ "Con error en PDF:"+status);
+							
 						}
 					}else {
 						actualizarStatusXmlEnComprobanteSunat(credencial, comprobante, request);
 						log.info("[llamadasApiOse] Con error en XML:"+status);
-						model.addAttribute("respuesta", "Con error en XML:"+status);
+						mensajeError.setMensaje(mensajeError.getMensaje() +":"+ "Con error en XML:"+status);
 					}
 				}else {
 					actualizarStatusCdrEnComprobanteSunat(credencial, comprobante, request);
 					log.info("[llamadasApiOse] Con error en CDR:"+status);
-					model.addAttribute("respuesta", "Con error en CDR:"+status);
+					mensajeError.setMensaje(mensajeError.getMensaje() +":"+ "Con error en CDR:"+status);
 				}
 			}else {
 				actualizarStatusTicketEnComprobanteSunat(credencial, comprobante, request);
 				log.info("[llamadasApiOse] Con error en Ticket:"+status);
-				model.addAttribute("respuesta", "Con error en Ticket:"+status);
+				mensajeError.setMensaje(mensajeError.getMensaje() +":"+ "Con error en Ticket:"+status);
 			}
 		}catch(Exception e) {
-			model.addAttribute("respuesta", "Error obtener el token:"+e.getMessage());
+			mensajeError.setMensaje(mensajeError.getMensaje() +":"+ "Con error en token:"+e.getMessage());
 			status = 0;
 		}
 		return status;
@@ -637,9 +682,11 @@ public class FacturaAction {
 		crendencial.setPdfFileName(UtilSGT.getNombreFacturaPDF(entidad));
 	}
 	
-	private void generarArchivoCSV(FacturaBean entidad, CredencialBean crendencial) {
+	private void generarArchivoCSV(FacturaBean entidad, CredencialBean crendencial, Map<String, String> mapaUbigeos) {
 		List<TagUbl> listaHeader = null;
 		List<TagUbl> listaDetail = null;
+		//Completando datos del ubigeo
+		UtilSGT.obtenerUbigeoPorCodigo(entidad.getUbigeo().getUbigeoSunat(), mapaUbigeos, entidad.getUbigeo());
 		listaHeader = UtilUBL.nodoUblHeader(entidad);
 		listaDetail = UtilUBL.nodoUblDetail(entidad);
 		generarArchivo(listaHeader, listaDetail, entidad , crendencial);
@@ -709,6 +756,8 @@ public class FacturaAction {
 		filtro.setTipo(comprobante.getTipoPago());
 		filtro.setSerie(comprobante.getSerie());
 		filtro.setNumero(comprobante.getNumero());
+		filtro.setAnio(-1);
+		filtro.setMesFiltro("-1");
 		return filtro;
 	}
 	private void actualizarCxCDocumentoConNumeroComprobante(Integer codigoCxCDocumento, Integer codigoComprobante, String serie, String numeroComprobante, HttpServletRequest request) {
@@ -753,6 +802,26 @@ public class FacturaAction {
 				}
 			}
 		}
+		if (facturaBean.getUbigeo() == null || facturaBean.getUbigeo().getUbigeoSunat() == null || facturaBean.getUbigeo().getUbigeoSunat().isEmpty()) {
+			model.addAttribute("respuesta", "Registrar el Ubigeo del cliente para poder continuar.");
+			resultado = false;
+		} else {
+			entidad.getFactura().setUbigeo(facturaBean.getUbigeo().getUbigeoSunat());
+		}
+		
+		if (facturaBean.getFactura().getClienteDireccion() == null || facturaBean.getFactura().getClienteDireccion().isEmpty()) {
+			model.addAttribute("respuesta", "La dirección no puede estar vacio.");
+			resultado = false;
+		} 
+		
+		if (facturaBean.getFacturaDetalle().getDescripcionConcepto() == null ||
+				facturaBean.getFacturaDetalle().getDescripcionConcepto().trim().isEmpty()) {
+			model.addAttribute("respuesta", "Ingresar la descripción del concepto.");
+			resultado = false;
+		} else {
+			entidad.getFacturaDetalle().setDescripcionConcepto(facturaBean.getFacturaDetalle().getDescripcionConcepto());
+		}
+			
 		return resultado;
 	}
 	private boolean montoNoOkFactura(FacturaBean factura, BigDecimal total) {
@@ -830,17 +899,57 @@ public class FacturaAction {
 		}
 	}
 	@SuppressWarnings("unchecked")
-	private void obtenerDatosFactura(TblComprobanteSunat facturaSunat, HttpServletRequest request) {
+	private void obtenerDatosFactura(FacturaBean facturaBean, HttpServletRequest request) {
 		//Obtener Serie - Numero
+		TblComprobanteSunat facturaSunat = facturaBean.getFactura();
 		TblParametro parametro = null;
 		Map<String, TblParametro> mapParametro = (Map<String, TblParametro>)request.getSession().getAttribute("SessionMapParametros");
 		parametro = mapParametro.get(Constantes.PARAMETRO_DOMICILIO_FISCAL);
 		facturaSunat.setDomicilioFiscal(parametro.getDato());
 		obtenerNumeroSerie(facturaSunat);
-		facturaSunat.setFechaEmision(UtilSGT.getFecha("yyyy-MM-dd"));
-		facturaSunat.setHoraEmision(UtilSGT.getHora());
-		facturaSunat.setFechaVencimiento(UtilSGT.getFecha("yyyy-MM-dd"));
+		if (facturaBean.getNumeroMes()!=null) {
+			asignarFechaFactura(facturaSunat, Integer.parseInt(facturaBean.getNumeroMes()));
+		} else {		
+			facturaSunat.setFechaEmision(UtilSGT.getFecha("yyyy-MM-dd"));
+			facturaSunat.setHoraEmision(UtilSGT.getHora());
+			facturaSunat.setFechaVencimiento(UtilSGT.getFecha("yyyy-MM-dd"));
+		}
 	}
+	
+	private void asignarFechaFactura(TblComprobanteSunat facturaSunat, int mesIndicado) {
+	    LocalDate hoy = LocalDate.now();
+	    int mesActual = hoy.getMonthValue();
+
+	    DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    DateTimeFormatter formatoHora = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+	    if (mesIndicado == mesActual) {
+	        // Mismo mes: se mantiene la lógica original (fecha y hora actual)
+	        facturaSunat.setFechaEmision(UtilSGT.getFecha("yyyy-MM-dd"));
+	        facturaSunat.setHoraEmision(UtilSGT.getHora());
+	        facturaSunat.setFechaVencimiento(UtilSGT.getFecha("yyyy-MM-dd"));
+	    } else {
+	        // Mes distinto: se asigna el último día del mes indicado y la última hora (23:59:59)
+	        int anio = hoy.getYear();
+
+	        // Si el mes indicado es mayor al actual, se asume que corresponde al año anterior
+	        if (mesIndicado > mesActual) {
+	            anio -= 1;
+	        }
+
+	        YearMonth yearMonth = YearMonth.of(anio, mesIndicado);
+	        LocalDate ultimoDiaMes = yearMonth.atEndOfMonth();
+	        LocalDateTime ultimaHoraDelMes = ultimoDiaMes.atTime(23, 59, 59);
+
+	        String fechaFormateada = ultimoDiaMes.format(formatoFecha);
+	        String horaFormateada = ultimaHoraDelMes.format(formatoHora);
+
+	        facturaSunat.setFechaEmision(fechaFormateada);
+	        facturaSunat.setHoraEmision(horaFormateada);
+	        facturaSunat.setFechaVencimiento(fechaFormateada);
+	    }
+	}
+	
 	private void obtenerNumeroSerie(TblComprobanteSunat facturaSunat) {
 		TblSerie serie = null;
 		serie = serieDao.buscarOneByTipoComprobante(Constantes.SUNAT_CODIGO_COMPROBANTE_FACTURA);
@@ -946,6 +1055,10 @@ public class FacturaAction {
 				model.addAttribute("respuesta", "Debe seleccionar el tipo (Alquiler/Servicio)");
 				return false;
 			}
+			if (filtro.getNumeroMes().equals("-1")){
+				model.addAttribute("respuesta", "Debe seleccionar el periodo");
+				return false;
+			}
 		}catch(Exception e){
 			exitoso = false;
 		}
@@ -1048,6 +1161,7 @@ public class FacturaAction {
 		List<ComprobanteSunatBean> lista= null;		
 		CredencialBean credencial 		= null;
 		FacturaBean factura				= new FacturaBean();
+		MensajeErrorBean mensajeError	 = new MensajeErrorBean();
 		try{
 			log.debug("[obtenerCdrDocumento] Inicio");
 			lista = (List<ComprobanteSunatBean>)request.getSession().getAttribute("ListadoComprobante");
@@ -1058,7 +1172,7 @@ public class FacturaAction {
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
 			credencial.setTicket(entidad.getNumeroTicket());
-			Integer status = apiOseCSV.obtenerCDRDocumento(credencial);
+			Integer status = apiOseCSV.obtenerCDRDocumentoDetallado(credencial, mensajeError);
 			log.debug("[obtenerCdrDocumento] status: " +status);
 			if (status.compareTo(200)==0) {
 				TblComprobanteSunat comprobante = comprobanteOseDao.findOne(entidad.getCodigoComprobante());
@@ -1067,7 +1181,7 @@ public class FacturaAction {
 				TblComprobanteSunat comprobante = comprobanteOseDao.findOne(entidad.getCodigoComprobante());
 				actualizarStatusCdrEnComprobanteSunat(credencial,comprobante,request);
 				log.info("[obtenerCdrDocumento] Con error en CDR:"+status);
-				model.addAttribute("respuesta", "Con error en CDR:"+status);
+				model.addAttribute("respuesta", "Con error en CDR:"+status+ " ["+mensajeError.getMensaje()+"]");
 			}
 			Filtro datosFiltro = (Filtro)request.getSession().getAttribute("CriterioFiltroComprobante");
 			listarAlquilerServicio(model, datosFiltro, pageable, this.urlPaginado, request);

@@ -36,7 +36,7 @@ public class LocalExcel {
 	
 	public void reporteLocalxInmueble(List<LocalTotalBean> listaDataReporte, Filtro criterio, ServletContext context,HttpServletRequest request, HttpServletResponse response, String nameFile) throws IOException{
 		//String[] columns = {"LOCAL", "DETALLE", "ESTADO", "ALQUILER $", "SERVICIOS S/"};
-		String[] columns = {"Nro", "LOCAL", "RUC", "ARRENDATARIO", "ESTADO","INICIO CONTRATO","FIN CONTRATO", "ALQUILER $", "SERVICIOS S/", "GARANTIA $"};
+		String[] columns = {"Nro", "LOCAL", "RUC", "ARRENDATARIO", "ESTADO","INICIO CONTRATO","FIN CONTRATO", "ALQUILER $", "SERVICIOS S/", "GARANTIA $", "FECHA INICIO CLIENTE"};
 		
 		String filePath = context.getRealPath("/resources/reports");
 		File file = new File(filePath);
@@ -116,6 +116,9 @@ public class LocalExcel {
 			    	row.createCell(7).setCellValue(localBean.getMontoAlquiler().doubleValue());
 			    	row.createCell(8).setCellValue(localBean.getMontoServicio().doubleValue());
 			    	row.createCell(9).setCellValue(localBean.getMontoGarantia().doubleValue());
+			    	cell = row.createCell(10);
+			    	cell.setCellValue(localBean.getFechaInicioCliente());
+			    	CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, HorizontalAlignment.CENTER); 
 				}
 				Row row = sheet.createRow(rowNum++);
 		    	row.createCell(0).setCellValue("");

@@ -74,7 +74,7 @@ public class AutenticacionApiOse {
 			List<NameValuePair> params = new ArrayList<>(); 
 			params.add(new BasicNameValuePair("grant_type", "password")); 
 			params.add(new BasicNameValuePair("username", "20386431427")); 
-			params.add(new BasicNameValuePair("password", "d617f37eb232ceb7899d6c2e2f3cf557a94152336b56e9da7cc7225304142560")); 
+			params.add(new BasicNameValuePair("password", "c015d13b6d05180cc1a2810aeef6d5a43239d0653b073281bfc1ec5777d43d23")); //"d617f37eb232ceb7899d6c2e2f3cf557a94152336b56e9da7cc7225304142560"
 			httpPost.setEntity(new UrlEncodedFormEntity(params));
 			/*Se envía la petición y se recibe el json con el token*/
 			String json= null; 
@@ -256,17 +256,23 @@ public class AutenticacionApiOse {
 		return status;
 
 	}
+	
+	/*********************************************************************
+	 * Greg: Metodo para probar los servicios de eFact
+	 * 
+	 * 
+	 ***********************************************************************/
 	public static void main(String[] args) {
 		try {
 			//zipWilly();
-			String token = obtenerTokenWilly();
+			/*String token = obtenerTokenWilly();
 			System.out.println("Token:"+token);
 			String ticket = obtenerTicketWilly(token);
-			obtenerEstadoWilly(token, ticket);
-			/*String token = obtenerToken();
-			String ticket = obtenerTicket(token,"20386431427-01-NC01-00000005.csv");
-			/*String ticket = "bd419df7-63b6-4b4b-a422-d781f1a3b670";//"1218cef1-db4a-4d84-94c2-fee10e886bc4";
-			/*//*obtenerCDRTicket(token,ticket);*//*
+			obtenerEstadoWilly(token, ticket);*/
+			String token = obtenerToken();
+			//String ticket = obtenerTicket(token,"20386431427-01-NC01-00000005.csv");
+			String ticket = "786cc25a-04b4-4930-bb52-37548ac64569";//"c5c4c0f5-709d-4e62-a479-94f150b49563";//"bd419df7-63b6-4b4b-a422-d781f1a3b670";//"1218cef1-db4a-4d84-94c2-fee10e886bc4";
+			obtenerCDRTicket(token,ticket);/*
 			obtenerXMLDocumento(token, ticket);
 			obtenerPDFDocumento(token, ticket);*/
 		}catch(Exception e) {

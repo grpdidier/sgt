@@ -209,12 +209,12 @@ public class UtilUBL {
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/ID/@schemeAgencyName","PE:INEI"));
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/ID/@schemeName","Ubigeos	"));
 		/* Domicilio fiscal del recepto*/
-		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CitySubdivisionName",facturaBean.getUbigeo().getNombreDepartamento()));
-		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CityName",facturaBean.getUbigeo().getNombreDepartamento()));
-		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CountrySubentity",facturaBean.getUbigeo().getNombreProvincia()));
-		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/District",facturaBean.getUbigeo().getNombreDistrito()));
+		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CitySubdivisionName",nullVal(facturaBean.getUbigeo().getNombreDepartamento())));
+		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CityName",nullVal(facturaBean.getUbigeo().getNombreDepartamento())));
+		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CountrySubentity",nullVal(facturaBean.getUbigeo().getNombreProvincia())));
+		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/District",nullVal(facturaBean.getUbigeo().getNombreDistrito())));
 		/**<DireccionCompletaDetalladaReceptor>*/
-		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/AddressLine/Line",facturaBean.getUbigeo().getDireccionCompleta())); //Direccion completa:facturaBean.getFactura().getClienteDireccion()
+		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/AddressLine/Line",nullVal(facturaBean.getUbigeo().getDireccionCompleta()))); //Direccion completa:facturaBean.getFactura().getClienteDireccion()
 		/*  Codigo de pais (Domicilio fiscal del receptor) */
 		/*M*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/Country/IdentificationCode","PE"));
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/Country/IdentificationCode/@listID","ISO 3166-1"));
@@ -225,6 +225,12 @@ public class UtilUBL {
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/Contact/ElectronicMail",""));
 	}
 	
+	private static String nullVal(String dato) {
+		return dato == null ? "PENDIENTE" : dato;
+	}
+	private static String nullVacio(String dato) {
+		return dato == null ? "" : dato;
+	}
 	/*VI. Datos para la detracción de la Factura (Condicional)*/
 	private static void asignarDatosDetraccion(List<TagUbl> lista, FacturaBean facturaBean) {
 		/*M*/lista.add(setDatos("PaymentMeans/ID","Detraccion"));

@@ -1,6 +1,7 @@
 package com.pe.lima.sg.presentacion.cliente;
 
 import static com.pe.lima.sg.dao.caja.CxCBitacoraSpecifications.conAnio;
+import static com.pe.lima.sg.dao.caja.CxCBitacoraSpecifications.conCodigoContrato;
 import static com.pe.lima.sg.dao.caja.CxCBitacoraSpecifications.conMes;
 import static com.pe.lima.sg.dao.caja.CxCBitacoraSpecifications.conTipoCobro;
 import static com.pe.lima.sg.dao.caja.CxCBitacoraSpecifications.conTipoOperacion;
@@ -17,6 +18,9 @@ import static com.pe.lima.sg.dao.cliente.ContratoSpecifications.conRuc;
 import static com.pe.lima.sg.dao.cliente.ContratoSpecifications.conTienda;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 //import java.util.HashSet;
@@ -39,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pe.lima.sg.bean.caja.BitacoraBean;
+import com.pe.lima.sg.bean.cliente.ContratoBean;
 import com.pe.lima.sg.bean.cliente.PeriodoBean;
 import com.pe.lima.sg.dao.BaseOperacionDAO;
 import com.pe.lima.sg.dao.caja.ICxCBitacoraDAO;
@@ -91,7 +96,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato> {
 
-	
+
 	@Autowired
 	private IContratoDAO contratoDao;
 
@@ -100,7 +105,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 
 	//@Autowired
 	//private ISuministroDAO suministroDao;
-	
+
 	@Autowired
 	private ICxCDocumentoDAO documentoDao;
 
@@ -109,11 +114,11 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 
 	@Autowired
 	private IArbitrioDAO arbitrioDao;
-	
+
 
 	@Autowired
 	private IObservacionDAO observacionDao;
-	
+
 	@Autowired
 	private ILuzxTiendaDAO luzxTiendaDao;
 
@@ -134,14 +139,14 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 
 	@Autowired
 	private ITipoServicioDAO tipoServicioDao;
-	
+
 	@Autowired
 	private ISerieDAO serieDao;
-	
+
 
 	@Autowired
 	private ICxCBitacoraDAO cxcBitacoraDao;
-	
+
 	@Autowired
 	private ICxCDocumentoDAO cxcDocumentoDao;
 
@@ -150,7 +155,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 	public BaseOperacionDAO getDao() {
 		return contratoDao;
 	}
-	
+
 	private String urlPaginado = "/cambiocontratos/paginado/"; 
 	private String urlPaginadoCliente = "/cambiocontratos/cliente/paginado/";
 	/**
@@ -244,21 +249,22 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}
 	}
 	private void inicializaDataDefaultServicio(TblContratoServicio  contratoServicio){
-		
+
 		contratoServicio.getTblTipoServicio().setCodigoTipoServicio(Constantes.CODIGO_SERVICIO_MANTENIMIENTO);
 		contratoServicio.setTipoMonedaServicio(Constantes.MONEDA_SOL);
 		contratoServicio.setTipoDocumentoServicio(Constantes.TIPO_DOC_INTERNO);
 	}
-	
+
 	public List<TblCxcDocumento> mListarAlquiler(Integer intCodigoContrato){
 		Sort sort = new Sort(new Sort.Order(Direction.ASC, "codigoCxcDoc"));
 		Specification<TblCxcDocumento> criterio	= null;
 		List<TblCxcDocumento> listaCxcAlquiler;
 		//conSaldoPositivo
 		criterio = Specifications.where(com.pe.lima.sg.dao.caja.CxCDocumentoSpecifications.conCodigoContrato(intCodigoContrato))
-				  .and(conSaldoPositivo(new BigDecimal("0")))
-				  //.and(conAnioActual(UtilSGT.getAnioMesString(new Date())))
-				  .and(conTipoReferencia(Constantes.TIPO_COBRO_ALQUILER));
+				.and(conSaldoPositivo(new BigDecimal("0")))
+				//.and(conAnioActual(UtilSGT.getAnioMesString(new Date())))
+				.and(conEstadoDocumento(Constantes.ESTADO_REGISTRO_ACTIVO))
+				.and(conTipoReferencia(Constantes.TIPO_COBRO_ALQUILER));
 		listaCxcAlquiler = cxcDocumentoDao.findAll(criterio,sort);
 		return listaCxcAlquiler;
 	}
@@ -268,9 +274,9 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		List<TblCxcDocumento> listaCxcServicio;
 		//conSaldoPositivo
 		criterio = Specifications.where(com.pe.lima.sg.dao.caja.CxCDocumentoSpecifications.conCodigoContrato(intCodigoContrato))
-				  .and(conSaldoPositivo(new BigDecimal("0")))
-				  .and(conEstadoDocumento(Constantes.ESTADO_REGISTRO_ACTIVO))
-				  .and(conTipoReferencia(Constantes.TIPO_COBRO_SERVICIO));
+				.and(conSaldoPositivo(new BigDecimal("0")))
+				.and(conEstadoDocumento(Constantes.ESTADO_REGISTRO_ACTIVO))
+				.and(conTipoReferencia(Constantes.TIPO_COBRO_SERVICIO));
 		listaCxcServicio = cxcDocumentoDao.findAll(criterio,sort);
 		return listaCxcServicio;
 	}
@@ -280,9 +286,9 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		List<TblCxcDocumento> listaCxcLuz;
 		//conSaldoPositivo
 		criterio = Specifications.where(com.pe.lima.sg.dao.caja.CxCDocumentoSpecifications.conCodigoContrato(intCodigoContrato))
-				  .and(conSaldoPositivo(new BigDecimal("0")))
-				  //.and(conAnioActual(UtilSGT.getAnioMesString(new Date())))
-				  .and(conTipoReferencia(Constantes.TIPO_COBRO_LUZ));
+				.and(conSaldoPositivo(new BigDecimal("0")))
+				//.and(conAnioActual(UtilSGT.getAnioMesString(new Date())))
+				.and(conTipoReferencia(Constantes.TIPO_COBRO_LUZ));
 		listaCxcLuz = cxcDocumentoDao.findAll(criterio,sort);
 		return listaCxcLuz;
 	}
@@ -307,8 +313,8 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		List<TblCxcDocumento> listaCxcAlquiler	= null;
 		List<TblCxcDocumento> listaCxcServicio	= null;
 		List<TblCxcDocumento> listaCxcLuz		= null;
-		Filtro dataCambio = new Filtro();
 		String path 							= "";
+		ContratoBean contratoBean;
 		try{
 			contrato = contratoDao.findOne(id);
 			model.addAttribute("contrato", contrato);
@@ -323,7 +329,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			listaCxcLuz = mListarLuz(contrato.getCodigoContrato());
 			//Busqueda de los contratos Antiguos
 			listaContratoAnt = getContratosAntiguos(contrato);
-			
+
 			beanRequest = new BeanRequest();
 			beanRequest.setContrato(contrato);
 			beanRequest.setContratoAntiguo(contrato);
@@ -343,15 +349,18 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			beanRequest.setListaCxcAlquiler(listaCxcAlquiler);
 			beanRequest.setListaCxcServicio(listaCxcServicio);
 			beanRequest.setListaCxcLuz(listaCxcLuz);
-			
+			//Datos de la fecha del contrato
+			contratoBean = getFechasContrato(contrato);
+			contratoBean.setNuevoMontoAlquiler(new BigDecimal("0"));
+			contratoBean.setNuevoMontoServicio(new BigDecimal("0"));
+			beanRequest.setContratoBean(contratoBean);
 			this.cargarListasRequestBeanContrato(model, beanRequest);
-			
+
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
 			path = "cliente/cambiocontrato/ccn_edicion";
-			dataCambio.setNuevoMontoAlquiler(new BigDecimal("0"));
-			model.addAttribute("dataCambio", dataCambio);
+
 
 		}catch(Exception e){
 			e.printStackTrace();
@@ -367,9 +376,15 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 	}
 
 
+	private ContratoBean getFechasContrato(TblContrato contrato) {
+		ContratoBean contratoBean = new ContratoBean();
+		contratoBean.setFecha_fin(UtilSGT.getDatetoString2(contrato.getFechaFin()));
+		contratoBean.setFecha_inicio(UtilSGT.getDatetoString2(contrato.getFechaInicio()));
+		return contratoBean;
+	}
 	@Override
 	public TblContrato getNuevaEntidad() {
-		
+
 		return null;
 	}
 
@@ -671,11 +686,11 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		try{
 			log.debug("[listarClientes] Inicio");
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
-			
+
 			filtro = new Filtro();
 			filtro.setStrOperacion(Constantes.OPERACION_EDITAR);
 			model.addAttribute("contrato", beanRequest.getContrato());
-			
+
 			model.addAttribute("filtro", filtro);
 			//this.listarPersonas(model, filtro);
 			this.cargarListaOperacionCliente(model);
@@ -714,7 +729,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			PageWrapper<TblPersona> page = new PageWrapper<TblPersona>(entidadPage, url, pageable);
 			model.addAttribute("registros", page.getContent());
 			model.addAttribute("page", page);
-			
+
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -783,11 +798,11 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				if (pageable.getOperacion() ==null || pageable.getOperacion().equals("")){
 					pageable.setOperacion(operacion);
 				}
-				
+
 			}
 			filtro = (Filtro)request.getSession().getAttribute("sessionFiltroClienteCriterio");
 			model.addAttribute("filtro", filtro);
-			
+
 			this.listarPersonas(model, filtro, pageable, this.urlPaginadoCliente);
 			campos = configurarCamposConsulta();
 			model.addAttribute("contenido", campos);
@@ -849,7 +864,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			
+
 			path = "cliente/cambiocontrato/ccn_edicion";
 
 		}catch(Exception e){
@@ -873,7 +888,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			log.debug("[regresarContrato] Inicio");
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			log.debug("[regresarAprobacion] oPERACION:"+filtro.getStrOperacion());
-			
+
 			path = "cliente/cambiocontrato/ccn_edicion";
 			//contrato = beanRequest.getContrato();
 			this.cargarListasRequestBeanContrato(model, beanRequest);
@@ -900,7 +915,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 	@RequestMapping(value = "/cambiocontrato/servicio", method = RequestMethod.POST)
 	public String adicionarServicio(Model model, TblContratoServicio contratoServicio, TblContrato contrato, String path, HttpServletRequest request) {
 		BeanRequest beanRequest				= null;
-
+		//Filtro dataCambio = new Filtro();
 		try{
 			log.debug("[adicionarServicio] Inicio");
 			path = "cliente/cambiocontrato/ccn_edicion";
@@ -914,7 +929,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				contratoServicio.setTblTipoServicio(tipoServicioDao.findOne(contratoServicio.getTblTipoServicio().getCodigoTipoServicio()));
 				log.debug("[adicionarServicio] Doc:"+contratoServicio.getTipoDocumentoServicio());
 				log.debug("[adicionarServicio] Moneda:"+contratoServicio.getTipoMonedaServicio());
-				
+
 				if (beanRequest.getListaServicio() == null) {
 					beanRequest.setListaServicio(new ArrayList<TblContratoServicio>());
 					if (!validarExistenciaServicio(beanRequest.getListaServicio(),contratoServicio)){
@@ -931,7 +946,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 					}
 				}
 			}
-			
+
 			//model.addAttribute("listaServicio", beanRequest.getListaServicio());
 			beanRequest.setContrato(contrato);
 			this.cargarListasRequestBeanContrato(model, beanRequest);
@@ -963,13 +978,14 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 	@RequestMapping(value = "/cambiocontrato/servicio/eliminar/{id}", method = RequestMethod.GET)
 	public String eliminarServicioGet(@PathVariable String id, Model model, HttpServletRequest request) {
 		BeanRequest beanRequest				= null;
+		//Filtro dataCambio = new Filtro();
 		try{
 
 			//Se mantiene en Session el contrato hasta retornar
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			if (removerExistenciaServicio(beanRequest,new Integer(id))){
 				model.addAttribute("resultadoServicio","El Servicio se removio satisfactoriamente!");
-				
+
 			}
 			this.cargarListasRequestBeanContrato(model, beanRequest);
 			this.cargarListaOperacionContrato(model);
@@ -1003,13 +1019,16 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		resultado = true;
 		return resultado;
 	}
-	
+
 	private void removerServicio(BeanRequest beanRequest){
 		List<TblCxcDocumento> listaDoc;
+		log.info("[removerServicio] Inicio");
 		if (beanRequest.getListaServicioEliminar() != null){
+			log.info("[removerServicio] Size Lista:"+beanRequest.getListaServicioEliminar().size());
 			for(TblContratoServicio servicio: beanRequest.getListaServicioEliminar()){
 				servicio.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
 				contratoServicioDao.save(servicio);
+				log.info("[removerServicio] Servicio:"+servicio.getCodigoServicio());
 				listaDoc = documentoDao.listarCxCxContratoxTipoServicio(servicio.getCodigoServicio(), "SER");
 				if (listaDoc != null){
 					for (TblCxcDocumento documento: listaDoc){
@@ -1019,8 +1038,9 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				}
 			}
 		}
+		log.info("[removerServicio] Fin");
 	}
-	
+
 	/**
 	 * Se encarga de la eliminacion del servicio
 	 * 
@@ -1047,7 +1067,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
-			
+
 		}
 		return  "cliente/cambiocontrato/ccn_edicion";
 	}
@@ -1059,7 +1079,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 	 * @return
 	 */
 	@RequestMapping(value = "/cambiocontrato/editar/guardar/alquiler", method = RequestMethod.POST)
-	public String actualizarAlquiler(Model model, TblContrato entidad, Filtro dataAlquiler, HttpServletRequest request, String path ,  PageableSG pageable) {
+	public String actualizarAlquiler(Model model, TblContrato entidad, ContratoBean dataAlquiler, HttpServletRequest request, String path ,  PageableSG pageable) {
 		path 											= "cliente/cambiocontrato/ccn_listado";
 		BeanRequest beanRequest							= null;
 
@@ -1085,7 +1105,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
-			
+
 		}
 		return  "cliente/cambiocontrato/ccn_edicion";
 	}
@@ -1097,7 +1117,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 	 * @return
 	 */
 	@RequestMapping(value = "/cambiocontrato/editar/guardar/servicio", method = RequestMethod.POST)
-	public String actualizarServicio(Model model, TblContrato entidad, Filtro dataServicio, HttpServletRequest request, String path ,  PageableSG pageable) {
+	public String actualizarServicio(Model model, TblContrato entidad, ContratoBean dataServicio, HttpServletRequest request, String path ,  PageableSG pageable) {
 		path 											= "cliente/cambiocontrato/ccn_listado";
 		BeanRequest beanRequest							= null;
 		String fechaCorte								= null;
@@ -1122,7 +1142,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
-			
+
 		}
 		return  "cliente/cambiocontrato/ccn_edicion";
 	}
@@ -1159,7 +1179,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 	/*Obtenemos la fecha de corte para la comparación*/
 	private String getFechaCorte(String fecha) {
 		if (fecha != null && !fecha.isEmpty()) {
-			return UtilSGT.getAnio(fecha).toString() + UtilSGT.getMes(fecha).toString();
+			return UtilSGT.getAnio(fecha).toString() + String.format("%02d", Integer.parseInt(UtilSGT.getMes(fecha).toString()));
 		}else {
 			return null;
 		}
@@ -1169,14 +1189,15 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		List<TblCxcDocumento> listaCxcCambio	= new ArrayList<TblCxcDocumento>();
 		String fechaAlquiler = null;
 		for(TblCxcDocumento documento: listaCxc) {
-			fechaAlquiler = documento.getAnio().toString() + documento.getMes().toString();
+			fechaAlquiler = documento.getAnio().toString() + String.format("%02d", Integer.parseInt(documento.getMes().toString()));
+			log.debug("[getListaAlquilerCambio] fechaAlquiler:"+fechaAlquiler+ " fechaCorte:"+fechaCorte);	
 			if (fechaAlquiler.compareTo(fechaCorte) >=0 ) {
 				this.setNuevoMontoAlquiler(documento, montoAlquiler);
 				listaCxcCambio.add(documento);
 			}
 		}
 		log.debug("[getListaAlquilerCambio] total elementos encontrados:"+listaCxcCambio.size());	
-		
+
 		return listaCxcCambio;
 	}
 	/*Actualiza monto y saldo*/
@@ -1185,7 +1206,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		alquiler.setMontoContrato(montoAlquiler);
 		alquiler.setSaldo(alquiler.getMontoGenerado().subtract(alquiler.getMontoCobrado()));
 	}
-	
+
 	/**
 	 * Se encarga de guardar la informacion 
 	 * 
@@ -1203,81 +1224,81 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		TblContrato filtro								= null;
 		try{
 			log.debug("[actualizarEntidad] Inicio" );
-				log.debug("[actualizarEntidad] Pre Guardar..." );
-				beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
+			log.debug("[actualizarEntidad] Pre Guardar..." );
+			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
+			beanRequest.setContrato(entidad);
+			if (this.validarNegocio(model, entidad, request)){
+				//Controles del Negocio ante los cambios realizados
+				contrato = contratoDao.findOne(entidad.getCodigoContrato());
 				beanRequest.setContrato(entidad);
-				if (this.validarNegocio(model, entidad, request)){
-					//Controles del Negocio ante los cambios realizados
-					contrato = contratoDao.findOne(entidad.getCodigoContrato());
-					beanRequest.setContrato(entidad);
-					beanRequest.setContratoAntiguo(contrato);
-					//Registro de los cambios: Cambio del monto del alquiler
-					this.mProcesarCambiosContrato(beanRequest, request);
-					
-					
-					
-					//this.generarPrimerosCobros(request);
-					this.preEditar(entidad, request);
-					
-					contrato.setFechaContrato(entidad.getFechaContrato());
-					contrato.setFechaInicio(entidad.getFechaInicio());
-					contrato.setFechaFin(entidad.getFechaFin());
-					contrato.setMontoAlquiler(entidad.getMontoAlquiler());
-					contrato.setTipoMonedaAlquiler(entidad.getTipoMonedaAlquiler());
-					contrato.setTipoCobro(entidad.getTipoCobro());
-					contrato.setTipoGarantia(entidad.getTipoGarantia());
-					contrato.setMontoGarantia(entidad.getMontoGarantia());
-					contrato.setTipoMonedaGarantia(entidad.getTipoMonedaGarantia());
-					contrato.setTipoDocumentoGarantia(entidad.getTipoDocumentoGarantia());
-					contrato.setInformacionAdicional(entidad.getInformacionAdicional());
-					contrato.setPeriodoAdelanto(entidad.getPeriodoAdelanto());
-					contrato.setTipoDocumentoAlquiler(entidad.getTipoDocumentoAlquiler());
-					//contrato.setEstadoContrato(Constantes.ESTADO_CONTRATO_VIGENTE);
-					contrato.setEstadoContrato(entidad.getEstadoContrato());
-					contrato.setFechaModificacion(entidad.getFechaModificacion());
-					contrato.setUsuarioModificacion(entidad.getUsuarioModificacion());
-					contrato.setIpModificacion(entidad.getIpModificacion());
-	
-	
-					if (contrato.getTblPersona().getCodigoPersona() != entidad.getTblPersona().getCodigoPersona()){
-						contrato.setTblPersona(entidad.getTblPersona());
-	
-						//ContratoCliente
-						cliente = new TblContratoCliente();
-						cliente.setTblContrato(contrato);
-						cliente.setCodigoPersona(entidad.getTblPersona().getCodigoPersona());
-						cliente.setFechaCreacion(new Date(System.currentTimeMillis()));
-						cliente.setIpCreacion(request.getRemoteAddr());
-						cliente.setUsuarioCreacion(contrato.getUsuarioModificacion());
-						cliente.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-						cliente.setFechaInicio(entidad.getFechaInicio());
-						cliente.setFechaFin(entidad.getFechaFin());
-						contratoClienteDao.save(cliente);
-					}
-					contrato.setTblAdelantos(entidad.getTblAdelantos());
-					
-					//Se quita primeros cobros - falta definir criterio y se excluye del proceso
-					/*if(beanRequest.getListaPrimerCobroNuevo().size()>0){
+				beanRequest.setContratoAntiguo(contrato);
+				//Registro de los cambios: Cambio del monto del alquiler
+				this.mProcesarCambiosContrato(beanRequest, request);
+
+
+
+				//this.generarPrimerosCobros(request);
+				this.preEditar(entidad, request);
+
+				contrato.setFechaContrato(entidad.getFechaContrato());
+				contrato.setFechaInicio(entidad.getFechaInicio());
+				contrato.setFechaFin(entidad.getFechaFin());
+				contrato.setMontoAlquiler(entidad.getMontoAlquiler());
+				contrato.setTipoMonedaAlquiler(entidad.getTipoMonedaAlquiler());
+				contrato.setTipoCobro(entidad.getTipoCobro());
+				contrato.setTipoGarantia(entidad.getTipoGarantia());
+				contrato.setMontoGarantia(entidad.getMontoGarantia());
+				contrato.setTipoMonedaGarantia(entidad.getTipoMonedaGarantia());
+				contrato.setTipoDocumentoGarantia(entidad.getTipoDocumentoGarantia());
+				contrato.setInformacionAdicional(entidad.getInformacionAdicional());
+				contrato.setPeriodoAdelanto(entidad.getPeriodoAdelanto());
+				contrato.setTipoDocumentoAlquiler(entidad.getTipoDocumentoAlquiler());
+				//contrato.setEstadoContrato(Constantes.ESTADO_CONTRATO_VIGENTE);
+				contrato.setEstadoContrato(entidad.getEstadoContrato());
+				contrato.setFechaModificacion(entidad.getFechaModificacion());
+				contrato.setUsuarioModificacion(entidad.getUsuarioModificacion());
+				contrato.setIpModificacion(entidad.getIpModificacion());
+
+
+				if (contrato.getTblPersona().getCodigoPersona() != entidad.getTblPersona().getCodigoPersona()){
+					contrato.setTblPersona(entidad.getTblPersona());
+
+					//ContratoCliente
+					cliente = new TblContratoCliente();
+					cliente.setTblContrato(contrato);
+					cliente.setCodigoPersona(entidad.getTblPersona().getCodigoPersona());
+					cliente.setFechaCreacion(new Date(System.currentTimeMillis()));
+					cliente.setIpCreacion(request.getRemoteAddr());
+					cliente.setUsuarioCreacion(contrato.getUsuarioModificacion());
+					cliente.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
+					cliente.setFechaInicio(entidad.getFechaInicio());
+					cliente.setFechaFin(entidad.getFechaFin());
+					contratoClienteDao.save(cliente);
+				}
+				contrato.setTblAdelantos(entidad.getTblAdelantos());
+
+				//Se quita primeros cobros - falta definir criterio y se excluye del proceso
+				/*if(beanRequest.getListaPrimerCobroNuevo().size()>0){
 						log.debug("[actualizarEntidad] Hubo cambios en la lista de primeros cobros, borrando..." );
 						contrato.setTblContratoPrimerCobros(new HashSet<TblContratoPrimerCobro>(0));
 					}else{
 						contrato.setTblContratoPrimerCobros(entidad.getTblContratoPrimerCobros());
 					}*/
-					
-					contrato.setTblContratoServicios(entidad.getTblContratoServicios());
-					//contrato.setTblCxcDocumentos(entidad.getTblCxcDocumentos());
-					contrato.setTblTienda(entidad.getTblTienda());
-	
-					//super.editar(contrato, model);
-					contratoDao.save(contrato);
-					model.addAttribute("respuesta", "El contrato ["+contrato.getNumero()+"] fue actualizado satisfactoriamente.");
-					
-					
-					
-					log.debug("[actualizarEntidad] Guardado..." );
-					//registrando los primeros cobros
-					
-					/*listaCobro = beanRequest.getListaPrimerCobro();
+
+				contrato.setTblContratoServicios(entidad.getTblContratoServicios());
+				//contrato.setTblCxcDocumentos(entidad.getTblCxcDocumentos());
+				contrato.setTblTienda(entidad.getTblTienda());
+
+				//super.editar(contrato, model);
+				contratoDao.save(contrato);
+				model.addAttribute("respuesta", "El contrato ["+contrato.getNumero()+"] fue actualizado satisfactoriamente.");
+
+
+
+				log.debug("[actualizarEntidad] Guardado..." );
+				//registrando los primeros cobros
+
+				/*listaCobro = beanRequest.getListaPrimerCobro();
 					if (listaCobro!=null && listaCobro.size()>0){
 						log.debug("[guardarEntidad] listaCobro:"+listaCobro.size());
 						for(TblContratoPrimerCobro cobro: listaCobro){
@@ -1293,16 +1314,16 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 							contratoPrimerCobroDao.save(cobro);
 						}
 					}*/
-					//TODO: Modificación temporal: Se permite el registro de los nuevos servicio, se asume que no existian anteriormente servicios
-					//registrando los servicios
-					/*Inicio - Cambio Temporal*/
-					
-					List<TblContratoServicio> listaServicio 		= null;
-					//List<TblContratoPrimerCobro> listaCobro			= null;
-					//Primeros cobros servicios
-					/* [2021-10-03: Duplicacion de primeros cobros - se comenta]
+				//TODO: Modificación temporal: Se permite el registro de los nuevos servicio, se asume que no existian anteriormente servicios
+				//registrando los servicios
+				/*Inicio - Cambio Temporal*/
+
+				List<TblContratoServicio> listaServicio 		= null;
+				//List<TblContratoPrimerCobro> listaCobro			= null;
+				//Primeros cobros servicios
+				/* [2021-10-03: Duplicacion de primeros cobros - se comenta]
 					 generarPrimerosCobrosServicios(entidad, request);
-					
+
 					//registrando los primeros cobros
 					listaCobro = beanRequest.getListaPrimerCobro();
 					if (listaCobro!=null && listaCobro.size()>0){
@@ -1319,25 +1340,25 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						entidad.setCodigoContrato(contrato.getCodigoContrato());
 						this.generarDocumentoPrimerosCobros(model,entidad, request);
 
-						
+
 					}*/
-					
-					listaServicio = beanRequest.getListaServicio();
-					if (listaServicio!=null && listaServicio.size()>0){
-						log.debug("[guardarEntidad] listaServicio:"+listaServicio.size());
-						for(TblContratoServicio servicio: listaServicio){
-							if (servicio.getCodigoServicio() <=0){
-								servicio.setTblContrato(contrato);
-								servicio = contratoServicioDao.save(servicio);
-								this.generarDocumentoServicio(model, entidad, servicio, request);
-							}
+
+				listaServicio = beanRequest.getListaServicio();
+				if (listaServicio!=null && listaServicio.size()>0){
+					log.debug("[guardarEntidad] listaServicio:"+listaServicio.size());
+					for(TblContratoServicio servicio: listaServicio){
+						if (servicio.getCodigoServicio() <=0){
+							servicio.setTblContrato(contrato);
+							servicio = contratoServicioDao.save(servicio);
+							this.generarDocumentoServicio(model, entidad, servicio, request);
 						}
 					}
-					//Eliminamos los servicios
-					removerServicio(beanRequest);
-					
-					//Generar los servicios
-					/*if (listaServicio!=null && listaServicio.size()>0){
+				}
+				//Eliminamos los servicios
+				removerServicio(beanRequest);
+
+				//Generar los servicios
+				/*if (listaServicio!=null && listaServicio.size()>0){
 						for(TblContratoServicio servicio: listaServicio){
 							if (servicio.getCodigoServicio() <=0) {
 								this.generarDocumentoServicio(model, entidad, servicio, request);
@@ -1345,17 +1366,17 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						}
 					}*/
 
-					/*Fin cambio temporal*/
-					//registro de las observaciones
-					if (beanRequest.getListaObservacion()!=null && beanRequest.getListaObservacion().size()>0){
-						for(TblObservacion observacion:beanRequest.getListaObservacion()){
-							observacion.setCodigoContrato(contrato.getCodigoContrato());
-							observacionDao.save(observacion);
-						}
+				/*Fin cambio temporal*/
+				//registro de las observaciones
+				if (beanRequest.getListaObservacion()!=null && beanRequest.getListaObservacion().size()>0){
+					for(TblObservacion observacion:beanRequest.getListaObservacion()){
+						observacion.setCodigoContrato(contrato.getCodigoContrato());
+						observacionDao.save(observacion);
 					}
-	
-					//registrando los servicios
-					/*if (beanRequest.getListaServicio()!=null && beanRequest.getListaServicio().size()>0){
+				}
+
+				//registrando los servicios
+				/*if (beanRequest.getListaServicio()!=null && beanRequest.getListaServicio().size()>0){
 						log.debug("[guardarEntidad] listaServicio:"+beanRequest.getListaServicio().size());
 						for(TblContratoServicio servicio: beanRequest.getListaServicio()){
 							servicio.setTblContrato(contrato);
@@ -1370,26 +1391,26 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						}
 					}*/
 
-					
-					
-					filtro = new TblContrato();
-					filtro.setTblPersona(new TblPersona());
-					filtro.setTblTienda(new TblTienda());
-					filtro.getTblTienda().setTblEdificio(new TblEdificio());
-					model.addAttribute("filtro", filtro);
-					listaUtil.cargarDatosModel(model, Constantes.MAP_LISTA_EDIFICIO);
-					this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
-				}else{
-					path = "cliente/cambiocontrato/ccn_edicion";
-					beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
-					beanRequest.setContrato(entidad);	
-					this.cargarListasRequestBeanContrato(model, beanRequest);
-					
-					this.cargarListaOperacionContrato(model);
 
-					request.getSession().setAttribute("beanRequest", beanRequest);
-				}
-				
+
+				filtro = new TblContrato();
+				filtro.setTblPersona(new TblPersona());
+				filtro.setTblTienda(new TblTienda());
+				filtro.getTblTienda().setTblEdificio(new TblEdificio());
+				model.addAttribute("filtro", filtro);
+				listaUtil.cargarDatosModel(model, Constantes.MAP_LISTA_EDIFICIO);
+				this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
+			}else{
+				path = "cliente/cambiocontrato/ccn_edicion";
+				beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
+				beanRequest.setContrato(entidad);	
+				this.cargarListasRequestBeanContrato(model, beanRequest);
+
+				this.cargarListaOperacionContrato(model);
+
+				request.getSession().setAttribute("beanRequest", beanRequest);
+			}
+
 			log.debug("[actualizarEntidad] Fin" );
 		}catch(Exception e){
 			e.printStackTrace();
@@ -1421,9 +1442,9 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			serieFactura = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_FACTURA);
 			serieBoleta = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_BOLETA);
 			serieInterno = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_INTERNO);
-			
+
 			//beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
-			
+
 			//Lista de los primeros cobros
 			//lista = beanRequest.getListaPrimerCobro();
 			lista = contratoPrimerCobroDao.listarServicioXContrato(entidad.getCodigoContrato());
@@ -1432,40 +1453,40 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				bitacoraBean = new BitacoraBean();
 				bitacoraBean.setAnio(UtilSGT.getAnioDate(entidad.getFechaInicio()));
 				bitacoraBean.setMes(UtilSGT.getMesDate(entidad.getFechaInicio()).toString());
-				
+
 				//Registramos la Bitacora del CxC del alquiler
 				bitacoraBean.setCodigoContrato(entidad.getCodigoContrato());
 				/*boolean exitoso =  this.registrarBitacora(model, bitacoraBean, Constantes.TIPO_COBRO_PRIMER_COBRO, Constantes.SERIE_TIPO_OPERACION_PRIMEROS_COBROS, request);
 				/*if (exitoso) {*/
-					criterio = Specifications.where(conAnio(bitacoraBean.getAnio()))
-							.and(conMes(new Integer(bitacoraBean.getMes())))
-							.and(conTipoCobro(Constantes.TIPO_COBRO_PRIMER_COBRO))
-							.and(com.pe.lima.sg.dao.caja.CxCBitacoraSpecifications.conCodigoContrato(entidad.getCodigoContrato()))
-							.and((conTipoOperacion(Constantes.SERIE_TIPO_OPERACION_PRIMEROS_COBROS)));
-					bitacora = cxcBitacoraDao.findOne(criterio);
-					for(TblContratoPrimerCobro primerCobro: lista){
-						documento = this.registrarCxCDocumentoPrimerCobro(model, bitacoraBean, request, entidad, primerCobro, bitacora, serieFactura, serieBoleta, serieInterno);
-						//Actualizamos el numero del documento del primer cobro
-						contratoPrimerCobroDao.save(primerCobro);
-						/**AF20181214:No generamos aun el documento sino cuando se cobra el total del saldo*/
-						
-						if (documento!=null){
-							//Se genera el documento de la sunat
-							//this.generarDocumentoPrimerCobroSunat(documento, entidad, request);
-							
-						}else{
-							//model.addAttribute("respuesta", "No se pudo registrar la Cuenta por Cobrar del Alquiler para el contrato ["+contrato.getNumero()+"]");
-							strMensaje = strMensaje + "No se pudo registrar la Cuenta por Cobrar del Alquiler para el contrato ["+entidad.getNumero()+"]\n";
-							model.addAttribute("respuesta", strMensaje);
-							resultado = false;
-							break;
-						}
-						
+				criterio = Specifications.where(conAnio(bitacoraBean.getAnio()))
+						.and(conMes(new Integer(bitacoraBean.getMes())))
+						.and(conTipoCobro(Constantes.TIPO_COBRO_PRIMER_COBRO))
+						.and(com.pe.lima.sg.dao.caja.CxCBitacoraSpecifications.conCodigoContrato(entidad.getCodigoContrato()))
+						.and((conTipoOperacion(Constantes.SERIE_TIPO_OPERACION_PRIMEROS_COBROS)));
+				bitacora = cxcBitacoraDao.findOne(criterio);
+				for(TblContratoPrimerCobro primerCobro: lista){
+					documento = this.registrarCxCDocumentoPrimerCobro(model, bitacoraBean, request, entidad, primerCobro, bitacora, serieFactura, serieBoleta, serieInterno);
+					//Actualizamos el numero del documento del primer cobro
+					contratoPrimerCobroDao.save(primerCobro);
+					/**AF20181214:No generamos aun el documento sino cuando se cobra el total del saldo*/
+
+					if (documento!=null){
+						//Se genera el documento de la sunat
+						//this.generarDocumentoPrimerCobroSunat(documento, entidad, request);
+
+					}else{
+						//model.addAttribute("respuesta", "No se pudo registrar la Cuenta por Cobrar del Alquiler para el contrato ["+contrato.getNumero()+"]");
+						strMensaje = strMensaje + "No se pudo registrar la Cuenta por Cobrar del Alquiler para el contrato ["+entidad.getNumero()+"]\n";
+						model.addAttribute("respuesta", strMensaje);
+						resultado = false;
+						break;
 					}
-					
+
+				}
+
 				/*}*/
 			}
-			
+
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -1483,7 +1504,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}
 		return resultado;
 	}
-	
+
 	/*
 	 * Registro del documento de Alquiler
 	 */
@@ -1500,13 +1521,13 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				//documento.setTipoReferencia(Constantes.TIPO_COBRO_PRIMER_COBRO);	
 				/*Se asigna el primer cobro de alquiler como cuota de alquiler, se elimino listado de primer cobro */
 				documento.setTipoReferencia(Constantes.TIPO_COBRO_ALQUILER);	
-				
+
 			}else if (primerCobro.getObservacion().equals(Constantes.DESC_PRIMEROS_COBROS_SERVICIO)){
 				documento.setTipoReferencia(Constantes.TIPO_COBRO_SERVICIO);	
 			}else{
 				documento.setTipoReferencia(Constantes.TIPO_COBRO_ALQUILER);
 			}
-			
+
 			documento.setMontoGenerado(primerCobro.getMontoCobro());
 			documento.setMontoContrato(primerCobro.getMontoCobro());
 			documento.setMontoCobrado(new BigDecimal("0"));
@@ -1558,7 +1579,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}
 		return documento;
 	}
-	
+
 	/*
 	 * Genera los primeros cobros del contrato
 	 */
@@ -1572,7 +1593,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		Date fechaFinMes					= null;
 		try{
 			fechaFinMes = UtilSGT.getDatetoString(UtilSGT.getLastDate(UtilSGT.getDateStringFormat(entidad.getFechaInicio())));
-			
+
 			//Servicios
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			if(beanRequest.getListaServicio()!=null && beanRequest.getListaServicio().size()>0){
@@ -1588,10 +1609,10 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 					lista.add(primerCobro);
 				}
 			}
-			
-			
+
+
 			beanRequest.setListaPrimerCobro(lista);
-			
+
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -1638,7 +1659,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}
 		return bitacora;
 	}
-	
+
 	private boolean generarDocumentoServicio(Model model, TblContrato entidad, TblContratoServicio servicio, HttpServletRequest request){
 		TblSerie serieFactura					= null;
 		TblSerie serieBoleta					= null;
@@ -1653,11 +1674,12 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		boolean resultado 						= false;
 		String strMensaje						= "";
 		try{
+			log.debug("[generarDocumentoServicio] Inicio:");
 			//Obtenemos Prefijo, Secuencia y Numero para generar los siguiente
 			serieFactura = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_FACTURA);
 			serieBoleta = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_BOLETA);
 			serieInterno = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_INTERNO);
-			
+
 			//Lista de los meses a cobrar
 			lista = UtilSGT.mGetListAnioMes(entidad.getFechaInicio(), entidad.getFechaFin());
 			if (lista !=null && lista.size()>0){
@@ -1665,7 +1687,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				bitacoraBean = new BitacoraBean();
 				bitacoraBean.setAnio(UtilSGT.getAnioDate(entidad.getFechaInicio()));
 				bitacoraBean.setMes(UtilSGT.getMesDate(entidad.getFechaInicio()).toString());
-				
+
 				//Registramos la Bitacora del CxC del servicio
 				bitacoraBean.setCodigoContrato(entidad.getCodigoContrato());
 				bitacora =  this.registrarBitacora(model, bitacoraBean, Constantes.TIPO_COBRO_SERVICIO, Constantes.SERIE_TIPO_OPERACION_CONTRATO, request);
@@ -1681,11 +1703,11 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						//Actualizamos el numero del documento del primer cobro
 						//contratoPrimerCobroDao.save(primerCobro);
 						/**AF20181214:No generamos aun el documento sino cuando se cobra el total del saldo*/
-						
+
 						if (documento!=null){
 							//Se genera el documento de la sunat
 							//this.generarDocumentoPrimerCobroSunat(documento, entidad, request);
-							
+
 						}else{
 							//model.addAttribute("respuesta", "No se pudo registrar la Cuenta por Cobrar del Alquiler para el contrato ["+contrato.getNumero()+"]");
 							strMensaje = strMensaje + "No se pudo registrar la Cuenta del Alquiler para el contrato ["+entidad.getNumero()+"]\n";
@@ -1693,12 +1715,13 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 							resultado = false;
 							break;
 						}
-						
+
 					}
-					
+
 				}
 			}
-			
+			log.debug("[generarDocumentoServicio] Fin:");
+
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -1716,7 +1739,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}
 		return resultado;
 	}
-	
+
 	public TblCxcDocumento registrarCxCDocumentoServicio(Model model, TblContratoServicio servicio, HttpServletRequest request, TblContrato contrato, PeriodoBean periodo,TblCxcBitacora bitacora,TblSerie serieFactura,TblSerie serieBoleta,TblSerie serieInterno){
 		TblCxcDocumento documento	= null;
 		try{
@@ -1724,7 +1747,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			documento.setCodigoContrato(contrato.getCodigoContrato());
 			documento.setCodigoReferencia(servicio.getCodigoServicio());
 			documento.setTipoReferencia(Constantes.TIPO_COBRO_SERVICIO);
-			
+
 			documento.setMontoGenerado(servicio.getMonto());
 			documento.setMontoContrato(servicio.getMonto());
 			documento.setMontoCobrado(new BigDecimal("0"));
@@ -1768,6 +1791,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			}*/
 			//Registrar: Se podria validar que no exista el registro "Codigo de Referencia" antes de registrar (luego en generacion individual)
 			documentoDao.save(documento);
+			log.debug("[registrarCxCDocumentoServicio] documento:"+documento.getFechaFin());
 			//Buscamos el documento registrado
 			//documento = documentoDao.findByAnioMesCodigoReferencia(documento.getTipoReferencia(), documento.getCodigoReferencia(), documento.getAnio(), documento.getMes());
 		}catch(Exception e){
@@ -1775,7 +1799,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}
 		return documento;
 	}
-	
+
 	/*
 	 * Se asigna los datos del campo de auditoria
 	 */
@@ -1791,16 +1815,16 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void mProcesarCambiosContrato(BeanRequest beanRequest, HttpServletRequest request){
 		//variación del monto del alquiler
 		if (beanRequest.getContrato().getMontoAlquiler().compareTo(beanRequest.getContratoAntiguo().getMontoAlquiler())!=0){
 			this.mActualizarAlquilerCxC(beanRequest, request);
 		}
 		//Otros escenarios
-		
+
 	}
-	
+
 	private void mActualizarAlquilerCxC(BeanRequest beanRequest, HttpServletRequest request){
 		List<TblCxcDocumento> listaAlquiler = null; 
 		listaAlquiler = documentoDao.listarDocumentoxReferenciaxSaldo(beanRequest.getContrato().getCodigoContrato(), Constantes.TIPO_COBRO_ALQUILER);
@@ -1813,7 +1837,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						documento.setSaldo(beanRequest.getContrato().getMontoAlquiler().subtract(documento.getMontoCobrado()));
 					}else{
 						//No se toca el saldo, existe un monto cobrado, es mejor realizar el ajuste por refinanciacion
-						
+
 					}
 				}else{
 					documento.setMontoGenerado(beanRequest.getContrato().getMontoAlquiler());
@@ -1824,7 +1848,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				documentoDao.save(documento);
 			}
 		}
-		
+
 	}
 	//Asigna campos de auditoria para el documento
 	private void preEditarDocumento(TblCxcDocumento entidad, HttpServletRequest request) {
@@ -1857,7 +1881,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						primer.setIpModificacion(request.getRemoteAddr());
 						primer.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
 						primer.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
-					
+
 					}
 				}
 				if(beanRequest.getListaPrimerCobroNuevo()!=null){
@@ -1866,40 +1890,40 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						primer.setIpCreacion(request.getRemoteAddr());
 						primer.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
 						primer.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-					
+
 					}
 				}
-				
+
 			}
 			//servicios
-			
-				if(beanRequest.getListaServicioAntiguo()!=null){
-					for(TblContratoServicio objeto: beanRequest.getListaServicioAntiguo()){
-						objeto.setFechaModificacion(new Date(System.currentTimeMillis()));
-						objeto.setIpModificacion(request.getRemoteAddr());
-						objeto.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
-						objeto.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
-					
-					}
+
+			if(beanRequest.getListaServicioAntiguo()!=null){
+				for(TblContratoServicio objeto: beanRequest.getListaServicioAntiguo()){
+					objeto.setFechaModificacion(new Date(System.currentTimeMillis()));
+					objeto.setIpModificacion(request.getRemoteAddr());
+					objeto.setUsuarioModificacion(UtilSGT.mGetUsuario(request));
+					objeto.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
+
 				}
-				if(beanRequest.getListaServicio()!=null){
-					for(TblContratoServicio objeto: beanRequest.getListaServicio()){
-						objeto.setFechaCreacion(new Date(System.currentTimeMillis()));
-						objeto.setIpCreacion(request.getRemoteAddr());
-						objeto.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
-						objeto.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-					
-					}
+			}
+			if(beanRequest.getListaServicio()!=null){
+				for(TblContratoServicio objeto: beanRequest.getListaServicio()){
+					objeto.setFechaCreacion(new Date(System.currentTimeMillis()));
+					objeto.setIpCreacion(request.getRemoteAddr());
+					objeto.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
+					objeto.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
+
 				}
-				//Para lista de observaciones
-				listaObs = beanRequest.getListaObservacion();
-				for(TblObservacion pc:listaObs){
-					pc.setFechaCreacion(new Date(System.currentTimeMillis()));
-					pc.setIpCreacion(request.getRemoteAddr());
-					pc.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
-					pc.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
-				}
-			
+			}
+			//Para lista de observaciones
+			listaObs = beanRequest.getListaObservacion();
+			for(TblObservacion pc:listaObs){
+				pc.setFechaCreacion(new Date(System.currentTimeMillis()));
+				pc.setIpCreacion(request.getRemoteAddr());
+				pc.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
+				pc.setEstado(Constantes.ESTADO_REGISTRO_ACTIVO);
+			}
+
 
 			log.debug("[preEditar] Fin" );
 		}catch(Exception e){
@@ -1912,13 +1936,13 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 
 	}
 
-	
+
 	/*
 	 * Carga las listas en la sesion para las operaciones del contrato
 	 */
-	
+
 	private void cargarListaOperacionContrato(Model model){
-		
+
 		listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_MONEDA);
 		listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_COBRO);
 		listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_GARANTIA);
@@ -1944,10 +1968,11 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		model.addAttribute("listaCxcAlquiler", beanRequest.getListaCxcAlquiler());
 		model.addAttribute("listaCxcServicio", beanRequest.getListaCxcServicio());
 		model.addAttribute("listaCxcLuz", beanRequest.getListaCxcLuz());
+		model.addAttribute("contratoCambios", beanRequest.getContratoBean());
 	}
-	
-/*Busqueda de contratos antiguos*/
-	
+
+	/*Busqueda de contratos antiguos*/
+
 	private List<TblContrato> getContratosAntiguos(TblContrato contrato){
 		List<TblContrato> listaContrato = null;
 		TblContrato contratoAnt			= null;
@@ -1975,23 +2000,23 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 					}else{
 						encontrado = false;
 					}
-					
-					
+
+
 				}while(encontrado);
 			}
 		}catch(Exception e){
-			
+
 		}
 		return listaContrato;
-		
+
 	}
-	
+
 	/*
 	 * Carga las listas en la sesion para las operaciones del contrato
 	 */
-	
+
 	private void cargarListaOperacionCliente(Model model){
-		
+
 		listaUtil.cargarDatosModel(model, Constantes.MAP_TIPO_PERSONA);
 		listaUtil.cargarDatosModel(model, Constantes.MAP_ESTADO_CIVIL);
 		listaUtil.cargarDatosModel(model, Constantes.MAP_SI_NO);
@@ -2011,14 +2036,14 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		Filtro filtro 					= null;
 		try{
 			log.debug("[listarClientesHistorial] Inicio");
-			
+
 			listaHistorial = personaDao.listarPersonasxContrato(contrato.getCodigoContrato());
-					
+
 			model.addAttribute("registros", listaHistorial);
 			filtro = new Filtro();
-			
+
 			filtro.setStrOperacion(Constantes.OPERACION_EDITAR);
-			
+
 			model.addAttribute("filtro", filtro);
 
 		}catch(Exception e){
@@ -2043,9 +2068,9 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		try{
 			log.debug("[adicionarObservacion] Inicio:");
 			path = "cliente/cambiocontrato/ccn_edicion";
-			
+
 			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
-			
+
 			if (observacionBean.getAsunto()== null || observacionBean.getAsunto().equals("")){
 				model.addAttribute("resultadoObservacion", "Debe ingresar el asunto de la Observacion");
 				beanRequest.setContrato(contrato);
@@ -2064,7 +2089,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				this.cargarListaOperacionContrato(model);
 				return path;
 			}
-			
+
 			if (beanRequest.getListaObservacion() == null) {
 				beanRequest.setListaObservacion(new ArrayList<TblObservacion>());
 				beanRequest.getListaObservacion().add(observacionBean);
@@ -2077,8 +2102,8 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			this.cargarListaOperacionContrato(model);
 
 			request.getSession().setAttribute("beanRequest", beanRequest);
-			
-			
+
+
 			log.debug("[adicionarObservacion] Fin");
 		}catch(Exception e){
 			log.debug("[adicionarObservacion] Error:"+e.getMessage());
@@ -2089,7 +2114,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 
 		return path;
 	}
-	
+
 	/*
 	 * Genera los primeros cobros del contrato
 	 */
@@ -2103,8 +2128,8 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		Date fechaFinMes					= null;
 		try{
 			log.debug("[generarPrimerosCobros] Inicio");
-			
-			
+
+
 			beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
 			fechaFinMes = UtilSGT.getDatetoString(UtilSGT.getLastDate(UtilSGT.getDateStringFormat(beanRequest.getContrato().getFechaInicio())));
 			log.debug("[generarPrimerosCobros] fechaFinMes:"+fechaFinMes);
@@ -2123,11 +2148,11 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				primerCobro.setTipoMoneda(beanRequest.getContrato().getTipoMonedaAlquiler());
 				primerCobro.setObservacion(Constantes.DESC_PRIMEROS_COBROS);
 				primerCobro.setFechaCobro(fechaFinMes);
-				
+
 				lista.add(primerCobro);
 			}
 			//Servicios
-			
+
 			if(!igualesListaServicio(beanRequest.getListaServicio(), beanRequest.getContrato(),beanRequest)||
 			   !beanRequest.getContrato().getFechaInicio().toString().equals(beanRequest.getContratoAntiguo().getFechaInicio().toString())
 				){
@@ -2143,7 +2168,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						lista.add(primerCobro);
 					}
 				}
-				
+
 			}
 			beanRequest.setListaPrimerCobroNuevo(lista);
 			log.debug("[generarPrimerosCobros] Fin");
@@ -2172,7 +2197,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 			if (listaServicio == null && listaServicioAntiguo==null){
 				return true;
 			}
-			
+
 			for(int i=0; listaServicio!=null && i< listaServicio.size(); i++){
 				servicio = listaServicio.get(i);
 				encontrado = false;
@@ -2182,7 +2207,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 						encontrado = true;
 						break;
 					}
-						
+
 				}
 				if (!encontrado){
 					return false;
@@ -2198,7 +2223,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 							encontrado = true;
 							break;
 						}
-							
+
 					}
 					if (!encontrado){
 						return false;
@@ -2215,7 +2240,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}
 		return encontrado;
 	}
-	*/
+	 */
 	/*
 	 * Paginado
 	 */
@@ -2236,7 +2261,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				if (pageable.getOperacion() ==null || pageable.getOperacion().equals("")){
 					pageable.setOperacion(operacion);
 				}
-				
+
 			}
 			filtro = (TblContrato)request.getSession().getAttribute("sessionFiltroCriterioCambio");
 			model.addAttribute("filtro", filtro);
@@ -2244,7 +2269,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 				filtro.setTblPersona(new TblPersona());
 			}
 			this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
-			
+
 		}catch(Exception e){
 			//log.debug("[traerRegistros] Error:"+e.getMessage());
 			e.printStackTrace();
@@ -2253,7 +2278,7 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}
 		return path;
 	}
-	
+
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/cambiocontratos/regresar", method = RequestMethod.GET)
@@ -2264,15 +2289,15 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		try{
 			log.debug("[regresar] Inicio");
 			path = "cliente/cambiocontrato/ccn_listado";
-			
+
 			filtro = (TblContrato)request.getSession().getAttribute("sessionFiltroCriterioCambio");
 			model.addAttribute("filtro", filtro);
 			lista = (List<TblContrato>)request.getSession().getAttribute("sessionListaContratoCambio");
 			model.addAttribute("registros",lista);
 			page = (PageWrapper<TblContrato>) request.getSession().getAttribute("PageContratoCambio");
 			model.addAttribute("page", page);
-			
-			
+
+
 			log.debug("[regresar] Fin");
 		}catch(Exception e){
 			log.debug("[regresar] Error:"+e.getMessage());
@@ -2280,7 +2305,316 @@ public class CambioContratoAction extends BaseOperacionPresentacion<TblContrato>
 		}finally{
 			filtro = null;
 		}
-		
+
 		return path;
+	}
+
+	/**
+	 * Se encarga de guardar la informacion de la fecha de fin del contrato
+	 * 
+	 * @param 
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/cambiocontrato/editar/guardar/fecha", method = RequestMethod.POST)
+	public String actualizarEntidadFechaContrato(Model model, ContratoBean entidad, HttpServletRequest request, String path ,  PageableSG pageable) {
+		path 											= "cliente/cambiocontrato/ccn_listado";
+		BeanRequest beanRequest							= null;
+		TblContrato contrato							= null;
+		TblContratoCliente cliente						= null;
+		//List<TblContratoPrimerCobro> listaCobro			= null;
+		TblContrato filtro								= null;
+		Integer totalMesesModificados;
+		List<TblContratoServicio> listaServicio 		= null;
+		try{
+			log.debug("[actualizarEntidadFechaContrato] Inicio" );
+			log.debug("[actualizarEntidadFechaContrato] Pre Guardar..." );
+			beanRequest = (BeanRequest)request.getSession().getAttribute("beanRequest");
+			if (validarCambioFecha(entidad.getFecha_fin(),UtilSGT.getDatetoString2(beanRequest.getContrato().getFechaFin()))) {
+			
+				log.debug("[actualizarEntidadFechaContrato] Fecha Fin Contrato:"+beanRequest.getContrato().getFechaFin() );
+				log.debug("[actualizarEntidadFechaContrato] Fecha Fin Contrato Modificado:"+entidad.getFecha_fin() );
+				totalMesesModificados = calcularDiferenciaMeses(UtilSGT.getDatetoString2(beanRequest.getContrato().getFechaFin()),entidad.getFecha_fin()); 
+				log.debug("[actualizarEntidadFechaContrato] totalMesesModificados:"+totalMesesModificados);
+				if (totalMesesModificados>0) {
+					//Agregamos Servicios y Alquileres
+					contrato = beanRequest.getContrato();
+					//Fecha de inicio de generacion de los cobros
+					Date fechaInicio = contrato.getFechaFin();
+					contrato.setFechaFin(UtilSGT.getDatetoString(entidad.getFecha_fin()));
+					contrato.setAuditoriaModificacion(request);
+					contratoDao.save(contrato);
+					contrato.setFechaInicio(fechaInicio);
+					generarDocumentoAlquiler(model, contrato, request);
+					//registrando los servicios
+					List<Integer> listaIdServicio = documentoDao.listarCxCServicioActivos(contrato.getCodigoContrato());
+					
+					if (listaIdServicio!=null && listaIdServicio.size()>0){
+						for(Integer idServicio: listaIdServicio){
+							log.debug("[actualizarEntidadFechaContrato] idServicio:"+idServicio);
+							TblContratoServicio servicio = contratoServicioDao.findOne(idServicio);
+							if (servicio.getEstado().equals(Constantes.ESTADO_REGISTRO_ACTIVO)) {
+								this.generarDocumentoServicio(model, contrato, servicio, request);
+							}
+						}
+					}
+				}else if (totalMesesModificados<0) {
+					//Eliminamos Servicios y Alquileres
+					String fechaCorte = obtenerAnioMes(entidad.getFecha_fin());
+					EliminarCobrosPorCambiodeFinContrato(beanRequest.getListaCxcServicio(), fechaCorte, request);
+					EliminarCobrosPorCambiodeFinContrato(beanRequest.getListaCxcAlquiler(), fechaCorte, request);
+					contrato = beanRequest.getContrato();
+					contrato.setFechaFin(UtilSGT.getDatetoString(entidad.getFecha_fin()));
+					contrato.setAuditoriaModificacion(request);
+					contratoDao.save(contrato);
+					
+				}
+				filtro = new TblContrato();
+				filtro.setTblPersona(new TblPersona());
+				filtro.setTblTienda(new TblTienda());
+				filtro.getTblTienda().setTblEdificio(new TblEdificio());
+				model.addAttribute("filtro", filtro);
+				listaUtil.cargarDatosModel(model, Constantes.MAP_LISTA_EDIFICIO);
+				this.listarContratos(model, filtro, pageable, this.urlPaginado,request);
+				model.addAttribute("respuesta", "La Fecha de Fin de Contrato fue modificado ["+beanRequest.getContrato().getTblTienda().getNumero() +":"+entidad.getFecha_fin()+"]");
+			}else {
+				model.addAttribute("respuesta", "La Fecha de Fin de Contrato no fue modificado o esta Errado");
+				path = "cliente/cambiocontrato/ccn_edicion";
+				beanRequest = (BeanRequest) request.getSession().getAttribute("beanRequest");
+				beanRequest.setContrato(beanRequest.getContrato());	
+				beanRequest.setContratoBean(entidad);
+				this.cargarListasRequestBeanContrato(model, beanRequest);
+				this.cargarListaOperacionContrato(model);
+				request.getSession().setAttribute("beanRequest", beanRequest);
+			}
+
+			log.debug("[actualizarEntidad] Fin" );
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			//beanRequest		= null;
+			contrato		= null;
+			cliente			= null;
+			filtro			= null;
+		}
+		return path;
+
+	}
+	//Validacion de datos del cambio de fecha
+	private boolean validarCambioFecha(String fechaFin, String fechaOriginal) {
+		if (fechaFin == null || fechaFin.isEmpty()) {
+			return false;
+		}
+		if (fechaFin.equals(fechaOriginal)) {
+			return false;			
+		}
+		Integer totalMesesModificados = calcularDiferenciaMeses(fechaOriginal,fechaFin);
+		if (totalMesesModificados == 0) {
+			return false;
+		}
+		return true;
+	}
+	public static String obtenerAnioMes(String fecha) {
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyyMM");
+        
+        LocalDate fechaLocalDate = LocalDate.parse(fecha, inputFormatter);
+        return fechaLocalDate.format(outputFormatter);
+    }
+
+	//Calculamos la diferencia de meses para saber si se elimina o agrega registros 
+	private int calcularDiferenciaMeses(String fechaInicio, String fechaFin) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");	        
+		LocalDate inicio = LocalDate.parse(fechaInicio, formatter);
+		LocalDate fin = LocalDate.parse(fechaFin, formatter);	        
+		// Calculamos la diferencia en meses
+		Period periodo = Period.between(inicio, fin);	        
+		// Devolvemos los meses totales (años * 12 + meses)
+		return periodo.getYears() * 12 + periodo.getMonths();
+	}
+	/*Eliminacion logica de los registros de servicio*/
+	private List<TblCxcDocumento> EliminarCobrosPorCambiodeFinContrato(List<TblCxcDocumento> listaCxc, String fechaCorte, HttpServletRequest request){
+		List<TblCxcDocumento> listaCxcCambio	= new ArrayList<TblCxcDocumento>();
+		String fechaAlquiler = null;
+		log.info("[EliminarCobrosPorCambiodeFinContrato] Inicio");
+		if (listaCxc != null) {
+			for(TblCxcDocumento documento: listaCxc) {
+				fechaAlquiler = documento.getAnio().toString() + String.format("%02d", Integer.parseInt(documento.getMes().toString()));
+				if (fechaAlquiler.compareTo(fechaCorte) >0 ) {
+					log.info("[EliminarCobrosPorCambiodeFinContrato] fechaAlquiler:"+fechaAlquiler+ " fechaCorte:"+fechaCorte);	
+					documento.setEstado(Constantes.ESTADO_REGISTRO_INACTIVO);
+					documento.setAuditoriaModificacion(request);
+					cxcDocumentoDao.save(documento);
+				}
+			}
+		}
+		log.info("[EliminarCobrosPorCambiodeFinContrato] Fin");
+		return listaCxcCambio;
+	}
+	
+	private boolean generarDocumentoAlquiler(Model model, TblContrato entidad, HttpServletRequest request){
+		TblSerie serieFactura					= null;
+		TblSerie serieBoleta					= null;
+		TblSerie serieInterno					= null;
+		List<PeriodoBean> lista					= null;
+		BitacoraBean bitacoraBean				= null;
+		Specification<TblCxcBitacora> criterio	= null;
+		TblCxcBitacora bitacora					= null;
+		TblCxcDocumento documento				= null;
+		//TblSunatCabecera cabecera				= null;
+		//TblSunatDetalle detalle					= null;
+		boolean resultado 						= false;
+		String strMensaje						= "";
+		try{
+			log.debug("[generarDocumentoAlquiler] Inicio:");
+			//Obtenemos Prefijo, Secuencia y Numero para generar los siguiente
+			serieFactura = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_FACTURA);
+			serieBoleta = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_BOLETA);
+			serieInterno = serieDao.buscarOneByTipoComprobante(Constantes.TIPO_COMPROBANTE_INTERNO);
+			
+			//Lista de los meses a cobrar
+			lista = UtilSGT.mGetListAnioMes(entidad.getFechaInicio(), entidad.getFechaFin());
+			if (lista !=null && lista.size()>0){
+				//cxcBitacoraAction = new CxcBitacoraAction();
+				bitacoraBean = new BitacoraBean();
+				bitacoraBean.setAnio(UtilSGT.getAnioDate(entidad.getFechaInicio()));
+				bitacoraBean.setMes(UtilSGT.getMesDate(entidad.getFechaInicio()).toString());
+				
+				//Registramos la Bitacora del CxC del alquiler
+				bitacoraBean.setCodigoContrato(entidad.getCodigoContrato());
+				boolean exitoso =  this.registrarBitacoraCambio(model, bitacoraBean, Constantes.TIPO_COBRO_ALQUILER, Constantes.SERIE_TIPO_OPERACION_CONTRATO, request);
+				if (exitoso) {
+					criterio = Specifications.where(conAnio(bitacoraBean.getAnio()))
+							.and(conMes(new Integer(bitacoraBean.getMes())))
+							.and(conTipoCobro(Constantes.TIPO_COBRO_ALQUILER))
+							.and(conCodigoContrato(entidad.getCodigoContrato()))
+							.and((conTipoOperacion(Constantes.SERIE_TIPO_OPERACION_CONTRATO)));
+					bitacora = cxcBitacoraDao.findOne(criterio);
+					for(PeriodoBean periodo: lista){
+						documento = this.registrarCxCDocumentoAlquiler(model, bitacoraBean, request, entidad, periodo, bitacora, serieFactura, serieBoleta, serieInterno);
+						//Actualizamos el numero del documento del primer cobro
+						//contratoPrimerCobroDao.save(primerCobro);
+						/**AF20181214:No generamos aun el documento sino cuando se cobra el total del saldo*/
+						
+						if (documento!=null){
+							//Se genera el documento de la sunat
+							//this.generarDocumentoPrimerCobroSunat(documento, entidad, request);
+							
+						}else{
+							//model.addAttribute("respuesta", "No se pudo registrar la Cuenta por Cobrar del Alquiler para el contrato ["+contrato.getNumero()+"]");
+							strMensaje = strMensaje + "No se pudo registrar la Cuenta del Alquiler para el contrato ["+entidad.getNumero()+"]\n";
+							model.addAttribute("respuesta", strMensaje);
+							resultado = false;
+							break;
+						}
+						
+					}
+					
+				}
+			}
+			log.debug("[generarDocumentoAlquiler] Fin:");
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			serieFactura		= null;
+			serieBoleta			= null;
+			serieInterno		= null;
+			lista				= null;
+			bitacoraBean		= null;
+			criterio			= null;
+			bitacora			= null;
+			//documento			= null;
+			//cabecera			= null;
+			//detalle				= null;
+			//strMensaje			= null;
+		}
+		return resultado;
+	}
+	/*
+	 * Guardar datos de la bitacora del CxC
+	 */
+	public boolean registrarBitacoraCambio(Model model, BitacoraBean entidad, String tipoCobro, String tipoOperacion, HttpServletRequest request){
+		boolean resultado 			= false;
+		TblCxcBitacora bitacora		= null;
+		try{
+			bitacora = new TblCxcBitacora();
+			this.preGuardarBitacora(bitacora, request);
+			bitacora.setAnio(entidad.getAnio());
+			bitacora.setMes(new Integer(entidad.getMes()));
+			bitacora.setTipoOperacion(tipoOperacion);
+			bitacora.setTipoCobro(tipoCobro);
+			bitacora.setCodigoContrato(entidad.getCodigoContrato());
+			cxcBitacoraDao.save(bitacora);
+			resultado = true;
+		}catch(Exception e){
+			resultado = false;
+			e.printStackTrace();
+		}finally{
+			bitacora	= null;
+		}
+		return resultado;
+	}
+	/*
+	 * Registro del alquiler
+	 */
+	public TblCxcDocumento registrarCxCDocumentoAlquiler(Model model, BitacoraBean entidad, HttpServletRequest request, TblContrato contrato, PeriodoBean periodo,TblCxcBitacora bitacora,TblSerie serieFactura,TblSerie serieBoleta,TblSerie serieInterno){
+		TblCxcDocumento documento	= null;
+		try{
+			documento = new TblCxcDocumento();
+			documento.setCodigoContrato(contrato.getCodigoContrato());
+			documento.setCodigoReferencia(contrato.getCodigoContrato());
+			documento.setTipoReferencia(Constantes.TIPO_COBRO_ALQUILER);
+			
+			documento.setMontoGenerado(contrato.getMontoAlquiler());
+			documento.setMontoContrato(contrato.getMontoAlquiler());
+			documento.setMontoCobrado(new BigDecimal("0"));
+			documento.setSaldo(contrato.getMontoAlquiler());
+			documento.setTipoMoneda(contrato.getTipoMonedaAlquiler());
+			documento.setTipoDocumento(contrato.getTipoDocumentoAlquiler());
+			documento.setNombre(Constantes.DESC_CUOTA_ALQUILER);
+			//validamos el tipo de documento
+			if (documento.getTipoDocumento().equals(Constantes.TIPO_DOC_FACTURA)){
+				documento.setTipoComprobante(Constantes.TIPO_COMPROBANTE_FACTURA);
+			}else if (documento.getTipoDocumento().equals(Constantes.TIPO_DOC_BOLETA)){
+				documento.setTipoComprobante(Constantes.TIPO_COMPROBANTE_BOLETA);
+			}else if (documento.getTipoDocumento().equals(Constantes.TIPO_DOC_INTERNO)){
+				documento.setTipoComprobante(Constantes.TIPO_COMPROBANTE_INTERNO);
+			}
+			//Fechas
+			documento.setAnio(periodo.getAnio());
+			documento.setMes(periodo.getMes());
+			documento.setFechaFin(UtilSGT.getDatetoString(UtilSGT.getLastDay(periodo.getMes(), periodo.getAnio())));
+			documento.setFechaFinNombre(UtilSGT.getFechaNombre(periodo.getMes(), periodo.getAnio()));
+			//Bitacora
+			documento.setTblCxcBitacora(bitacora);
+			//Campos de auditoria
+			this.preGuardarDocumento(documento, request);
+			//Validamos el tipo de comprobante
+			/**AF20181214:No se crea el documento sino luego del cobro, saldo cero*/
+			/*if (documento.getTipoComprobante().equals(Constantes.TIPO_COMPROBANTE_FACTURA)){
+				UtilSGT.obtenerSiguienteFactura(serieFactura);
+				documento.setSerieComprobante(serieFactura.getPrefijoSerie()+UtilSGT.completarCeros(serieFactura.getSecuencialSerie().toString(), Constantes.SUNAT_LONGITUD_SERIE));
+				documento.setNumeroComprobante(UtilSGT.completarCeros(serieFactura.getNumeroComprobante().toString(),Constantes.SUNAT_LONGITUD_NUMERO));
+			}
+			if (documento.getTipoComprobante().equals(Constantes.TIPO_COMPROBANTE_BOLETA)){
+				UtilSGT.obtenerSiguienteFactura(serieBoleta);
+				documento.setSerieComprobante(serieBoleta.getPrefijoSerie()+UtilSGT.completarCeros(serieBoleta.getSecuencialSerie().toString(), Constantes.SUNAT_LONGITUD_SERIE));
+				documento.setNumeroComprobante(UtilSGT.completarCeros(serieBoleta.getNumeroComprobante().toString(),Constantes.SUNAT_LONGITUD_NUMERO));
+			}
+			if (documento.getTipoComprobante().equals(Constantes.TIPO_COMPROBANTE_INTERNO)){
+				UtilSGT.obtenerSiguienteFactura(serieInterno);
+				documento.setSerieComprobante(serieInterno.getPrefijoSerie()+UtilSGT.completarCeros(serieInterno.getSecuencialSerie().toString(), Constantes.SUNAT_LONGITUD_SERIE));
+				documento.setNumeroComprobante(UtilSGT.completarCeros(serieInterno.getNumeroComprobante().toString(),Constantes.SUNAT_LONGITUD_NUMERO));
+			}*/
+			//Registrar: Se podria validar que no exista el registro "Codigo de Referencia" antes de registrar (luego en generacion individual)
+			documentoDao.save(documento);
+			log.debug("[registrarCxCDocumentoAlquiler] documento:"+documento.getFechaFin());
+			//Buscamos el documento registrado
+			documento = documentoDao.findByAnioMesCodigoReferencia(documento.getTipoReferencia(), documento.getCodigoReferencia(), documento.getAnio(), documento.getMes());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return documento;
 	}
 }
