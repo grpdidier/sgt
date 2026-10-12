@@ -8,4 +8,5 @@ import lombok.Setter;
 public class MensajeErrorBean {
 
 	private String mensaje;
+	private String nombreApi = "";
 }

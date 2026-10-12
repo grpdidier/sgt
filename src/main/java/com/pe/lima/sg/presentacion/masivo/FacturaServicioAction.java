@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.pe.lima.sg.api.Interface.IApiOseCSV;
 import com.pe.lima.sg.api.bean.CredencialBean;
+import com.pe.lima.sg.api.bean.MensajeErrorBean;
 import com.pe.lima.sg.bean.Ubl.TagUbl;
 import com.pe.lima.sg.bean.caja.ComprobanteReintentoBean;
 import com.pe.lima.sg.bean.caja.ComprobanteSunatBean;
@@ -736,10 +737,11 @@ public class FacturaServicioAction {
 
 	private boolean llamadasApiOse(CredencialBean credencial,Model model,TblComprobanteSunat comprobante, HttpServletRequest request,TblMasivoSunat tblMasivoSunat) {
 		boolean resultado = false;
+		MensajeErrorBean mensajeError   = new MensajeErrorBean();
 		try {
 			String token = apiOseCSV.obtenerToken(credencial); 
 			credencial.setAccessToken(token);
-			Integer status = apiOseCSV.obtenerTicket(credencial);
+			Integer status = apiOseCSV.obtenerTicket(credencial, mensajeError);
 			
 			if (status.compareTo(200)==0) {
 				
@@ -890,7 +892,8 @@ public class FacturaServicioAction {
 	private boolean procesarDesdeTicket(CredencialBean credencial, Model model, TblComprobanteSunat comprobante,
 			HttpServletRequest request, TblMasivoSunat tblMasivoSunat) {
 		boolean resultado = false;
-		Integer status = apiOseCSV.obtenerTicket(credencial);
+		MensajeErrorBean mensajeError   = new MensajeErrorBean();
+		Integer status = apiOseCSV.obtenerTicket(credencial, mensajeError);
 		if (status.compareTo(200)==0) {
 			okEnvioCsv(tblMasivoSunat);
 			comprobante = actualizarTicketEnComprobanteSunat(credencial,comprobante,request);
@@ -1828,6 +1831,7 @@ public class FacturaServicioAction {
 		CredencialBean credencial 		= null;
 		FacturaBean factura				= new FacturaBean();
 		MasivoSunatBean masivoSunatBean = null;
+		MensajeErrorBean mensajeError   = new MensajeErrorBean();
 		try{
 			log.debug("[obtenerTicketDocumento] Inicio");
 			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaServicioProcesoComprobante");
@@ -1838,7 +1842,7 @@ public class FacturaServicioAction {
 			obtenerNombreArchivos(credencial,factura);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
-			Integer status = apiOseCSV.obtenerTicket(credencial);
+			Integer status = apiOseCSV.obtenerTicket(credencial, mensajeError);
 			log.debug("[obtenerTicketDocumento] status: "+status);
 			if (status.compareTo(200)==0) {
 				entidad.setNumeroTicket(credencial.getTicket());

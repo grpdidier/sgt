@@ -7,8 +7,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.pe.lima.sg.bean.masivo.TiendaFacturaBean;
 import com.pe.lima.sg.dao.BaseOperacionDAO;
 import com.pe.lima.sg.entity.caja.TblCxcDocumento;
+import com.pe.lima.sg.presentacion.util.Constantes;
 
 public interface ICxCDocumentoDAO extends BaseOperacionDAO<TblCxcDocumento, Integer> {
 
@@ -60,5 +62,38 @@ public interface ICxCDocumentoDAO extends BaseOperacionDAO<TblCxcDocumento, Inte
 	//Se excluye a las tiendas que ya tiene comprobante
 	@Query(value = "select distinct codigo_referencia from caj.tbl_cxc_documento where codigo_contrato =:codigoContrato AND  tipo_referencia ='SER' AND nombre <> 'PRIMER COBRO SERVICIO' AND  estado = '1'", nativeQuery = true)
 	List<Integer> listarCxCServicioActivos(@Param("codigoContrato") int intCodigoContrato);
+	
+	//Listamos las facturas pendientes de una tienda a una fecha
+	@Query(value = "select cxc.*  " + 
+			"from caj.tbl_cxc_documento cxc,  " + 
+			"cli.tbl_contrato con, " + 
+			"mae.tbl_tienda tie " + 
+			"where cxc.codigo_contrato = con.codigo_contrato " + 
+			"AND con.codigo_tienda = tie.codigo_tienda " + 
+			"AND con.estado_contrato  = 'VGN' " + 
+			"AND tie.numero = :numeroTienda " + 
+			"AND cxc.tipo_referencia = :tipoReferencia  " + 
+			"AND cxc.tipo_documento = 'FAC'  " + 
+			"AND (cxc.anio * 100 + cxc.mes) >= " + Constantes.PERIODO_VALIDACION + 
+			" AND (cxc.anio * 100 + cxc.mes) < :periodo  " + 
+			"AND cxc.estado = '1'  " + 
+			"and cxc.codigo_comprobante is null  order by cxc.fecha_fin asc", nativeQuery = true)
+	List<TblCxcDocumento> listarCxCByAnioMesTiendaSinComprobante(@Param("tipoReferencia") String strTipoReferencia, @Param("numeroTienda") String numeroTienda, @Param("periodo") Integer  periodo);
+	//Listamos las facturas pendientes de todas las tiendas a una fecha que tienen pendiente su(s) factura(s)
+	@Query(value = " select tabla.tienda || ':' || tabla.cantidad from (select tie.numero as tienda, count(1) as cantidad  " + 
+			"from caj.tbl_cxc_documento cxc,  " + 
+			"cli.tbl_contrato con, " + 
+			"mae.tbl_tienda tie " + 
+			"where cxc.codigo_contrato = con.codigo_contrato " + 
+			"AND con.codigo_tienda = tie.codigo_tienda " + 
+			"AND con.estado_contrato  = 'VGN' " + 
+			"AND cxc.tipo_referencia = :tipoReferencia  " + 
+			"AND cxc.tipo_documento = 'FAC'  " + 
+			"AND (cxc.anio * 100 + cxc.mes) >= "+ Constantes.PERIODO_VALIDACION + 
+			" AND (cxc.anio * 100 + cxc.mes) < :periodo  " + 
+			"AND cxc.estado = '1'  " + 
+			"and cxc.codigo_comprobante is null GROUP BY tie.numero) tabla", nativeQuery = true)
+	List<String> listarCxCByAnioMesSinComprobantePendiente(@Param("tipoReferencia") String strTipoReferencia, @Param("periodo") Integer  periodo);
+
 
 }

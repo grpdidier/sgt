@@ -13,15 +13,19 @@ import java.io.FileWriter;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.pe.lima.sg.api.ApiOseCSV;
 import com.pe.lima.sg.api.Interface.IApiOseCSV;
 import com.pe.lima.sg.api.bean.CredencialBean;
+import com.pe.lima.sg.api.bean.MensajeErrorBean;
 import com.pe.lima.sg.bean.Ubl.TagUbl;
 import com.pe.lima.sg.bean.caja.ComprobanteReintentoBean;
 import com.pe.lima.sg.bean.caja.ComprobanteSunatBean;
@@ -50,6 +55,7 @@ import com.pe.lima.sg.bean.caja.FacturaBean;
 import com.pe.lima.sg.bean.caja.MasivoSunatBean;
 import com.pe.lima.sg.bean.caja.MasivoTiendaSunatBean;
 import com.pe.lima.sg.bean.caja.UbigeoBean;
+import com.pe.lima.sg.bean.masivo.TiendaFacturaBean;
 import com.pe.lima.sg.dao.caja.IComprobanteOseDAO;
 import com.pe.lima.sg.dao.caja.ICxCDocumentoDAO;
 import com.pe.lima.sg.dao.caja.IDetalleComprobanteOseDAO;
@@ -229,8 +235,27 @@ public class FacturaAlquilerAction {
 			//List<TblContrato> listaContratoActivo = contratoDao.listAllContratoActivosxFecha(new Date());
 			List<TblContrato> listaContratoActivo = contratoDao.listAllContratoActivosxAnioMes(entidad.getAnio()+entidad.getMes());
 			List<TblCxcDocumento> listaCxCActivo = cxcDocumentoDao.listarCxCByAnioMesSinComprobante(Constantes.TIPO_PAGO_ALQUILER_CODIGO, entidad.getAnio(), new Integer(entidad.getMes()));
-			obtenerListaTiendasAFacturar(listaTiendaActivo,listaContratoActivo,listaCxCActivo,entidad);
+			Integer periodoInt = Integer.valueOf(entidad.getAnio()+entidad.getMes());
+			List<String> lista = cxcDocumentoDao.listarCxCByAnioMesSinComprobantePendiente(Constantes.TIPO_PAGO_ALQUILER_CODIGO, periodoInt);
+			List<TiendaFacturaBean> listaTiendaFacturaPendiente = obtenerListaTiendaFacturaBean(lista);
+			obtenerListaTiendasAFacturar(listaTiendaActivo,listaContratoActivo,listaCxCActivo,entidad, listaTiendaFacturaPendiente);
 			log.debug("[nuevoConTiendaMasivoFacturaTienda] Tiendas:"+entidad.getListaTiendaSunat().size());
+			//Validación de tipo de cambio
+			String fecha = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+			TblTipoCambio tipoCambio = tipoCambioDao.obtenerUltimoTipoCambioxFecha(fecha);
+			if (UtilSGT.esHoy(tipoCambio.getFecha())) {
+				entidad.setMsgTipoCambio("OK");
+			} else {
+				
+				entidad.setMsgTipoCambio("Debe ingresar el tipo de cambio correspondiente a la fecha de emisión. ["+fecha+"]");
+			}
+			//Validación de Facturas Pendiente.
+			if (!existeFacturaPendiente(entidad.getListaTiendaSunat())) {
+				entidad.setMsgFacturaPendiente("OK");
+			} else {
+				entidad.setMsgFacturaPendiente("Se identificó tienda(s) con factura pendiente.");
+			}
+			
 			model.addAttribute("entidad", entidad);
 			model.addAttribute("registros", entidad.getListaTiendaSunat());
 			request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", entidad);
@@ -242,6 +267,47 @@ public class FacturaAlquilerAction {
 		return "masivo/alquiler/fac_nuevo_tienda";
 	}
 	
+
+	private boolean existeFacturaPendiente(List<MasivoTiendaSunatBean> listaTiendaSunat) {
+		if (listaTiendaSunat!=null) {
+			for(MasivoTiendaSunatBean bean: listaTiendaSunat) {
+				if (bean.getFacturaPendiente() ==null || bean.getFacturaPendiente()>0) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private List<TiendaFacturaBean> obtenerListaTiendaFacturaBean(List<String> lista) {
+	    List<TiendaFacturaBean> listaTiendaFacturaPendiente = new ArrayList<>();
+	    TiendaFacturaBean tiendaFacturaBean = null;
+	    if (lista == null) {
+	        return listaTiendaFacturaPendiente;
+	    }
+
+	    for (String cadena : lista) {
+	        if (cadena == null || cadena.trim().isEmpty()) {
+	            continue;
+	        }
+
+	        String[] arr = cadena.split(":");
+	        if (arr.length < 2) {
+	            continue; // formato inválido, se omite
+	        }
+
+	        try {
+	            tiendaFacturaBean = new TiendaFacturaBean();
+	            tiendaFacturaBean.setNumeroTienda(arr[0].trim());
+	            tiendaFacturaBean.setCantidadFacturaPendiente(Integer.parseInt(arr[1].trim()));
+	            listaTiendaFacturaPendiente.add(tiendaFacturaBean);
+	        } catch (NumberFormatException e) {
+	        	tiendaFacturaBean.setCantidadFacturaPendiente(0);
+	        }
+	    }
+
+	    return listaTiendaFacturaPendiente;
+	}
 
 	@RequestMapping(value = "/masivotienda/facturas/alquiler/nuevo/agregarExcluida", method = RequestMethod.POST)
 	public String agregarNuevoTiendaMasivoFacturaTienda(Model model, MasivoSunatBean entidad, HttpServletRequest request) {
@@ -260,6 +326,12 @@ public class FacturaAlquilerAction {
 				Map<String,Integer> mapTiendaExcluidasCombo = generarNuevoMapTiendaExcluidaCombo(mapTiendaExcluidas);
 				masivoSunatBean.setMapTiendaExcluidasComboBox(mapTiendaExcluidasCombo);
 				masivoSunatBean = adicionarTiendaEnLista(masivoSunatBean, entidad.getCodigoTienda(), numeroTienda);
+				//Validación de Facturas Pendiente.
+				if (!existeFacturaPendiente(masivoSunatBean.getListaTiendaSunat())) {
+					masivoSunatBean.setMsgFacturaPendiente("OK");
+				} else {
+					masivoSunatBean.setMsgFacturaPendiente("Se identificó tienda(s) con factura pendiente.");
+				}
 				model.addAttribute("entidad", masivoSunatBean);
 				model.addAttribute("registros", masivoSunatBean.getListaTiendaSunat());
 				request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", masivoSunatBean);
@@ -278,18 +350,30 @@ public class FacturaAlquilerAction {
 		MasivoSunatBean masivoSunatBean = null;
 		String path 					= "masivo/alquiler/fac_nuevo_tienda";
 		try{
+			log.debug("[quitarNuevoTiendaMasivoFacturaTienda] Inicio");
 			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerNuevo");
 			MasivoTiendaSunatBean masivoTiendaSunatBean = masivoSunatBean.getListaTiendaSunat().get(id.intValue());
 			Integer codigoTienda = masivoTiendaSunatBean.getCodigoTienda();
 			String numeroTienda = masivoTiendaSunatBean.getNumeroTienda();
+			log.debug("[quitarNuevoTiendaMasivoFacturaTienda] codigoTienda:"+codigoTienda);
+			if (masivoSunatBean.getMapTiendaExcluidaBackup() == null) {
+				masivoSunatBean.setMapTiendaExcluidaBackup(new HashMap<>());
+			}
+			masivoSunatBean.getMapTiendaExcluidaBackup().put(codigoTienda, masivoTiendaSunatBean);
+			log.debug("[quitarNuevoTiendaMasivoFacturaTienda] size:"+masivoSunatBean.getMapTiendaExcluidaBackup().size());
 			masivoSunatBean.getListaTiendaSunat().remove(id.intValue());
 			masivoSunatBean.getMapTiendaExcluidas().put(codigoTienda,numeroTienda);
 			Map<String,Integer> mapTiendaExcluidasCombo = generarNuevoMapTiendaExcluidaCombo(masivoSunatBean.getMapTiendaExcluidas());
 			masivoSunatBean.setMapTiendaExcluidasComboBox(mapTiendaExcluidasCombo);
+			//Validamos facturas pendientes
+			if (masivoSunatBean.getListaTiendaSunat() == null || masivoSunatBean.getListaTiendaSunat().isEmpty()) {
+				masivoSunatBean.setMsgFacturaPendiente("OK");
+			}
 			model.addAttribute("entidad", masivoSunatBean);
 			model.addAttribute("registros", masivoSunatBean.getListaTiendaSunat());
 			request.getSession().setAttribute("MasivoFacturaAlquilerNuevo", masivoSunatBean);
 			request.getSession().setAttribute("SessionMapTiendaExcluida", masivoSunatBean.getMapTiendaExcluidasComboBox());
+			log.debug("[quitarNuevoTiendaMasivoFacturaTienda] Fin");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -317,8 +401,17 @@ public class FacturaAlquilerAction {
 	    			Integer codigoTienda = masivoTiendaSunatBean.getCodigoTienda();
 	    			String numeroTienda = masivoTiendaSunatBean.getNumeroTienda();
 	    			log.debug("[eliminarTiendaSeleccion] numeroTienda:"+ numeroTienda );
+	    			log.debug("[eliminarTiendaSeleccion] codigoTienda:"+codigoTienda);
+	    			if (masivoSunatBean.getMapTiendaExcluidaBackup() == null) {
+	    				masivoSunatBean.setMapTiendaExcluidaBackup(new HashMap<>());
+	    			}
+	    			masivoSunatBean.getMapTiendaExcluidaBackup().put(codigoTienda, masivoTiendaSunatBean);
 	    			masivoSunatBean.getListaTiendaSunat().remove(new Integer(checkbox).intValue());
 	    			masivoSunatBean.getMapTiendaExcluidas().put(codigoTienda,numeroTienda);
+	    			//Validamos facturas pendientes
+	    			if (masivoSunatBean.getListaTiendaSunat() == null || masivoSunatBean.getListaTiendaSunat().isEmpty()) {
+	    				masivoSunatBean.setMsgFacturaPendiente("OK");
+	    			}
 	            }
 	        }
 			
@@ -756,10 +849,11 @@ public class FacturaAlquilerAction {
 
 	private boolean llamadasApiOse(CredencialBean credencial,Model model,TblComprobanteSunat comprobante, HttpServletRequest request,TblMasivoSunat tblMasivoSunat) {
 		boolean resultado = false;
+		MensajeErrorBean mensajeError   = new MensajeErrorBean();
 		try {
 			String token = apiOseCSV.obtenerToken(credencial); 
 			credencial.setAccessToken(token);
-			Integer status = apiOseCSV.obtenerTicket(credencial);
+			Integer status = apiOseCSV.obtenerTicket(credencial, mensajeError);
 			
 			if (status.compareTo(200)==0) {
 				
@@ -910,7 +1004,8 @@ public class FacturaAlquilerAction {
 	private boolean procesarDesdeTicket(CredencialBean credencial, Model model, TblComprobanteSunat comprobante,
 			HttpServletRequest request, TblMasivoSunat tblMasivoSunat) {
 		boolean resultado = false;
-		Integer status = apiOseCSV.obtenerTicket(credencial);
+		MensajeErrorBean mensajeError   = new MensajeErrorBean();
+		Integer status = apiOseCSV.obtenerTicket(credencial, mensajeError);
 		if (status.compareTo(200)==0) {
 			okEnvioCsv(tblMasivoSunat);
 			comprobante = actualizarTicketEnComprobanteSunat(credencial,comprobante,request);
@@ -1450,6 +1545,7 @@ public class FacturaAlquilerAction {
 	
 	
 	private MasivoSunatBean adicionarTiendaEnLista(MasivoSunatBean masivoSunatBean, Integer codigoTienda, String numeroTienda) {
+		log.debug("[adicionarTiendaEnLista] Inicio");
 		MasivoTiendaSunatBean tiendaSunatBean = new MasivoTiendaSunatBean();
 		Integer codigoContrato = obtenerCodigoContratoDeTienda(codigoTienda);
 		TblCxcDocumento documento = obtenerDocumentoDeTienda(codigoContrato, masivoSunatBean.getAnio(), new Integer(masivoSunatBean.getMes()));
@@ -1461,8 +1557,15 @@ public class FacturaAlquilerAction {
 		tiendaSunatBean.setNombrePeriodo(masivoSunatBean.getPeriodo());
 		tiendaSunatBean.setNumeroTienda(numeroTienda);
 		tiendaSunatBean.setCodigoTienda(codigoTienda);
+		log.debug("[adicionarTiendaEnLista] codigoTienda:"+codigoTienda);
+		MasivoTiendaSunatBean backupTienda = masivoSunatBean.getMapTiendaExcluidaBackup().get(codigoTienda);
+		log.debug("[adicionarTiendaEnLista] backupTienda:"+backupTienda);
+		if (backupTienda != null) {
+			tiendaSunatBean.setUbigeo(backupTienda.getUbigeo());
+			tiendaSunatBean.setFacturaPendiente(backupTienda.getFacturaPendiente());
+		}
 		masivoSunatBean.getListaTiendaSunat().add(tiendaSunatBean);
-		
+		log.debug("[adicionarTiendaEnLista] Fin");
 		return masivoSunatBean;
 	}
 
@@ -1514,10 +1617,12 @@ public class FacturaAlquilerAction {
 	}
 
 	private void obtenerListaTiendasAFacturar(List<TblTienda> listaTiendaActivo, List<TblContrato> listaContratoActivo,
-			List<TblCxcDocumento> listaCxCActivo, MasivoSunatBean entidad) {
+			List<TblCxcDocumento> listaCxCActivo, MasivoSunatBean entidad,
+			List<TiendaFacturaBean> listaTiendaFacturaPendiente) {
 		Map<Integer,TblContrato> mapContratoxTienda = obtenerMapContratoxTienda(listaContratoActivo);
 		Map<Integer,TblContrato> mapContrato = obtenerMapContrato(listaContratoActivo);
 		Map<Integer,TblCxcDocumento> mapDocumento = obtenerMapCxCDocumentoxTienda(listaCxCActivo,mapContrato);
+		Map<String, Integer> mapTiendaFactPendiente = obtenerMapTiendaFactPendiente(listaTiendaFacturaPendiente);
 		//Listado de clientes x Ubigeo
 		Map<Integer, String> mapPersonaxUbigeo = obtenerPersonaxUbigeo();
 		Map<Integer,String> mapTiendaExcluida = new HashMap<>();
@@ -1540,6 +1645,7 @@ public class FacturaAlquilerAction {
 				tiendaSunatBean.setNombrePeriodo(entidad.getPeriodo());
 				tiendaSunatBean.setNumeroTienda(tienda.getNumero());
 				tiendaSunatBean.setCodigoTienda(tienda.getCodigoTienda());
+				tiendaSunatBean.setFacturaPendiente(asignarFacturaPendiente(mapTiendaFactPendiente,tienda.getNumero()));
 				entidad.getListaTiendaSunat().add(tiendaSunatBean);
 			}else {
 				mapTiendaExcluidaComboBox.put(tienda.getNumero(),keyTienda);
@@ -1550,6 +1656,29 @@ public class FacturaAlquilerAction {
 		entidad.setMapTiendaExcluidasComboBox(mapTiendaExcluidaComboBox);
 		entidad.setMapTiendaExcluidas(mapTiendaExcluida);
 	}
+	
+	private Integer asignarFacturaPendiente(Map<String, Integer> mapTiendaFactPendiente, String numero) {
+	    if (mapTiendaFactPendiente == null) {
+	        return 0;
+	    }
+	    Integer pendiente = mapTiendaFactPendiente.get(numero);
+	    return pendiente != null ? pendiente : 0;
+	}
+
+	private Map<String, Integer> obtenerMapTiendaFactPendiente(List<TiendaFacturaBean> listaTiendaFacturaPendiente) {
+	    Map<String, Integer> mapa = new HashMap<>();
+
+	    if (listaTiendaFacturaPendiente == null) {
+	        return mapa;
+	    }
+
+	    for (TiendaFacturaBean bean : listaTiendaFacturaPendiente) {
+	        mapa.put(bean.getNumeroTienda(), bean.getCantidadFacturaPendiente());
+	    }
+
+	    return mapa;
+	}
+
 	private String obtenerUbigeoPersona(TblContrato contrato, Map<Integer, String> mapPersonaxUbigeo) {
 		String ubigeo = "";
 		if (contrato != null && contrato.getTblPersona()!=null && contrato.getTblPersona().getCodigoPersona()>0) {
@@ -1898,6 +2027,7 @@ public class FacturaAlquilerAction {
 		CredencialBean credencial 		= null;
 		FacturaBean factura				= new FacturaBean();
 		MasivoSunatBean masivoSunatBean = null;
+		MensajeErrorBean mensajeError   = new MensajeErrorBean();
 		try{
 			log.debug("[obtenerTicketDocumento] Inicio");
 			masivoSunatBean = (MasivoSunatBean)request.getSession().getAttribute("MasivoFacturaAlquilerProcesoComprobante");
@@ -1908,7 +2038,7 @@ public class FacturaAlquilerAction {
 			obtenerNombreArchivos(credencial,factura);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
-			Integer status = apiOseCSV.obtenerTicket(credencial);
+			Integer status = apiOseCSV.obtenerTicket(credencial, mensajeError);
 			log.debug("[obtenerTicketDocumento] status: "+status);
 			if (status.compareTo(200)==0) {
 				entidad.setNumeroTicket(credencial.getTicket());

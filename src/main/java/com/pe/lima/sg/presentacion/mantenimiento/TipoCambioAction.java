@@ -111,7 +111,8 @@ public class TipoCambioAction extends BasePresentacion<TblTipoCambio> {
 			this.setFechaCriterio(filtro);
 			log.debug("[listarTipoCambioes] Fec Inicio:"+filtro.getFechaInicio());
 			log.debug("[listarTipoCambioes] Fec Fin:"+filtro.getFechaFin());
-			entidades = tipocambioDao.listarCriterios(filtro.getFechaInicio(), filtro.getFechaFin());
+			entidades = tipocambioDao.listarCriterios(UtilSGT.formatearFecha(filtro.getFechaInicio()),
+													  UtilSGT.formatearFecha(filtro.getFechaFin()));
 			log.debug("[listarTipoCambioes] entidades:"+entidades);
 			model.addAttribute("registros", entidades);
 		}catch(Exception e){

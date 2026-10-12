@@ -153,7 +153,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				if (authentication.isAuthenticated()) {
 					String login = authentication.getName();
 					TblUsuario u = usuR.findOneByLogin(login);
-					log.debug("[onAuthenticationSuccess] usuario:"+u);
+					//log.debug("[onAuthenticationSuccess] usuario:"+u);
 					if (u == null || u.getEstadoUsuario().equals(Constantes.ESTADO_INACTIVO)) {
 						redirectStrategy.sendRedirect(request, response, "/login");
 						
@@ -167,7 +167,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						GlobalPermisoBean globalPermisoBean = this.validarPermisoGlobal(u);
 						request.getSession().setAttribute("SessionPermiso", globalPermisoBean);
 						request.getSession().setAttribute("id_usuario", u.getCodigoUsuario());
-						log.debug("[onAuthenticationSuccess] id_usuario:"+u.getCodigoUsuario());
+						//log.debug("[onAuthenticationSuccess] id_usuario:"+u.getCodigoUsuario());
 						/*Cargamos las variables de session*/
 						request.getSession().setAttribute("SessionMapEstadoUsuario", ListaUtilAction.obtenerValoresEstadoUsuario2());
 						request.getSession().setAttribute("SessionIngresoSalida", ListaUtilAction.obtenerValoresIngresoSalida());
@@ -176,7 +176,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						request.getSession().setAttribute("SessionMapAnioFactura", ListaUtilAction.obtenerAniosFactura());
 						request.getSession().setAttribute("SessionMapMeses", ListaUtilAction.obtenerValoresMesesSession());
 						request.getSession().setAttribute("SessionMapTipoMoneda", ListaUtilAction.obtenerValoresTipoMoneda());
-						log.debug("[onAuthenticationSuccess] SessionMapEstadoUsuario");
+						//log.debug("[onAuthenticationSuccess] SessionMapEstadoUsuario");
 						/*Lista de Edificaciones: Inmuebles*/
 						request.getSession().setAttribute("SessionMapEdificacion", obtenerValoresEdificacio());
 						request.getSession().setAttribute("SessionMapEdificacionOperacion", obtenerValoresEdificacioOperacion());
@@ -301,7 +301,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			 */
 			private String generarArbol(List<TblOpcion> listaOpciones, AccesoDirectoBean accesoDirectoBean){
 				String strResultado	= null;
-				log.debug("[generarArbol] Inicio ");
+				//log.debug("[generarArbol] Inicio ");
 				try{
 					strResultado = Constantes.MENU_CABECERA_INI_PRINCIPAL;
 					strResultado = strResultado + this.getOpcionesRecursivo(1000, listaOpciones, accesoDirectoBean);
@@ -309,12 +309,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				}catch(Exception e){
 					
 				}
-				log.debug("[generarArbol] Fin - strResultado: "+strResultado);
+				//log.debug("[generarArbol] Fin - strResultado: "+strResultado);
 				return strResultado;
 			}
 			private String getOpcionesRecursivo(Integer intModulo, List<TblOpcion> listaOpciones, AccesoDirectoBean accesoDirectoBean){
 				String strResultado = "";
-				log.debug("[getOpcionesRecursivo] Inicio - Modulo: "+intModulo);
+				//log.debug("[getOpcionesRecursivo] Inicio - Modulo: "+intModulo);
 				for(TblOpcion opcion: listaOpciones){
 					if (opcion.getModulo().compareTo(intModulo)==0){
 						//Se valida si es nodo u hoja
@@ -338,7 +338,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						}
 					}
 				}
-				log.debug("[getOpcionesRecursivo] Fin - resultado: "+strResultado);
+				//log.debug("[getOpcionesRecursivo] Fin - resultado: "+strResultado);
 				return strResultado;
 			}
 			/*Verificamos si tiene configurado el acceso directo*/
@@ -429,7 +429,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			listaTipoServicio = tipoServicioDao.listarAllActivosxRubro(Constantes.TIPO_RUBRO_SERVICIO);
 			if (listaTipoServicio!=null){
 				for(TblTipoServicio entidad: listaTipoServicio){
-					log.debug("[obtenerValoresEdificacio] edificio:"+entidad.getNombre());
+					//log.debug("[obtenerValoresEdificacio] edificio:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoTipoServicio());
 				}
 				
@@ -455,7 +455,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			listaTipoServicio = tipoServicioDao.listarAllActivos();
 			if (listaTipoServicio!=null){
 				for(TblTipoServicio entidad: listaTipoServicio){
-					log.debug("[obtenerValoresEdificacio] edificio:"+entidad.getNombre());
+					//log.debug("[obtenerValoresEdificacio] edificio:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoTipoServicio());
 				}
 				
@@ -508,7 +508,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			listaConcepto = conceptoDao.buscarxTipo(strTipoConcepto);
 			if (listaConcepto!=null){
 				for(TblConcepto entidad: listaConcepto){
-					log.debug("[obtenerValoresConcepto] nombre:"+entidad.getNombre());
+					//log.debug("[obtenerValoresConcepto] nombre:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoConcepto());
 				}
 				
@@ -531,7 +531,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			listaConcepto = conceptoDao.listarAllActivos();
 			if (listaConcepto!=null){
 				for(TblConcepto entidad: listaConcepto){
-					log.debug("[obtenerValoresConcepto] nombre:"+entidad.getNombre());
+					//log.debug("[obtenerValoresConcepto] nombre:"+entidad.getNombre());
 					resultados.put(entidad.getNombre(), entidad.getCodigoConcepto());
 				}
 				
@@ -553,7 +553,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			listaConcepto = conceptoDao.listarAllActivos();
 			if (listaConcepto!=null){
 				for(TblConcepto entidad: listaConcepto){
-					log.debug("[obtenerValoresAllConceptoMap] nombre:"+entidad.getNombre());
+					//log.debug("[obtenerValoresAllConceptoMap] nombre:"+entidad.getNombre());
 					resultados.put(entidad.getCodigoConcepto(), entidad.getNombre());
 				}
 				
@@ -576,7 +576,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			listaUsuario = usuarioDao.findAll();
 			if (listaUsuario!=null){
 				for(TblUsuario entidad: listaUsuario){
-					log.debug("[obtenerAllUsuarioMap] nombre:"+entidad.getNombre());
+					//log.debug("[obtenerAllUsuarioMap] nombre:"+entidad.getNombre());
 					resultados.put(entidad.getCodigoUsuario(), entidad.getNombre().toUpperCase());
 				}
 				

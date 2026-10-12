@@ -9,7 +9,7 @@ public interface IApiOseCSV {
 
 	public String obtenerToken(CredencialBean credencialBean) throws Exception;
 	
-	public Integer obtenerTicket(CredencialBean credencialBean);
+	public Integer obtenerTicket(CredencialBean credencialBean, MensajeErrorBean mensajeError);
 	
 	public Integer obtenerCDRDocumento(CredencialBean credencialBean);
 	

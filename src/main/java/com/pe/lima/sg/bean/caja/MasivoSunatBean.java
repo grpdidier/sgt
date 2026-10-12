@@ -59,11 +59,17 @@ public class MasivoSunatBean implements Serializable {
 	private Date fechaProceso;	
 	//Lista de tiendas a generar factura
 	private List<MasivoTiendaSunatBean> listaTiendaSunat;
+	//Datos temporales de las tiendas que se excluyen
+	private Map<Integer, MasivoTiendaSunatBean> mapTiendaExcluidaBackup;
 	//Tiendas excluidas
 	private Map<Integer,String> mapTiendaExcluidas;
 	private Map<String,Integer> mapTiendaExcluidasComboBox;
 	//Para los comprobantes
 	List<ComprobanteSunatBean> listaComprobanteBean;
+	//Para la validacion del tipo de cambio
+	private String msgTipoCambio;
+	//Para la factura Pendiente
+	private String msgFacturaPendiente;
 	
 	
 

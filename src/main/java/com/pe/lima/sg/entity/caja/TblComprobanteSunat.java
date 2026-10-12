@@ -68,6 +68,7 @@ public class TblComprobanteSunat implements Serializable {
 	private String serieNota;
 	private String numeroNota;
 	private String ubigeo;
+	private BigDecimal tipoCambio;
 
 	public TblComprobanteSunat() {
 	}
@@ -484,6 +485,15 @@ public class TblComprobanteSunat implements Serializable {
 
 	public void setUbigeo(String ubigeo) {
 		this.ubigeo = ubigeo;
+	}
+
+	@Column(name="tipo_cambio", precision = 12)
+	public BigDecimal getTipoCambio() {
+		return tipoCambio;
+	}
+
+	public void setTipoCambio(BigDecimal tipoCambio) {
+		this.tipoCambio = tipoCambio;
 	}
 	
 }

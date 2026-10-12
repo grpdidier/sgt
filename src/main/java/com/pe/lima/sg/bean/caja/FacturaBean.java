@@ -3,6 +3,7 @@ package com.pe.lima.sg.bean.caja;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.pe.lima.sg.entity.caja.TblApiLlamada;
 import com.pe.lima.sg.entity.caja.TblComprobanteSunat;
 import com.pe.lima.sg.entity.caja.TblDetalleComprobante;
 import com.pe.lima.sg.entity.caja.TblDetalleFormaPago;
@@ -34,5 +35,9 @@ public class FacturaBean {
 	/*2026.09.20: Factura retroactiva*/
 	//Mes de Factura
 	private String numeroMes;
+	//Validación del tipo de cambio
+	private String msgTipoCambio;
+	//Listado de llamadas
+	List<TblApiLlamada> listaLlamada;
 	
 }

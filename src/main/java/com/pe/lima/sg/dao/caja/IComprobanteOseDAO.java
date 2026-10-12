@@ -20,4 +20,11 @@ public interface IComprobanteOseDAO extends BaseOperacionDAO<TblComprobanteSunat
 	@Query(value = "select com.* from caj.tbl_comprobante_sunat com where com.codigo_contrato = :codigoContrato and  com.estado = '1' ORDER BY 1 ", nativeQuery = true)
 	List<TblComprobanteSunat> findByCodigoContrato(@Param("codigoContrato") int codigoContrato);
 	
+	@Query(value = "SELECT count(1) " + 
+			"FROM caj.tbl_comprobante_sunat " + 
+			"WHERE to_char(to_date(fecha_emision, 'YYYY-MM-DD'), 'YYYYMM') = :periodo ", nativeQuery = true)
+	Integer countFacturasxPeriodo(@Param("periodo") String periodo);
+
+	
+	
 }

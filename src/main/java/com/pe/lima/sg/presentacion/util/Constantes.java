@@ -1,6 +1,8 @@
 package com.pe.lima.sg.presentacion.util;
 
 public class Constantes {
+	
+	public static final int PERIODO_VALIDACION				= 202610;
 
 	//Variable para el estado
 	public static String ESTADO_ACTIVO 						= "S";

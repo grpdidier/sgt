@@ -45,8 +45,10 @@
 											<div class="col-md-3 mb-3">
 												<div th:fragment="combo">
 													<label>A&ntilde;o:</label>
+													<br></br>
+													<span th:text="${entidad.anio}"></span>
 													<select th:field="${entidad.anio}" 
-														class="form-control_v2 is-valid">
+														class="form-control_v2 is-valid" style="display:none">
 															<option value="-1">--Todos--</option>
 															<option th:each="entry : ${session.SessionMapAnioFactura}" th:value="${entry.value}"
 																th:text="${entry.key}">opcion</option>
@@ -56,8 +58,12 @@
 											<div class="col-md-3 mb-3">
 												<div th:fragment="combo">
 													<label>Mes:</label>
+													<br></br>
+													<th:block th:each="entry : ${session.SessionMapMeses}">
+												        <span th:if="${entry.value == entidad.mes}" th:text="${entry.key}"></span>
+												    </th:block>
 													<select th:field="${entidad.mes}" 
-														class="form-control_v2 is-valid">
+														class="form-control_v2 is-valid" style="display:none">
 															<option value="-1">--Todos--</option>
 															<option th:each="entry : ${session.SessionMapMeses}" th:value="${entry.value}"
 																th:text="${entry.key}">opcion</option>

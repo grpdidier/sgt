@@ -908,6 +908,8 @@ public class ListaUtilAction {
 		Integer[] arrMeses = UtilSGT.obtenerMesActualYAnterior(new Date());
 		
 		Map<String, String> resultados = new LinkedHashMap<String, String>();
+		//Temporal Borra el 2
+		resultados.put(UtilSGT.obtenerNombreMes(arrMeses[2]), arrMeses[2].toString());
 		resultados.put(UtilSGT.obtenerNombreMes(arrMeses[1]), arrMeses[1].toString());
 		resultados.put(UtilSGT.obtenerNombreMes(arrMeses[0]), arrMeses[0].toString());
 		

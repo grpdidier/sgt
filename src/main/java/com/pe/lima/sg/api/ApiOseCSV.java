@@ -86,7 +86,7 @@ public class ApiOseCSV implements IApiOseCSV {
 		return accessToken;
 	}
 	@Override
-	public Integer obtenerTicket(CredencialBean credencialBean) {
+	public Integer obtenerTicket(CredencialBean credencialBean, MensajeErrorBean mensajeError) {
 		log.info("[obtenerTicket] Inicio");
 		Integer status = 0;
 		String ticket = null; 
@@ -127,7 +127,28 @@ public class ApiOseCSV implements IApiOseCSV {
 				ticket = rootNodeResponse.path("description").asText(); 
 				credencialBean.setTicket(ticket);
 				log.info("[obtenerTicket] Ticket: "+ticket);
-			}
+			}else {
+		        String responseBody = EntityUtils.toString(entity, "UTF-8");
+
+		        /*
+                 * Convertimos el JSON técnico
+                 * en un mensaje amigable.
+                 */
+                String mensaje =
+                        obtenerMensajeErrorOSE(responseBody);
+
+                log.error(
+                        "[obtenerTicket] ERROR OSE: "
+                        + mensaje
+                );
+
+                /*
+                 * Guardamos el mensaje para mostrarlo
+                 * posteriormente en pantalla.
+                 */
+                mensajeError.setMensaje(mensaje);
+                mensajeError.setNombreApi("Obtener Ticket");
+		    }
 
 		} catch (IOException e) {
 			log.error("[obtenerTicket] Error: "+e.getMessage());
@@ -229,6 +250,7 @@ public class ApiOseCSV implements IApiOseCSV {
 	                 * posteriormente en pantalla.
 	                 */
 	                mensajeError.setMensaje(mensaje);
+	                mensajeError.setNombreApi("Obtener CDR");
 			    }
 			}
 

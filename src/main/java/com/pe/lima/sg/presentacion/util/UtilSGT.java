@@ -42,10 +42,36 @@ import com.pe.lima.sg.facturador.entity.TblDetalleComprobante;
 import com.pe.lima.sg.facturador.entity.TblTributoGeneral;
 import com.pe.lima.sg.facturador.entity.TblTributoGeneralNota;
 
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.util.Collections;
+
+import java.util.Locale;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.ZoneId;
+
 
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UtilSGT {
+	
+	private static final DateTimeFormatter FMT_DIA = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private static final Pattern PATRON =
+            Pattern.compile("(\\d{1,2})-([A-Za-zÁÉÍÓÚáéíóúñÑ]+)-(\\d{4})");
+
+    private static final Map<String, Integer> MESES;
+    
+    private static final ZoneId ZONA = ZoneId.of("America/Lima");
+    
+    private static final DateTimeFormatter FMT_SALIDA = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter FMT_DD_MM_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    
 	
 	public static int obtenerAnioActual() {
 	    return java.time.Year.now().getValue();
@@ -285,8 +311,11 @@ public class UtilSGT {
 
 	    calendar.add(Calendar.MONTH, -1);
 	    int mesAnterior = calendar.get(Calendar.MONTH) + 1;
+	    
+	    calendar.add(Calendar.MONTH, -1);
+	    int mesTemporal = calendar.get(Calendar.MONTH) + 1;
 
-	    return new Integer[] { mesActual, mesAnterior };
+	    return new Integer[] { mesActual, mesAnterior, mesTemporal };
 	}
 	public static String obtenerNombreMes(int mes) {
 	    String[] nombresMeses = {
@@ -2190,4 +2219,75 @@ public class UtilSGT {
 	        e.printStackTrace();
 	    }
 	}
+	
+
+
+    static {
+        Map<String, Integer> m = new HashMap<String, Integer>();
+        m.put("ENERO", 1);
+        m.put("FEBRERO", 2);
+        m.put("MARZO", 3);
+        m.put("ABRIL", 4);
+        m.put("MAYO", 5);
+        m.put("JUNIO", 6);
+        m.put("JULIO", 7);
+        m.put("AGOSTO", 8);
+        m.put("SEPTIEMBRE", 9);
+        m.put("SETIEMBRE", 9);
+        m.put("OCTUBRE", 10);
+        m.put("NOVIEMBRE", 11);
+        m.put("DICIEMBRE", 12);
+        MESES = Collections.unmodifiableMap(m);
+    }
+
+    /**
+     * @param textoConFecha ejemplo: "2026-09-30" (yyyy-MM-dd)
+     * @param fecha         ejemplo: "2026-09-30" (yyyy-MM-dd)
+     * @return true si ambas fechas son iguales; false si alguna es nula, tiene formato
+     *         incorrecto o es inválida (por ejemplo, 2026-02-31)
+     */
+    public static boolean esMismaFecha(String textoConFecha, String fecha) {
+        if (textoConFecha == null || fecha == null) {
+            return false;
+        }
+
+        try {
+            LocalDate fechaTexto = LocalDate.parse(textoConFecha.trim());
+            LocalDate fechaComparar = LocalDate.parse(fecha.trim());
+
+            return fechaTexto.equals(fechaComparar);
+        } catch (DateTimeException e) {
+            // Cubre formato incorrecto y fechas inexistentes en cualquiera de los dos parámetros
+            return false;
+        }
+    }
+    
+    public static boolean esHoy(Date fecha) {
+        if (fecha == null) {
+            return false;
+        }
+        LocalDate fechaRecibida = fecha.toInstant().atZone(ZONA).toLocalDate();
+        return fechaRecibida.equals(LocalDate.now(ZONA));
+    }
+    
+    public static String formatearFecha(String fecha) {
+        if (fecha == null || fecha.trim().isEmpty()) {
+            return "";
+        }
+
+        fecha = fecha.trim();
+
+        try {
+            if (fecha.contains("/")) {
+                // Formato dd/MM/yyyy -> yyyy-MM-dd
+                return LocalDate.parse(fecha, FMT_DD_MM_YYYY).format(FMT_SALIDA);
+            }
+            // Formato yyyy-MM-dd (se valida y se devuelve igual)
+            return LocalDate.parse(fecha, FMT_SALIDA).format(FMT_SALIDA);
+        } catch (DateTimeParseException e) {
+            // Fecha inválida o con otro formato
+            return "";
+        }
+    }
+	
 }

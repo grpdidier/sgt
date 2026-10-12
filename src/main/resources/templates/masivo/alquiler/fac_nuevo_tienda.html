@@ -80,35 +80,48 @@
 						  				</div>
 						  			</div>
 						  		</div>
+						  		
 						  		<div class="row">
-					  				<div class="col-md-9 mb-3" align="center">
-					  					<button class="btn btn-success" id="idGrabarTiendaFactura"  onclick="grabarTiendaParaFacturar()">Grabar</button> 
-					  				</div>
-					  				<div class="col-md-3 mb-3" align="center">
-					  					<button class="btn btn-info" id="idEliminarTiendaFactura"  onclick="quitarTiendaParaFacturar()">Eliminar</button> 
-					  				</div>
-						  		</div>
+								    <div class="col-md-9 mb-3" align="center">
+								        <button class="btn btn-success" id="idGrabarTiendaFactura"
+								                onclick="grabarTiendaParaFacturar()"
+								                th:if="${entidad.msgTipoCambio == 'OK' and entidad.msgFacturaPendiente == 'OK'}">Grabar</button>
+								
+								        <span class="text-danger"
+								              th:unless="${entidad.msgTipoCambio == 'OK'}"
+								              th:text="${entidad.msgTipoCambio}"></span><br></br>
+								        <span class="text-danger"
+								              th:unless="${entidad.msgFacturaPendiente == 'OK'}"
+								              th:text="${entidad.msgFacturaPendiente}"></span>
+								    </div>
+								    <div class="col-md-3 mb-3" align="center">
+								        <button class="btn btn-info" id="idEliminarTiendaFactura"
+								                onclick="quitarTiendaParaFacturar()">Retirar</button>
+								    </div>
+								</div>
 						  		<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">	
 							  		<div class="tableFixHead">		
 										<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 											<thead>
 												<tr>
-													<th>Empresa</th>
-													<th>Tienda</th>
-													<th>Alquiler $</th>
-													<th>Periodo</th>
-													<th>Ubigeo</th>
-													<th>Eliminar</th>
-													<th><label for="select-all-checkbox">Seleccionar todos</label> <input type="checkbox" id="select-all-checkbox"/></th>
+													<th style="text-align:center">Empresa</th>
+													<th style="text-align:center">Tienda</th>
+													<th style="text-align:center">Alquiler $</th>
+													<th style="text-align:center">Periodo</th>
+													<th style="text-align:center">Ubigeo</th>
+													<th style="text-align:center">Factura Pendiente</th>
+													<th style="text-align:center">Eliminar</th>
+													<th style="text-align:center"><label for="select-all-checkbox">Seleccionar todos para retirar</label> <input type="checkbox" id="select-all-checkbox"/></th>
 												</tr>
 											</thead>
 											<tbody>
 												<tr th:each="masivotienda, iterStat : ${registros}"  class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'" style="cursor: pointer" >
 													<td th:text="${masivotienda.nombreEdificio}">nombreEdificio</td>
-													<td th:text="${masivotienda.numeroTienda}">numeroTienda</td>
-													<td th:text="${masivotienda.monto}">monto</td>
-													<td th:text="${masivotienda.nombrePeriodo}">nombrePeriodo</td>
-													<td th:text="${masivotienda.ubigeo}">Ubigeo</td>
+													<td align="center" th:text="${masivotienda.numeroTienda}">numeroTienda</td>
+													<td align="right" th:text="${masivotienda.monto}">monto</td>
+													<td align="center" th:text="${masivotienda.nombrePeriodo}">nombrePeriodo</td>
+													<td align="center" th:text="${masivotienda.ubigeo}">Ubigeo</td>
+													<td th:text="${masivotienda.facturaPendiente}" align="center">facturaPendiente</td>
 													<td align="center">
 														<a th:href="${'/masivotienda/facturas/alquiler/tienda/eliminar/' + iterStat.index}">
 														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML" width="20px"/>

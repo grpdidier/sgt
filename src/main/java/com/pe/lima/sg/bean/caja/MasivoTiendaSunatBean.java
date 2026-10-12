@@ -33,6 +33,8 @@ public class MasivoTiendaSunatBean implements Serializable {
 	private String nombreEdificio;
 	private String nombrePeriodo;
 	private String ubigeo;
+	//Factura Pendiente
+	private Integer facturaPendiente;
 	
 	
 

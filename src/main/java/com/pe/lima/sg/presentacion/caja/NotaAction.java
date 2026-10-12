@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pe.lima.sg.api.Interface.IApiOseCSV;
 import com.pe.lima.sg.api.bean.CredencialBean;
+import com.pe.lima.sg.api.bean.MensajeErrorBean;
 import com.pe.lima.sg.bean.Ubl.TagUbl;
 import com.pe.lima.sg.bean.caja.FacturaBean;
 import com.pe.lima.sg.bean.caja.NotaBean;
@@ -386,10 +387,11 @@ public class NotaAction {
 		entidad.setTipoNotaCredito(mapMotivo.get(entidad.getNota().getTipoNota()));
 	}
 	private void llamadasApiOse(CredencialBean credencial,Model model,TblNotaSunat nota, HttpServletRequest request) {
+		MensajeErrorBean mensajeError   = new MensajeErrorBean();
 		try {
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
-			Integer status = apiOseCSV.obtenerTicket(credencial);
+			Integer status = apiOseCSV.obtenerTicket(credencial, mensajeError);
 			if (status.compareTo(200)==0) {
 				nota = actualizarTicketEnComprobanteSunat(credencial,nota,request);
 				status = apiOseCSV.obtenerCDRDocumento(credencial);
@@ -713,6 +715,7 @@ public class NotaAction {
 		List<NotaSunatBean> lista= null;		
 		CredencialBean credencial 		= null;
 		NotaBean nota				= new NotaBean();
+		MensajeErrorBean mensajeError   = new MensajeErrorBean();
 		try{
 			log.debug("[obtenerTicketDocumento] Inicio");
 			lista = (List<NotaSunatBean>)request.getSession().getAttribute("ListadoNota");
@@ -722,7 +725,7 @@ public class NotaAction {
 			obtenerNombreArchivos(credencial,nota);
 			String token = apiOseCSV.obtenerToken(credencial);
 			credencial.setAccessToken(token);
-			Integer status = apiOseCSV.obtenerTicket(credencial);
+			Integer status = apiOseCSV.obtenerTicket(credencial, mensajeError);
 			log.debug("[obtenerTicketDocumento] status: "+status);
 			if (status.compareTo(200)==0) {
 				entidad.setNumeroTicket(credencial.getTicket());
