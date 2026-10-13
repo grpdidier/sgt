@@ -23,7 +23,7 @@
 							<div class="col-md-3 mb-3">
 								<a href="#"	th:href="@{/masivotienda/facturas/servicio/regresarempresa}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
 							</div>
-							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Nuevo</div>
+							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Nuevo - Servicio</div>
 							<div class="col-md-3 mb-3"></div>
 						</div>
 						<form id="form" th:object="${filtro}" th:action="@{/masivotienda/facturas/servicio/nuevo/agregarExcluida}" method="Post">
@@ -81,11 +81,21 @@
 						  			</div>
 						  		</div>
 						  		<div class="row">
+						  				
 						  				<div class="col-md-9 mb-3" align="center">
-						  					<button class="btn btn-success" id="idGrabarTiendaFactura"  onclick="grabarTiendaParaFacturarServicio()">Grabar</button> 
-						  				</div>
+								        <button class="btn btn-success" id="idGrabarTiendaFactura"
+								                onclick="grabarTiendaParaFacturarServicio()"
+								                th:if="${entidad.msgTipoCambio == 'OK' and entidad.msgFacturaPendiente == 'OK'}">Grabar</button>
+								
+								        <span class="text-danger"
+								              th:unless="${entidad.msgTipoCambio == 'OK'}"
+								              th:text="${entidad.msgTipoCambio}"></span><br></br>
+								        <span class="text-danger"
+								              th:unless="${entidad.msgFacturaPendiente == 'OK'}"
+								              th:text="${entidad.msgFacturaPendiente}"></span>
+								    </div>
 						  				<div class="col-md-3 mb-3" align="center">
-						  					<button class="btn btn-info" id="idEliminarTiendaFactura"  onclick="quitarServicioParaFacturar()">Eliminar</button> 
+						  					<button class="btn btn-info" id="idEliminarTiendaFactura"  onclick="quitarServicioParaFacturar()">Retirar</button> 
 						  				</div>
 						  		</div>
 						  		<div id="c_tablas" th:if="${not #lists.isEmpty(registros)}">	
@@ -93,13 +103,14 @@
 										<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 											<thead>
 												<tr>
-													<th>Empresa</th>
-													<th>Tienda</th>
-													<th>Servicio S/</th>
-													<th>Periodo</th>
-													<th>Ubigeo</th>
-													<th>Eliminar</th>
-													<th><label for="select-all-checkbox">Seleccionar todos</label> <input type="checkbox" id="select-all-checkbox"/></th>
+													<th width="20%" style="text-align:center">Empresa</th>
+													<th width="10%" style="text-align:center">Tienda</th>
+													<th width="10%" style="text-align:center">Servicio S/</th>
+													<th width="10%" style="text-align:center">Periodo</th>
+													<th width="10%" style="text-align:center">Ubigeo</th>
+													<th width="10%" style="text-align:center">Factura Pendiente</th>
+													<th width="10%" style="text-align:center">Eliminar</th>
+													<th width="10%" style="text-align:center"><label for="select-all-checkbox">Seleccionar todos</label> <input type="checkbox" id="select-all-checkbox"/></th>
 												</tr>
 											</thead>
 											<tbody>
@@ -109,6 +120,7 @@
 													<td th:text="${masivotienda.monto}">monto</td>
 													<td th:text="${masivotienda.nombrePeriodo}">nombrePeriodo</td>
 													<td th:text="${masivotienda.ubigeo}">Ubigeo</td>
+													<td th:text="${masivotienda.facturaPendiente}" align="center">facturaPendiente</td>
 													<td align="center">
 														<a th:href="${'/masivotienda/facturas/servicio/tienda/eliminar/' + iterStat.index}">
 														<img th:src="@{/images/iconos/delete_t1.png}" alt="XML" width="20px"/>
@@ -137,17 +149,18 @@
 									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 										<thead>
 											<tr>
-												<th>Empresa</th>
-												<th>Tienda</th>
-												<th>Servicio S/</th>
-												<th>Periodo</th>
-												<th>Ubigeo</th>
-												<th>Eliminar</th>
-												<th>Seleccionar todos</th>
+												<th width="20%" style="text-align:center">Empresa</th>
+												<th width="10%" style="text-align:center">Tienda</th>
+												<th width="10%" style="text-align:center">Servicio S/</th>
+												<th width="10%" style="text-align:center">Periodo</th>
+												<th width="10%" style="text-align:center">Ubigeo</th>
+												<th width="10%" style="text-align:center">Factura Pendiente</th>
+												<th width="10%" style="text-align:center">Eliminar</th>
+												<th width="10%" style="text-align:center">Seleccionar todos</th>
 											</tr>
 										</thead>
 										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
-											<td colspan="7" align="center">No se encontr&oacute; elementos</td>
+											<td colspan="8" align="center">No se encontr&oacute; elementos</td>
 										</tr>
 									</table>
 								</div>

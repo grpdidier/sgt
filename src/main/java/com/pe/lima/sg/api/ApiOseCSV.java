@@ -21,6 +21,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -87,75 +88,57 @@ public class ApiOseCSV implements IApiOseCSV {
 	}
 	@Override
 	public Integer obtenerTicket(CredencialBean credencialBean, MensajeErrorBean mensajeError) {
-		log.info("[obtenerTicket] Inicio");
-		Integer status = 0;
-		String ticket = null; 
-		String nombreDocumento = credencialBean.getCsvFileName();
-		log.info("[obtenerTicket] Archivo: "+nombreDocumento);
-		CloseableHttpClient httpclient = HttpClients.createDefault();
-		/*Se establece el cliente POST para el servidor de autenticación*/
-		HttpPost post = new HttpPost(credencialBean.getResourceDocumento());
-		log.info("[obtenerTicket] Resource: "+credencialBean.getResourceDocumento());
-		/*Se agrega un Header de autorización con el token recibido por el servidor de autenticación*/
-		post.setHeader("Authorization", "Bearer " + credencialBean.getAccessToken());
-		log.info("[obtenerTicket] Token: "+credencialBean.getAccessToken());
-		/*Se adjuntarán los documentos electrónicos en el body de la petición*/
-		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-		builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-		try {
-			String FILENAME = credencialBean.getPath() + nombreDocumento;
-			log.info("[obtenerTicket] FILENAME: "+FILENAME);
-			byte[] byteFile = Files.readAllBytes(Paths.get(FILENAME));
-			builder.addBinaryBody(Constantes.BODY_FILE, byteFile, ContentType.create(Constantes.BODY_FILE_EXTENSION), nombreDocumento); 
-			HttpEntity entity = builder.build(); 
-			post.setEntity(entity);
-			/*Se envía el documento electrónico a la plataforma Efact OSE*/
-			HttpResponse response = httpclient.execute(post);
-			/*Se valida el codigo de estado de la peticion*/
-			status = response.getStatusLine().getStatusCode();
-			credencialBean.setStatus(status);
-			log.info("[obtenerTicket] STATUS CODE: " + status );
-			/*Se valida que sea el status correcto*/
-			if (status == 200) { 
-				HttpEntity entity2 = response.getEntity();
-				//Se obtiene el resultado del response 
-				String jsonResponse = entity2 != null ? EntityUtils.toString(entity2) : null;
-				
-				// Se transforma el Json y se obtiene el ticket 
-				ObjectMapper mapper = new ObjectMapper(); 
-				JsonNode rootNodeResponse = mapper.readTree(jsonResponse); 
-				ticket = rootNodeResponse.path("description").asText(); 
-				credencialBean.setTicket(ticket);
-				log.info("[obtenerTicket] Ticket: "+ticket);
-			}else {
-		        String responseBody = EntityUtils.toString(entity, "UTF-8");
+	    log.info("[obtenerTicket] Inicio");
+	    Integer status = 0;
+	    String nombreDocumento = credencialBean.getCsvFileName();
+	    log.info("[obtenerTicket] Archivo: " + nombreDocumento);
+	    log.info("[obtenerTicket] Resource: " + credencialBean.getResourceDocumento());
 
-		        /*
-                 * Convertimos el JSON técnico
-                 * en un mensaje amigable.
-                 */
-                String mensaje =
-                        obtenerMensajeErrorOSE(responseBody);
+	    HttpPost post = new HttpPost(credencialBean.getResourceDocumento());
+	    post.setHeader("Authorization", "Bearer " + credencialBean.getAccessToken());
 
-                log.error(
-                        "[obtenerTicket] ERROR OSE: "
-                        + mensaje
-                );
+	    try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+	        String filename = credencialBean.getPath() + nombreDocumento;
+	        log.info("[obtenerTicket] FILENAME: " + filename);
+	        byte[] byteFile = Files.readAllBytes(Paths.get(filename));
 
-                /*
-                 * Guardamos el mensaje para mostrarlo
-                 * posteriormente en pantalla.
-                 */
-                mensajeError.setMensaje(mensaje);
-                mensajeError.setNombreApi("Obtener Ticket");
-		    }
+	        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+	        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+	        builder.addBinaryBody(Constantes.BODY_FILE, byteFile,
+	                ContentType.create(Constantes.BODY_FILE_EXTENSION), nombreDocumento);
+	        post.setEntity(builder.build());
 
-		} catch (IOException e) {
-			log.error("[obtenerTicket] Error: "+e.getMessage());
-			e.printStackTrace();
-		} 
-		log.info("[obtenerTicket] Fin");
-		return status;
+	        try (CloseableHttpResponse response = httpclient.execute(post)) {
+	            status = response.getStatusLine().getStatusCode();
+	            credencialBean.setStatus(status);
+	            log.info("[obtenerTicket] STATUS CODE: " + status);
+
+	            // Se lee el cuerpo de la RESPUESTA una sola vez
+	            HttpEntity entityRespuesta = response.getEntity();
+	            String responseBody = entityRespuesta != null
+	                    ? EntityUtils.toString(entityRespuesta, "UTF-8")
+	                    : "";
+
+	            if (status == 200) {
+	                ObjectMapper mapper = new ObjectMapper();
+	                JsonNode rootNodeResponse = mapper.readTree(responseBody);
+	                String ticket = rootNodeResponse.path("description").asText();
+	                credencialBean.setTicket(ticket);
+	                log.info("[obtenerTicket] Ticket: " + ticket);
+	            } else {
+	                String mensaje = obtenerMensajeErrorOSE(responseBody);
+	                log.error("[obtenerTicket] ERROR OSE: " + mensaje);
+
+	                mensajeError.setMensaje(mensaje);
+	                mensajeError.setNombreApi("Obtener Ticket");
+	            }
+	        }
+	    } catch (IOException e) {
+	        log.error("[obtenerTicket] Error: " + e.getMessage(), e);
+	    }
+
+	    log.info("[obtenerTicket] Fin");
+	    return status;
 	}
 	
 	@Override

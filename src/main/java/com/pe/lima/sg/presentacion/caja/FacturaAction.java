@@ -315,12 +315,18 @@ public class FacturaAction {
 		TblApiLlamada tblApiLlamada = new TblApiLlamada();
 		tblApiLlamada.setCodigoCxc(codigoCxCDocumento);
 		tblApiLlamada.setComprobante(comprobante);
-		tblApiLlamada.setStatus(status);
-		tblApiLlamada.setRespuesta(mensajeError.getMensaje());
+		tblApiLlamada.setStatus(status);		
 		tblApiLlamada.setFechaCreacion(new Date(System.currentTimeMillis()));
 		tblApiLlamada.setIpCreacion(request.getRemoteAddr());
 		tblApiLlamada.setUsuarioCreacion(UtilSGT.mGetUsuario(request));
-		tblApiLlamada.setNombreApi(mensajeError.getNombreApi());
+		
+		if (status.compareTo(412) != 0) {
+			tblApiLlamada.setNombreApi("ALL / PARTIAL");
+			tblApiLlamada.setRespuesta("OK");
+		} else {
+			tblApiLlamada.setNombreApi(mensajeError.getNombreApi());
+			tblApiLlamada.setRespuesta(mensajeError.getMensaje());
+		}
 		apiLlamadaDAO.save(tblApiLlamada);
 		
 	}

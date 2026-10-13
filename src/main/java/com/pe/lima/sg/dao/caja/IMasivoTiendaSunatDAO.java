@@ -17,4 +17,7 @@ public interface IMasivoTiendaSunatDAO extends BaseOperacionDAO<TblMasivoTiendaS
 	
 	@Query(value = "select * from caj.tbl_masivo_tienda_sunat where codigo_masivo = :codigoMasivo AND numero_tienda = :numeroTienda and estado = '1' ", nativeQuery = true)
 	TblMasivoTiendaSunat obtenerMasivoTiendaxPeriodo(@Param("codigoMasivo") Integer intCodigoMasivo, @Param("numeroTienda") String strNumeroTienda);
+	
+	@Query(value = "select * from caj.tbl_masivo_tienda_sunat where codigo_masivo = :codigoMasivo AND estado = '1' AND excluido = 'N' ", nativeQuery = true)
+	List<TblMasivoTiendaSunat> listarTiendaxMasivoNoExcluidos( @Param("codigoMasivo") Integer intCodigoMasivo);
 }

@@ -8,7 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -55,7 +57,7 @@ public class FacturaOseDao {
 		/*2026.09.20: Se filtra por periodo*/
 		//Integer mesCurso		= UtilSGT.getMesDate(new Date());
 		Integer mesCurso		= Integer.parseInt(criterio.getNumeroMes());
-		
+		log.info("[getConsultaAlquilerServicioOse] Inicio");
 		try{
 			url = urlTienda + userUrl + nombreUsuario + userPass + credencialUsuario;
 			con = DriverManager.getConnection(url);
@@ -168,6 +170,7 @@ public class FacturaOseDao {
 				con = null;
 			}
 		}
+		log.info("[getConsultaAlquilerServicioOse] fin");
 		return lista;
 	}
 	private String obtenerDireccionCliente(String casa, String empresa) {
@@ -453,6 +456,132 @@ public class FacturaOseDao {
 			}
 		}
 		return lista;
+	}
+	
+	public Map<String, FacturaBean> getMapConsultaAlquilerServicioOseMasivo(Filtro criterio, TblMasivoSunat tblMasivoSunat){
+
+		FacturaBean entidad		= null;
+		Connection con 			= null;
+		PreparedStatement pstmt = null;
+		ResultSet rs 			= null;
+		String query 			= null;
+		Integer anioCurso		= tblMasivoSunat.getAnio();
+		Integer mesCurso		= new Integer(tblMasivoSunat.getMes());
+		Map<String, FacturaBean> mapTiendaxFacturar = new HashMap<>();
+		log.info("[getMapConsultaAlquilerServicioOseMasivo] Inicio");
+		try{
+			url = urlTienda + userUrl + nombreUsuario + userPass + credencialUsuario;
+			con = DriverManager.getConnection(url);
+			query = "SELECT edi.nombre, " + 
+					"	   tie.numero, " + 
+					"       cxc.tipo_referencia, " + 
+					"       cxc.monto_generado, " + 
+					"       per.numero_ruc, " + 
+					"       per.direccion_casa, " + 
+					"       per.direccion_empresa, " + 
+					"       per.ubigeo, " + 
+					"       per.razon_social, " + 
+					"       con.tipo_moneda_alquiler, " +
+					"		cxc.codigo_contrato, "+
+					"		cxc.codigo_cxc_doc "+
+					"FROM caj.tbl_cxc_documento cxc, " + 
+					"	 cli.tbl_contrato con, " + 
+					"     mae.tbl_persona per, " + 
+					"     mae.tbl_tienda tie, " + 
+					"     mae.tbl_edificio edi " + 
+					"WHERE cxc.codigo_contrato = con.codigo_contrato " + 
+					"	and con.codigo_persona = per.codigo_persona " + 
+					"    and con.codigo_tienda = tie.codigo_tienda " + 
+					"    and tie.codigo_edificio = edi.codigo_edificio " + 
+					"    and con.estado_contrato IN ('VGN', 'RNV') " + 
+					"    and cxc.anio = ? " + 
+					"    and cxc.mes = ? " + 
+					"    and cxc.tipo_referencia = ? " + 
+					"    and tie.codigo_edificio = ? " + 
+					"    and cxc.tipo_documento = 'FAC' "+
+					"    and (cxc.codigo_comprobante is null or cxc.codigo_comprobante <= 0)"+
+					"    and tie.numero like ? Order by 2 asc"; 
+
+			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, anioCurso);
+			pstmt.setInt(2, mesCurso);
+			pstmt.setString(3, criterio.getTipo());
+			pstmt.setInt(4, criterio.getCodigoEdificacion());
+			pstmt.setString(5,  criterio.getNumero().toUpperCase()+"%");
+			log.info("[getMapConsultaAlquilerServicioOseMasivo] query:"+query);
+			rs = pstmt.executeQuery();
+			log.info("[getMapConsultaAlquilerServicioOseMasivo] anioCurso:"+anioCurso);
+			log.info("[getMapConsultaAlquilerServicioOseMasivo] mesCurso:"+mesCurso);
+			log.info("[getMapConsultaAlquilerServicioOseMasivo] Tipo:"+criterio.getTipo());
+			log.info("[getMapConsultaAlquilerServicioOseMasivo] CodigoEdificacion:"+criterio.getCodigoEdificacion());
+			log.info("[getMapConsultaAlquilerServicioOseMasivo] Numero:"+criterio.getNumero().toUpperCase()+"%");
+			if (rs !=null){
+				while(rs.next()){
+					entidad = new FacturaBean();
+					entidad.setFactura(new TblComprobanteSunat());
+					entidad.getFactura().setClienteTipoDocumento(Constantes.SUNAT_TIPO_DOCUMENTO_RUC);
+					entidad.getFactura().setClienteNumero(rs.getString("numero_ruc"));
+					//Ubigeo: Obtenemos el codigo ubigeo del cliente
+					entidad.setUbigeo(new UbigeoBean());
+					entidad.getUbigeo().setUbigeoSunat(rs.getString("ubigeo"));
+					//entidad.getUbigeo().setDireccionCompleta(obtenerDireccionCompleta(rs.getString("numero_ruc"),rs.getString("direccion_empresa"),rs.getString("direccion_casa")));
+					entidad.getUbigeo().setDireccionCompleta(obtenerDireccionCliente(rs.getString("direccion_casa"), rs.getString("direccion_empresa")));
+					//entidad.getFactura().setClienteDireccion(rs.getString("direccion_empresa"));					
+					entidad.getFactura().setClienteDireccion(obtenerDireccionCliente(rs.getString("direccion_empresa"), rs.getString("direccion_empresa")));
+					entidad.getFactura().setClienteNombre(rs.getString("razon_social"));
+					entidad.getFactura().setMoneda(getMoneda(rs.getString("tipo_referencia")));
+					entidad.getFactura().setTipoPago(criterio.getTipo());
+					entidad.getFactura().setCodigoContrato(rs.getInt("codigo_contrato"));
+					entidad.getFactura().setEstadoOperacion(Constantes.ESTADO_OPERACION_REGISTRADO);
+					entidad.getFactura().setNumeroTienda(rs.getString("numero"));
+					entidad.setFacturaDetalle(new TblDetalleComprobante());
+					entidad.getFacturaDetalle().setUnidadMedida(Constantes.SUNAT_UNIDAD_MEDIDA);
+					entidad.getFacturaDetalle().setMoneda(getMoneda(rs.getString("tipo_referencia")));
+					entidad.getFacturaDetalle().setCantidad(1);
+					entidad.getFacturaDetalle().setPrecioUnitario(getPrecioSinIgv(rs.getBigDecimal("monto_generado")));
+					entidad.getFacturaDetalle().setNombreProducto(getNombreProducto(rs.getString("tipo_referencia")));
+					entidad.getFacturaDetalle().setAfectacionIgv(Constantes.SUNAT_AFECTACION_IGV_GRAVADO_OPE_ONEROSO + " : GRAVADO OP. ONEROSO");
+					entidad.getFacturaDetalle().setDescripcionConcepto(getConceptoPorPeriodo((rs.getString("tipo_referencia")),rs.getString("numero"),mesCurso,anioCurso ));
+					//entidad.getFactura().setTotalGravados(rs.getBigDecimal("monto_generado"));
+					entidad.getFactura().setTotalGravados(entidad.getFacturaDetalle().getPrecioUnitario());
+					entidad.getFactura().setTotalIgv(getIgv(rs.getBigDecimal("monto_generado"), entidad.getFacturaDetalle().getPrecioUnitario()));
+					entidad.getFactura().setTotal(getTotal(entidad.getFactura().getTotalIgv(), entidad.getFactura().getTotalGravados()));
+					entidad.getFacturaDetalle().setValorIgv(entidad.getFactura().getTotalIgv());
+					entidad.getFacturaDetalle().setPrecioVentaUnitario(entidad.getFactura().getTotal());
+					entidad.setNombreInmueble(rs.getString("nombre"));
+					entidad.setNumeroTienda(rs.getString("numero"));
+					//log.info("[getConsultaAlquilerServicioOse] tienda:"+entidad.getNumeroTienda());
+					entidad.setFormaPago(new TblDetalleFormaPago());
+					entidad.getFormaPago().setMonto(entidad.getFactura().getTotal());
+					entidad.getFormaPago().setMoneda(entidad.getFacturaDetalle().getMoneda());
+					entidad.getFactura().setFormaPago(Constantes.FORMA_PAGO_CONTADO);
+					entidad.setCodigoContrato(rs.getInt("codigo_contrato"));
+					entidad.setCodigoCxCDocumento(rs.getInt("codigo_cxc_doc"));
+					mapTiendaxFacturar.put(rs.getString("numero"), entidad);
+				}
+			}
+
+		}catch(Exception e){
+			e.printStackTrace();
+
+		}finally{
+			entidad = null;
+			rs = null;
+			pstmt = null;
+			query = null;
+			query = null;
+			try{
+				if (con !=null && !con.isClosed()){
+					con.close();
+					con = null;
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+				con = null;
+			}
+		}
+		log.info("[getMapConsultaAlquilerServicioOseMasivo] Fin");
+		return mapTiendaxFacturar;
 	}
 	private String obtenerDireccionCompleta(String ruc, String dirEmpresa, String dirCasa) {
 		if (ruc==null || ruc.trim().isEmpty()) {

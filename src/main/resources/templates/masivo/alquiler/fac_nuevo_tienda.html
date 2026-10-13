@@ -23,7 +23,7 @@
 							<div class="col-md-3 mb-3">
 								<a href="#"	th:href="@{/masivotienda/facturas/alquiler/regresarempresa}"><img th:src="@{/images/iconos/regresar.png}"	alt="Regresar" /></a>
 							</div>
-							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Nuevo</div>
+							<div class="col-md-6 mb-3 tituloPrincipal" align="center" ><br/> SUNAT - Proceso Masivo de Facturas - Nuevo - Alquiler</div>
 							<div class="col-md-3 mb-3"></div>
 						</div>
 						<form id="form" th:object="${filtro}" th:action="@{/masivotienda/facturas/alquiler/nuevo/agregarExcluida}" method="Post">
@@ -104,14 +104,14 @@
 										<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 											<thead>
 												<tr>
-													<th style="text-align:center">Empresa</th>
-													<th style="text-align:center">Tienda</th>
-													<th style="text-align:center">Alquiler $</th>
-													<th style="text-align:center">Periodo</th>
-													<th style="text-align:center">Ubigeo</th>
-													<th style="text-align:center">Factura Pendiente</th>
-													<th style="text-align:center">Eliminar</th>
-													<th style="text-align:center"><label for="select-all-checkbox">Seleccionar todos para retirar</label> <input type="checkbox" id="select-all-checkbox"/></th>
+													<th width="20%" style="text-align:center">Empresa</th>
+													<th width="10%" style="text-align:center">Tienda</th>
+													<th width="10%" style="text-align:center">Alquiler $</th>
+													<th width="10%" style="text-align:center">Periodo</th>
+													<th width="10%" style="text-align:center">Ubigeo</th>
+													<th width="10%" style="text-align:center">Factura Pendiente</th>
+													<th width="10%" style="text-align:center">Eliminar</th>
+													<th width="20%" style="text-align:center"><label for="select-all-checkbox">Seleccionar todos para retirar</label> <input type="checkbox" id="select-all-checkbox"/></th>
 												</tr>
 											</thead>
 											<tbody>
@@ -149,17 +149,18 @@
 									<table id="t01" class="table   table-bordered table-active tabla_cabecera_general">
 										<thead>
 											<tr>
-												<th>Empresa</th>
-												<th>Tienda</th>
-												<th>Alquiler $</th>
-												<th>Periodo</th>
-												<th>Ubigeo</th>
-												<th>Eliminar</th>
-												<th>Seleccionar todos</th>
+												<th width="20%" style="text-align:center">Empresa</th>
+												<th width="10%" style="text-align:center">Tienda</th>
+												<th width="10%" style="text-align:center">Alquiler $</th>
+												<th width="10%" style="text-align:center">Periodo</th>
+												<th width="10%" style="text-align:center">Ubigeo</th>
+												<th width="10%" style="text-align:center">Factura Pendiente</th>
+												<th width="10%" style="text-align:center">Eliminar</th>												
+												<th width="20%" style="text-align:center">Seleccionar todos</th>
 											</tr>
 										</thead>
 										<tr class="campos2" onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
-											<td colspan="7" align="center">No se encontr&oacute; elementos</td>
+											<td colspan="8" align="center">No se encontr&oacute; elementos</td>
 										</tr>
 									</table>
 								</div>

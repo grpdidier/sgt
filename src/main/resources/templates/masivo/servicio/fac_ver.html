@@ -148,7 +148,7 @@
 								</fieldset>
 								<br/>
 								<fieldset class="scheduler-border fondoBlanco">
-									<legend class="scheduler-border title10pt"><b>Importe Totales</b></legend>
+									<legend class="scheduler-border title10pt"><b>Importe Totales</b><span th:if="${entidad.factura.tipoCambio != null}">(Tipo de Cambio: <span class="title10pt" th:text="${entidad.factura.tipoCambio}" style="color:red"></span>)</span></legend>
 										<div class="row"><div class="col-md-12 mb-0">&nbsp;</div></div>
 										<div class="row">
 											<div class="col-md-4 mb-0">
@@ -241,7 +241,51 @@
 									</div>
 								</div>
 								<br></br>
+								<fieldset class="scheduler-border fondoBlanco">
+								    <legend class="scheduler-border title10pt"><b>Bit&aacute;cora de llamadas al API</b></legend>
 								
+								    <div id="c_tablas_bitacora" th:if="${not #lists.isEmpty(entidad.listaLlamada)}">
+								        <table id="t02" class="table table-bordered table-active tabla_cabecera_general">
+								            <thead>
+								                <tr>
+								                    <th>N&deg;</th>
+								                    <th>Estatus</th>
+								                    <th>Mensaje</th>
+								                    <th>Fecha de Creaci&oacute;n</th>
+								                    <th>Usuario</th>
+								                    <th>IP</th>
+								                </tr>
+								            </thead>
+								            <tbody>
+								                <tr th:each="llamada, iterStat : ${entidad.listaLlamada}" class="campos2"
+								                    onMouseOver="this.className='camposF'" onMouseOut="this.className='camposFi'">
+								                    <td align="center" th:text="${iterStat.count}">1</td>
+								                    <td align="center" th:text="${llamada.status}">status</td>
+								                    <td th:text="${llamada.respuesta}">respuesta</td>
+								                    <td align="center" th:text="${#dates.format(llamada.fechaCreacion, 'yyyy-MM-dd HH:mm:ss')}">fecha</td>
+								                    <td align="center" th:text="${llamada.usuarioCreacion}">usuario</td>
+								                    <td align="center" th:text="${llamada.ipCreacion}">ip</td>
+								                </tr>
+								            </tbody>
+								        </table>
+								    </div>
+								
+								    <div id="c_tablas_bitacora_vacia" th:if="${#lists.isEmpty(entidad.listaLlamada)}">
+								        <table id="t03" class="table table-bordered table-active tabla_cabecera_general">
+								            <tr>
+								                <th>N&deg;</th>
+								                <th>Estatus</th>
+								                <th>Mensaje</th>
+								                <th>Fecha de Creaci&oacute;n</th>
+								                <th>Usuario</th>
+								                <th>IP</th>
+								            </tr>
+								            <tr class="campos2">
+								                <td colspan="6" align="center">No se encontr&oacute; elementos</td>
+								            </tr>
+								        </table>
+								    </div>
+								</fieldset>
 						  	</div>
 						</form>
 			
