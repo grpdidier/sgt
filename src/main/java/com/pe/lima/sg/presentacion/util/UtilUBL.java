@@ -210,6 +210,7 @@ public class UtilUBL {
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/ID/@schemeName","Ubigeos	"));
 		/* Domicilio fiscal del recepto*/
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CitySubdivisionName",nullVal(facturaBean.getUbigeo().getNombreDepartamento())));
+		System.out.println("[asignarDatosReceptorComprobante] ------->Departamento:"+facturaBean.getUbigeo().getNombreDepartamento());
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CityName",nullVal(facturaBean.getUbigeo().getNombreDepartamento())));
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/CountrySubentity",nullVal(facturaBean.getUbigeo().getNombreProvincia())));
 		/*C*/lista.add(setDatos("AccountingCustomerParty/Party/PartyLegalEntity/RegistrationAddress/District",nullVal(facturaBean.getUbigeo().getNombreDistrito())));

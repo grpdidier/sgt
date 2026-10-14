@@ -11,7 +11,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
@@ -1344,6 +1350,7 @@ public class FacturaAction {
 	private void fileDownload(String fullPath, HttpServletResponse response, String filename){
 		File file = new File(fullPath);
 		final int BUFFER_ZISE = 4096;
+		log.debug("[fileDownload] fullPath:"+fullPath);
 		if (file.exists()){
 			try{
 				FileInputStream inputStream = new FileInputStream(file);
@@ -1599,6 +1606,7 @@ public class FacturaAction {
 			credencial = utilFacturacion.obtenerCredenciales(request);
 			obtenerNombreArchivos(credencial,factura);
 			String path = credencial.getPath() + credencial.getPdfFileName();
+			log.debug("[obtenerPdfDocumentoDescargar] path:"+path);
 			fileDownload(path, response, credencial.getPdfFileName());
 			log.debug("[obtenerPdfDocumentoDescargar] Fin");
 		}catch(Exception e){
@@ -1642,5 +1650,306 @@ public class FacturaAction {
 			filtro = null;
 		}
 		return path;
-	}	
+	}
+	
+	
+	
+	private void generarDescargaPdf(Filtro filtro, 
+								    HttpServletRequest request,
+								    HttpServletResponse response) {
+		
+		FacturaBean factura							= new FacturaBean();
+		List<TblComprobanteSunat> listaComprobante	= null;		
+		CredencialBean credencial 					= null;
+		try{
+			log.debug("[generarDescargaPdf] Inicio");
+			String periodo = filtro.getAnio() + filtro.getMesFiltro();
+			listaComprobante = comprobanteOseDao.listarComprobantexPeriodoAlquiler(periodo);
+			credencial = utilFacturacion.obtenerCredenciales(request);
+			for(TblComprobanteSunat tblComprobanteSunat : listaComprobante) {
+				factura.setFactura(new TblComprobanteSunat());
+				factura.getFactura().setSerie(tblComprobanteSunat.getSerie());
+				factura.getFactura().setNumero(tblComprobanteSunat.getNumero());
+				obtenerNombreArchivos(credencial,factura);
+				String path = credencial.getPath() + credencial.getPdfFileName();
+				log.debug("[generarDescargaPdf] path:"+path);
+				log.debug("[generarDescargaPdf] credencial.getPdfFileName():"+credencial.getPdfFileName());
+				fileDownload(path, response, credencial.getPdfFileName());
+			}
+			log.debug("[generarDescargaPdf] Fin");
+		}catch(Exception e){
+			e.printStackTrace();
+			log.debug("[generarDescargaPdf] Error: "+e.getMessage());
+		}
+		
+	}
+
+	private boolean validarDatosDescargaPdf(Filtro filtro, Model model) {
+		List<String> errores = new ArrayList<String>();
+		boolean resultado = true;
+		// --- Producto ---
+		if (filtro.getAnio() == null || filtro.getAnio().compareTo(-1)==0) {
+			errores.add("Debe seleccionar el año.");
+			resultado = false;
+		}
+		if (filtro.getMesFiltro() == null || filtro.getMesFiltro().equals("-1")) {
+			errores.add("Debe seleccionar el mes.");
+			resultado = false;
+		}
+		// --- Ruta ---
+	    String errorRuta = validarRutaDescarga(filtro.getRutaDescarga());
+	    if (errorRuta != null) {
+	        errores.add(errorRuta);
+	    }
+
+	    if (!errores.isEmpty()) {
+	        model.addAttribute("respuesta", String.join("<br/>", errores));
+	        return false;
+	    }
+		return resultado;
+	}
+	/**
+	 * @return null si la ruta es válida; de lo contrario, el mensaje de error.
+	 */
+	private String validarRutaDescarga(String ruta) {
+	    if (ruta == null || ruta.trim().isEmpty()) {
+	        return "Debe ingresar una ruta de descarga.";
+	    }
+	    ruta = ruta.trim();
+
+	    // Caracteres no permitidos en rutas (se permite ':' solo en la unidad, ej. C:)
+	    if (ruta.matches(".*[<>\"|?*\\x00-\\x1F].*") || ruta.indexOf(':', 2) >= 0) {
+	        return "La ruta contiene caracteres no permitidos.";
+	    }
+
+	    final Path path;
+	    try {
+	        path = Paths.get(ruta);
+	    } catch (InvalidPathException e) {
+	        return "La ruta ingresada no tiene un formato válido.";
+	    }
+
+	    // Debe ser absoluta (C:/factura/... o /var/factura/...)
+	    if (!path.isAbsolute()) {
+	        return "Debe ingresar una ruta absoluta (ejemplo: C:/factura/Septiembre-2026).";
+	    }
+
+	    // Evita recorridos como C:/factura/../Windows
+	    for (Path parte : path) {
+	        if ("..".equals(parte.toString())) {
+	            return "La ruta no puede contener '..'.";
+	        }
+	    }
+
+	    File carpeta = path.toFile();
+	    if (carpeta.exists()) {
+	        if (!carpeta.isDirectory()) {
+	            return "La ruta indicada corresponde a un archivo, no a una carpeta.";
+	        }
+	        if (!carpeta.canWrite()) {
+	            return "No hay permisos de escritura en la carpeta indicada.";
+	        }
+	    } else {
+	        // Si no existe, se podrá crear solo si algún ancestro existe y es escribible
+	        File ancestro = carpeta.getParentFile();
+	        while (ancestro != null && !ancestro.exists()) {
+	            ancestro = ancestro.getParentFile();
+	        }
+	        if (ancestro == null || !ancestro.isDirectory() || !ancestro.canWrite()) {
+	            return "La ruta no existe y no se puede crear (verifique la unidad o los permisos).";
+	        }
+	        try {
+	            Path carpetaFile = Paths.get(ruta.trim());
+	            Files.createDirectories(carpetaFile); // no falla si ya existe
+	            return null;
+	        } catch (IOException | SecurityException e) {
+	            log.error("[crearCarpetaDescarga] No se pudo crear la carpeta: " + ruta, e);
+	            return "No se pudo crear la carpeta indicada: " + e.getMessage();
+	        }
+	    }
+	    return null;
+	}
+	@RequestMapping(value = "/facturas/ose/descarga/pdf", method = RequestMethod.GET)
+	public String mostrarDescargaPdf(Model model, String path, HttpServletRequest request) {
+		Filtro filtro = new Filtro();
+		try{
+			log.debug("[mostrarDescargaPdf] Inicio");
+			path = "caja/descarga/pdf/pdf_listado";
+			model.addAttribute("filtro", filtro);
+			model.addAttribute("registros", new ArrayList<TblComprobanteSunat>());
+			model.addAttribute("page", null);
+			filtro.setAnio(java.time.Year.now().getValue());
+			filtro.setMesFiltro(java.time.LocalDate.now()
+					.format(java.time.format.DateTimeFormatter.ofPattern("MM")));
+			cargarParametros(request);
+			log.debug("[mostrarDescargaPdf] Fin");
+		}catch(Exception e){
+			log.debug("[mostrarDescargaPdf] Error:"+e.getMessage());
+			e.printStackTrace();
+		}finally{
+			filtro = null;
+		}
+		return path;
+	}
+	
+	@RequestMapping(value = "/facturas/ose/descarga/pdf/q", method = RequestMethod.POST)
+	public String traerRegistrosPdfAlaCarpeta(Model model, 
+											  Filtro filtro, 
+											  String path ,  
+											  PageableSG pageable,
+											  HttpServletRequest request,
+											  HttpServletResponse response) {
+		
+		path 											= "caja/descarga/pdf/pdf_listado";
+		List<TblComprobanteSunat> listaComprobanteSunat = null;
+		String periodo 									= null;
+		int contador									= 0;
+		try{
+			log.debug("[traerRegistrosPdfAlaCarpeta] Inicio");
+			if (validarDatosDescargaPdf(filtro,model)) {				
+				periodo = filtro.getAnio() + filtro.getMesFiltro();
+				log.debug("[traerRegistrosPdfAlaCarpeta] periodo:"+periodo);
+				listaComprobanteSunat = comprobanteOseDao.listarComprobantexPeriodoAlquiler(periodo);
+				if (listaComprobanteSunat != null) {
+					for (TblComprobanteSunat comprobanteSunat : listaComprobanteSunat) {
+						if (!comprobanteSunat.getEstadoOperacion().contains("412")) {
+							if (comprobanteSunat.getNombrePdf() == null) {
+								descargarPdfdeOse(comprobanteSunat, request);
+							}
+							if (comprobanteSunat.getNombrePdf() != null) {
+								if (copiarArchivoEnRuta(comprobanteSunat, request, filtro)) {
+									contador ++;
+								}
+							}
+						} else {
+							log.debug("[traerRegistrosPdfAlaCarpeta] Error en Estado Operacion:" 
+									  + comprobanteSunat.getEstadoOperacion() + " Tienda ["+comprobanteSunat.getNumeroTienda()+"]");
+						}
+					}
+				}
+				
+			}
+			model.addAttribute("mensajeOk", "Se descargaron ["+contador+"] archivos Pdf en la ruta:"+filtro.getRutaDescarga());
+			model.addAttribute("filtro", filtro);
+			
+		}catch(Exception e){
+			log.debug("[traerRegistrosPdfAlaCarpeta] Error: "+e.getMessage());
+			e.printStackTrace();
+			model.addAttribute("respuesta", "Se produco un Error:"+e.getMessage());
+		}finally{
+
+		}
+		log.debug("[traerRegistrosPdfAlaCarpeta] Fin");
+		return path;
+	}
+
+	private boolean copiarArchivoEnRuta(TblComprobanteSunat comprobanteSunat, 
+									 HttpServletRequest request,
+									 Filtro filtro) {
+		boolean resultado = false;
+		log.debug("[copiarArchivoEnRuta] Inicio");
+		try {
+			FacturaBean factura = new FacturaBean();
+			CredencialBean credencial = utilFacturacion.obtenerCredenciales(request);
+	        factura.setFactura(new TblComprobanteSunat());
+	        factura.getFactura().setSerie(comprobanteSunat.getSerie());
+	        factura.getFactura().setNumero(comprobanteSunat.getNumero());
+	
+	        obtenerNombreArchivos(credencial, factura);
+	        // Carpeta destino indicada por el usuario (se crea si no existe)
+	        Path carpetaDestino = Paths.get(filtro.getRutaDescarga().trim());
+	        Files.createDirectories(carpetaDestino);
+	        log.debug("[generarDescargaPdf] Destino: " + carpetaDestino);
+	        // Nombre nuevo: periodo-serie-numero-tienda.pdf (ej. 202610-F001-000000200-A201.pdf)
+	        String periodo = filtro.getAnio() + filtro.getMesFiltro();
+	        String nombreNuevo = construirNombrePdf(periodo, comprobanteSunat);
+	        
+	        Path origen = Paths.get(credencial.getPath(), credencial.getPdfFileName());
+	        if (copiarArchivo(origen, carpetaDestino, nombreNuevo)) {
+	        	log.debug("[copiarArchivoEnRuta] Exito");
+	        	resultado = true;
+	        } else {
+	        	log.debug("[copiarArchivoEnRuta] No copiado:"+credencial.getPdfFileName());
+	        }
+		} catch(Exception e) {
+			log.debug("[copiarArchivoEnRuta] Error: "+e.getMessage());
+			e.printStackTrace();
+		}
+        
+        log.debug("[copiarArchivoEnRuta] Fin");
+        return resultado;
+	}
+	/**
+	 * Arma el nombre: periodo-serie-numero-tienda.pdf
+	 * Ejemplo: 202610-F001-000000200-A201.pdf
+	 */
+	private String construirNombrePdf(String periodo, TblComprobanteSunat comprobante) {
+	    String serie  = limpiarParaNombre(String.valueOf(comprobante.getSerie()));
+	    String numero = String.valueOf(comprobante.getNumero()).trim();
+	    String tienda = limpiarParaNombre(String.valueOf(comprobante.getNumeroTienda()));
+
+	    // El número se completa con ceros a la izquierda hasta 9 dígitos (200 -> 000000200)
+	    if (numero.matches("\\d+")) {
+	        numero = String.format("%09d", Long.parseLong(numero));
+	    }
+
+	    return periodo + "-" + serie + "-" + numero + "-" + tienda + ".pdf";
+	}
+	
+	/** Quita espacios y caracteres no permitidos en nombres de archivo ( / \ : * ? " < > | ). */
+	private String limpiarParaNombre(String texto) {
+	    return texto.trim().replaceAll("[\\\\/:*?\"<>|\\s]", "");
+	}
+	
+	/**
+	 * Copia un archivo a la carpeta destino, conservando su nombre.
+	 * @return true si se copió; false si el origen no existe o falló la copia
+	 */
+	private boolean copiarArchivo(Path origen, Path carpetaDestino, String nombreDestino) {
+		if (!Files.isRegularFile(origen)) {
+	        log.warn("[copiarArchivo] No existe: " + origen);
+	        return false;
+	    }
+	    try {
+	        Path destino = carpetaDestino.resolve(nombreDestino);
+	        Files.copy(origen, destino, StandardCopyOption.REPLACE_EXISTING);
+	        return true;
+	    } catch (IOException e) {
+	        log.error("[copiarArchivo] Error al copiar " + origen + ": " + e.getMessage(), e);
+	        return false;
+	    }
+	}
+
+	private void descargarPdfdeOse(TblComprobanteSunat comprobanteSunat,
+								   HttpServletRequest request) {
+		log.debug("[descargarPdfdeOse] Inicio ");
+		FacturaBean factura				= new FacturaBean();
+		CredencialBean credencial 		= null;
+		try {
+			factura.setFactura(new TblComprobanteSunat());
+			factura.getFactura().setSerie(comprobanteSunat.getSerie());
+			factura.getFactura().setNumero(comprobanteSunat.getNumero());
+			credencial = utilFacturacion.obtenerCredenciales(request);
+			obtenerNombreArchivos(credencial,factura);
+			String token = apiOseCSV.obtenerToken(credencial);
+			credencial.setAccessToken(token);
+			credencial.setTicket(comprobanteSunat.getNumeroTicket());
+			Integer status = apiOseCSV.obtenerPDFDocumento(credencial);
+			log.debug("[descargarPdfdeOse] status: "+status);
+			if (status.compareTo(200)==0) {
+				TblComprobanteSunat comprobante = comprobanteOseDao.findOne(comprobanteSunat.getCodigoComprobante());
+				comprobante = actualizarPdfEnComprobanteSunat(credencial,comprobante,request);
+				log.debug("[descargarPdfdeOse] Nombre Pdf: "+comprobante.getNombrePdf());
+				comprobanteSunat.setNombrePdf(comprobante.getNombrePdf());
+			}else {
+				TblComprobanteSunat comprobante = comprobanteOseDao.findOne(comprobanteSunat.getCodigoComprobante());
+				actualizarStatusPdfEnComprobanteSunat(credencial,comprobante,request);
+				log.info("[descargarPdfdeOse] Con error en PDF:"+status);
+			}				
+			
+		} catch(Exception e) {
+			log.debug("[descargarPdfdeOse] Error: "+e.getMessage());
+		}
+		log.debug("[descargarPdfdeOse] Fin ");
+	}
 }

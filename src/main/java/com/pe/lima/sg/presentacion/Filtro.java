@@ -94,7 +94,8 @@ public class Filtro {
 	private TblDetalleFormaPago formaPago;
 	private List<TblDetalleFormaPago> listaFormaPago;
 	private BigDecimal tipoCambio;
-	
+	//Para la descarga
+	private String rutaDescarga;
 	public Filtro() {
 		
 	}

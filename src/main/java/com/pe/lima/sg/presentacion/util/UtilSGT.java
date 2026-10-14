@@ -2201,12 +2201,15 @@ public class UtilSGT {
 
 	            if (nombreDistrito != null) {
 	                ubigeoBean.setNombreDistrito(nombreDistrito);
+	                log.debug("[obtenerUbigeoPorCodigo] nombreDistrito: " + nombreDistrito);
 	            }
 	            if (nombreProvincia != null) {
 	                ubigeoBean.setNombreProvincia(nombreProvincia);
+	                log.debug("[obtenerUbigeoPorCodigo] nombreProvincia: " + nombreProvincia);
 	            }
 	            if (nombreDepartamento != null) {
 	                ubigeoBean.setNombreDepartamento(nombreDepartamento);
+	                log.debug("[obtenerUbigeoPorCodigo] nombreDepartamento: " + nombreDepartamento);
 	            }
 
 	        } else {

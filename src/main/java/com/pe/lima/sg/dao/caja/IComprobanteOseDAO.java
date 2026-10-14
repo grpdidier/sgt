@@ -24,6 +24,12 @@ public interface IComprobanteOseDAO extends BaseOperacionDAO<TblComprobanteSunat
 			"FROM caj.tbl_comprobante_sunat " + 
 			"WHERE to_char(to_date(fecha_emision, 'YYYY-MM-DD'), 'YYYYMM') = :periodo ", nativeQuery = true)
 	Integer countFacturasxPeriodo(@Param("periodo") String periodo);
+	
+	@Query(value = "SELECT * " + 
+			"FROM caj.tbl_comprobante_sunat " + 
+			"WHERE to_char(to_date(fecha_emision, 'YYYY-MM-DD'), 'YYYYMM') = :periodo AND tipo_pago = 'ALQ' ", nativeQuery = true)
+	List<TblComprobanteSunat> listarComprobantexPeriodoAlquiler(@Param("periodo") String periodo);
+
 
 	
 	
