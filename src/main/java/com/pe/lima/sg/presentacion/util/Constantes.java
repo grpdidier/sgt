@@ -147,6 +147,12 @@ public class Constantes {
 	public static String DESC_ESTADO_TIENDA_OCUPADO			= "OCUPADO";
 	public static String DESC_ESTADO_TIENDA_DESOCUPADO		= "DESCUPADO";
 	public static String DESC_ESTADO_TIENDA_VENDIDO			= "VENDIDO";
+	
+	//Variables para los tipos de reporte masivo
+	public static String TIPO_SISTEMA_CONTABLE				= "SISCONT";
+	public static String TIPO_SISTEMA_INTERNO				= "INTERNO";
+	public static String DESC_TIPO_SISTEMA_CONTABLE			= "SISTEMA CONTABLE";
+	public static String DESC_TIPO_SISTEMA_INTERNO			= "SISTEMA INTERNO";
 
 	//Variables para el tipo de moneda
 	public static String MONEDA_SOL							= "SO";
@@ -561,7 +567,8 @@ public class Constantes {
 	public static String UBIGEO_TOKEN									= "TOKEN_UBIGEO";
 	//Flag para pruebas
 	public static String MULTIPLE_FACTURA								= "MULTIPLE_FACTURA";
-	
+	//Api Tipo de cambio: https://decolecta.com/profile/
+	public static String TIPO_CAMBIO_SUNAT_TOKEN						= "TIPO_CAMBIO_SUNAT_TOKEN";
 	
 	public static String TIPO_OPERACION_NOTA_CREDITO_CODIGO					= "07";
 	public static String TIPO_OPERACION_NOTA_DEBITO_CODIGO					= "08";

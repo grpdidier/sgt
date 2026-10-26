@@ -195,7 +195,6 @@ public class RezagoAction {
 		String nombreInmueble = null;
 		 for (Entry<String,Object> pair : resultados.entrySet()){
 		        if (codigoInmueble.compareTo((Integer)pair.getValue())==0){
-		        	System.out.println(pair.getKey()+" "+pair.getValue());
 		        	nombreInmueble = pair.getKey();
 		        }
 		    }

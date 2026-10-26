@@ -70,6 +70,8 @@ public class MasivoSunatBean implements Serializable {
 	private String msgTipoCambio;
 	//Para la factura Pendiente
 	private String msgFacturaPendiente;
+	//Tipo de reporte
+	private String tipoReporte;
 	
 	
 

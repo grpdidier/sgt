@@ -1,11 +1,15 @@
 package com.pe.lima.sg.presentacion;
 
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +18,15 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.pe.lima.sg.api.TipoCambioApiSunat;
+import com.pe.lima.sg.api.bean.TipoCambioBean;
+import com.pe.lima.sg.dao.mantenimiento.ITipoCambioDAO;
+import com.pe.lima.sg.entity.mantenimiento.TblParametro;
+import com.pe.lima.sg.entity.mantenimiento.TblTipoCambio;
 import com.pe.lima.sg.entity.seguridad.TblOpcion;
-import com.pe.lima.sg.presentacion.cliente.ArbitrioAction;
+import com.pe.lima.sg.presentacion.util.Constantes;
 import com.pe.lima.sg.presentacion.util.ListaUtilAction;
-import com.pe.lima.sg.service.seguridad.AccesoService;
-import com.pe.lima.sg.util.SysOutPrintln;
+import com.pe.lima.sg.presentacion.util.UtilSGT;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 public class IndexAction {
 	@Autowired
 	private ListaUtilAction listaUtil;
-
+	
+	@Autowired
+	private ITipoCambioDAO tipoCambioDao;
+	
+	@Autowired
+	private TipoCambioApiSunat tipoCambioApiSunat;
 	//@Autowired
 	//private IUsuarioDAO usuario;
 
@@ -39,7 +52,10 @@ public class IndexAction {
 	 * @return
 	 */
 	@RequestMapping("/")
-	String cargarPagina(HttpSession httpSession, Authentication authentication) {
+	String cargarPagina(HttpSession httpSession, Authentication authentication, HttpServletRequest request) {
+		TblTipoCambio tipoCambio		= null;
+		TipoCambioBean tipoCambioBean	= null;
+		TblParametro parametro 			= null;
 		log.debug("[cargarPagina] Inicio" );
 		if (authentication != null) {
 			User currentUser = (User) authentication.getPrincipal();
@@ -59,9 +75,37 @@ public class IndexAction {
 			this.cargarDatos(httpSession);
 			log.debug("[cargarPagina] Tipo Caducidad:"+httpSession.getAttribute("sesMapTiposCaducidad"));
 			
-			log.debug("[cargarPagina] Estado:"+httpSession.getAttribute("sesMapEstadousuario"));
 			
-			
+			DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			String fechaFormateada = LocalDate.now().format(fmt);
+			tipoCambio = tipoCambioDao.obtenerUltimoTipoCambioxFecha(fechaFormateada);
+			log.debug("[cargarPagina] Fecha:"+fechaFormateada+ " - Fecha TC:"+tipoCambio.getFecha());
+			if (UtilSGT.esMismaFecha(fechaFormateada, tipoCambio.getFecha())) {
+				httpSession.setAttribute("sesTipoCambioInfo", tipoCambio.getValor() + " ["+fechaFormateada+"]");
+			}else {
+				try {
+					@SuppressWarnings("unchecked")
+					Map<String, TblParametro> mapParametro = (Map<String, TblParametro>)request.getSession().getAttribute("SessionMapParametros");
+					parametro = mapParametro.get(Constantes.TIPO_CAMBIO_SUNAT_TOKEN);
+					if (parametro != null) {
+						tipoCambioBean = tipoCambioApiSunat.obtenerTipoCambio(parametro.getDato());
+						log.debug("[cargarPagina] tipoCambioBean:"+tipoCambioBean.getFecha() );
+						tipoCambio = new TblTipoCambio();
+						tipoCambio.setFecha(UtilSGT.aSqlDate(tipoCambioBean.getFecha()));
+						tipoCambio.setEstado("1");
+						tipoCambio.setValor(tipoCambioBean.getVenta());
+						tipoCambio.setFechaCreacion(new Date());
+						tipoCambioDao.save(tipoCambio);
+						httpSession.setAttribute("sesTipoCambioInfo", tipoCambio.getValor() + " ["+fechaFormateada+"] - API");
+					} else {
+						httpSession.setAttribute("sesTipoCambioInfo", "Sin Token");
+					}
+				} catch(Exception e) {
+					log.error("[cargarPagina] Error:"+ e.getMessage() );
+					httpSession.setAttribute("sesTipoCambioInfo", "API Inactivo");
+				}
+				
+			}
 			//this.cargarMenu(httpSession, entidad.get().getTblPerfil().getCodigoPerfil());
 			
 		}

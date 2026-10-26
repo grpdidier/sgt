@@ -57,4 +57,7 @@ public class ComprobanteSunatBean {
 	private String nombreCdr;
 	private String nombreXml;
 	private String nombrePdf;
+	private BigDecimal tipoCambio;
+	//Solo para el reporte
+	private String concepto;
 }

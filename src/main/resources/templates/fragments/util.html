@@ -30,7 +30,11 @@
 		       		<a href="#!" class="menu-toggle"><i class="fas fa-bars" style="color:white"></i></a>
 		       	</div>
 		       	<div class="col-md-4 mb-1" align="center"><label for="idNombre" class="textWhite13pxBold">Sistema de Gesti&oacute;n de Tiendas</label></div>
-		    	<div class="col-md-4 mb-1 textWhite11px" align="center"><label class="textWhite11px" for="idNombre" th:text="${session.UsuarioSession.nombre}"></label> - [<label class="textWhite11px" for="idNombre" th:text="${session.UsuarioSession.tblPerfil.nombre}"></label>]</div>
+		    	<div class="col-md-4 mb-1 textWhite11px" align="center">
+		    	<label class="textWhite11px" for="idNombre" th:text="${session.UsuarioSession.nombre}"></label> 
+		    	- [<label class="textWhite11px" for="idNombre" th:text="${session.UsuarioSession.tblPerfil.nombre}"></label>]
+		    	<br></br> <b>TC: <label class="textWhite11px" for="idTipoCambio" th:text="${session.sesTipoCambioInfo}"></label> </b>
+		    	</div>
 		    	<div class="col-md-2 mb-1 textWhite11px" align="center">
 		    		<a class="textWhite11px"	th:href="${'/salir'}" onclick="if(!confirm('Esta seguro de salir del sistema?')){ return false;}" >
 		    			<img th:src="@{/images/iconos/logout_02.png}" alt="Salir" width="30px"/>Salir

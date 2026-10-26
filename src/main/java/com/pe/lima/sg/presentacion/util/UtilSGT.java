@@ -71,7 +71,38 @@ public class UtilSGT {
     private static final DateTimeFormatter FMT_SALIDA = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter FMT_DD_MM_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     
+    /** Devuelve true si la fecha formateada (dd/MM/yyyy) es el mismo día que la fecha de la BD. */
+    public static boolean esMismaFecha(String fechaFormateada, Date fechaBD) {
+        if (fechaFormateada == null || fechaBD == null) {
+            return false;
+        }
+        LocalDate fechaString = LocalDate.parse(fechaFormateada, FMT);
+        return fechaString.equals(aLocalDate(fechaBD));
+    }
+
+    /** Convierte java.util.Date o java.sql.Date a LocalDate. */
+    private static LocalDate aLocalDate(Date fecha) {
+        if (fecha instanceof java.sql.Date) {
+            // java.sql.Date.toInstant() lanza UnsupportedOperationException
+            return ((java.sql.Date) fecha).toLocalDate();
+        }
+        return fecha.toInstant().atZone(ZONA).toLocalDate();
+    }
+    
+    /** Convierte un String "yyyy-MM-dd" a java.sql.Date, listo para guardar en Postgres (Java 8). */
+    public static java.sql.Date aSqlDate(String fecha) {
+        if (fecha == null || fecha.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return java.sql.Date.valueOf(LocalDate.parse(fecha.trim()));
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Fecha inválida, se esperaba yyyy-MM-dd: " + fecha, e);
+        }
+    }
 	
 	public static int obtenerAnioActual() {
 	    return java.time.Year.now().getValue();

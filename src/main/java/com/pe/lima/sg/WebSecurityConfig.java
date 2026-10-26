@@ -228,6 +228,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						
 						request.getSession().setAttribute("SessionMapEstadoTienda",ListaUtilAction.obtenerValoresEstadoTienda());
 						
+						//Tipo de Reporte 
+						request.getSession().setAttribute("SessionMapTipoReporteMasivo",ListaUtilAction.obtenerValoresTipoReporteMasivo());
+						
 						/*Cargamos el menu asociado al usuario*/
 						List<TblOpcion> listaOpciones 	= null;
 						//Cargando los parametros del Facturador

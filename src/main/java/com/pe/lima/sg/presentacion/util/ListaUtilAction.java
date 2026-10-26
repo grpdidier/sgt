@@ -185,6 +185,16 @@ public class ListaUtilAction {
 		return resultados;
 	}
 	/**
+	 * Listado de tipos de reporte
+	 * 
+	 */
+	public static Map<String, Object> obtenerValoresTipoReporteMasivo() {
+		Map<String, Object> resultados = new LinkedHashMap<String, Object>();
+		resultados.put(Constantes.DESC_TIPO_SISTEMA_CONTABLE, Constantes.TIPO_SISTEMA_CONTABLE);
+		resultados.put(Constantes.DESC_TIPO_SISTEMA_INTERNO, Constantes.TIPO_SISTEMA_INTERNO);
+		return resultados;
+	}
+	/**
 	 * Listado de tipos de Concepto
 	 * 
 	 */
